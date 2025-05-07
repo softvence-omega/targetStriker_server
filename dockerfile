@@ -1,14 +1,20 @@
 # Use a specific Node version with Alpine for a smaller image
 FROM node:20.11.1-alpine
 
+RUN apk add --no-cache \
+  python3 \
+  make \
+  g++ \
+  gcc \
+  && ln -sf python3 /usr/bin/python
 # Set working directory
 WORKDIR /app
 
 # Copy only package.json and package-lock.json first (for layer caching)
 COPY package*.json ./
 
-# Optional: Clean npm cache and install deps with compatibility
-RUN npm install --legacy-peer-deps
+# Install dependencies with --build-from-source to ensure bcrypt is compiled for the current architecture
+RUN npm install --legacy-peer-deps --build-from-source
 
 # Copy the rest of the application
 COPY . .
