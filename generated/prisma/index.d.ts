@@ -3728,7 +3728,7 @@ export namespace Prisma {
   export type ClientProfileGroupByOutputType = {
     id: string
     userId: string | null
-    location: JsonValue
+    location: JsonValue | null
     _count: ClientProfileCountAggregateOutputType | null
     _min: ClientProfileMinAggregateOutputType | null
     _max: ClientProfileMaxAggregateOutputType | null
@@ -3794,7 +3794,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       userId: string | null
-      location: Prisma.JsonValue
+      location: Prisma.JsonValue | null
     }, ExtArgs["result"]["clientProfile"]>
     composites: {}
   }
@@ -4440,7 +4440,7 @@ export namespace Prisma {
     /**
      * The data needed to create a ClientProfile.
      */
-    data: XOR<ClientProfileCreateInput, ClientProfileUncheckedCreateInput>
+    data?: XOR<ClientProfileCreateInput, ClientProfileUncheckedCreateInput>
   }
 
   /**
@@ -8205,6 +8205,14 @@ export namespace Prisma {
   export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
   export const QueryMode: {
     default: 'default',
     insensitive: 'insensitive'
@@ -8499,14 +8507,14 @@ export namespace Prisma {
     NOT?: ClientProfileWhereInput | ClientProfileWhereInput[]
     id?: StringFilter<"ClientProfile"> | string
     userId?: StringNullableFilter<"ClientProfile"> | string | null
-    location?: JsonFilter<"ClientProfile">
+    location?: JsonNullableFilter<"ClientProfile">
     User?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
 
   export type ClientProfileOrderByWithRelationInput = {
     id?: SortOrder
     userId?: SortOrderInput | SortOrder
-    location?: SortOrder
+    location?: SortOrderInput | SortOrder
     User?: UserOrderByWithRelationInput
   }
 
@@ -8516,14 +8524,14 @@ export namespace Prisma {
     AND?: ClientProfileWhereInput | ClientProfileWhereInput[]
     OR?: ClientProfileWhereInput[]
     NOT?: ClientProfileWhereInput | ClientProfileWhereInput[]
-    location?: JsonFilter<"ClientProfile">
+    location?: JsonNullableFilter<"ClientProfile">
     User?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }, "id" | "userId">
 
   export type ClientProfileOrderByWithAggregationInput = {
     id?: SortOrder
     userId?: SortOrderInput | SortOrder
-    location?: SortOrder
+    location?: SortOrderInput | SortOrder
     _count?: ClientProfileCountOrderByAggregateInput
     _max?: ClientProfileMaxOrderByAggregateInput
     _min?: ClientProfileMinOrderByAggregateInput
@@ -8535,7 +8543,7 @@ export namespace Prisma {
     NOT?: ClientProfileScalarWhereWithAggregatesInput | ClientProfileScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ClientProfile"> | string
     userId?: StringNullableWithAggregatesFilter<"ClientProfile"> | string | null
-    location?: JsonWithAggregatesFilter<"ClientProfile">
+    location?: JsonNullableWithAggregatesFilter<"ClientProfile">
   }
 
   export type AdminProfileWhereInput = {
@@ -8920,43 +8928,43 @@ export namespace Prisma {
 
   export type ClientProfileCreateInput = {
     id?: string
-    location: JsonNullValueInput | InputJsonValue
+    location?: NullableJsonNullValueInput | InputJsonValue
     User?: UserCreateNestedOneWithoutClientProfileInput
   }
 
   export type ClientProfileUncheckedCreateInput = {
     id?: string
     userId?: string | null
-    location: JsonNullValueInput | InputJsonValue
+    location?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ClientProfileUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    location?: JsonNullValueInput | InputJsonValue
+    location?: NullableJsonNullValueInput | InputJsonValue
     User?: UserUpdateOneWithoutClientProfileNestedInput
   }
 
   export type ClientProfileUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
-    location?: JsonNullValueInput | InputJsonValue
+    location?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ClientProfileCreateManyInput = {
     id?: string
     userId?: string | null
-    location: JsonNullValueInput | InputJsonValue
+    location?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ClientProfileUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    location?: JsonNullValueInput | InputJsonValue
+    location?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ClientProfileUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
-    location?: JsonNullValueInput | InputJsonValue
+    location?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type AdminProfileCreateInput = {
@@ -9482,6 +9490,29 @@ export namespace Prisma {
     _min?: NestedJsonFilter<$PrismaModel>
     _max?: NestedJsonFilter<$PrismaModel>
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type ClientProfileCountOrderByAggregateInput = {
     id?: SortOrder
@@ -9497,6 +9528,32 @@ export namespace Prisma {
   export type ClientProfileMinOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type AdminProfileCountOrderByAggregateInput = {
@@ -10166,6 +10223,29 @@ export namespace Prisma {
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type NestedUuidFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
@@ -10307,12 +10387,12 @@ export namespace Prisma {
 
   export type ClientProfileCreateWithoutUserInput = {
     id?: string
-    location: JsonNullValueInput | InputJsonValue
+    location?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ClientProfileUncheckedCreateWithoutUserInput = {
     id?: string
-    location: JsonNullValueInput | InputJsonValue
+    location?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ClientProfileCreateOrConnectWithoutUserInput = {
@@ -10371,12 +10451,12 @@ export namespace Prisma {
 
   export type ClientProfileUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    location?: JsonNullValueInput | InputJsonValue
+    location?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ClientProfileUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    location?: JsonNullValueInput | InputJsonValue
+    location?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type AdminProfileUpsertWithoutUserInput = {

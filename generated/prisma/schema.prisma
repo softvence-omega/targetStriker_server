@@ -86,7 +86,7 @@ model ClientProfile {
   id       String  @id @default(uuid())
   User     User?   @relation(fields: [userId], references: [id])
   userId   String? @unique
-  location Json
+  location Json?
 }
 
 //=================== <**********> =======================
