@@ -9,7 +9,7 @@ import { FileController } from './file/file.controller';
 @Global()
 @Module({
   providers: [LibService, EmailService, DbService, FileService],
-  exports:[LibService, EmailService, DbService],
+  exports:[LibService, EmailService, DbService, FileService],
   controllers: [FileController]
 })
 export class UtilsModule {}

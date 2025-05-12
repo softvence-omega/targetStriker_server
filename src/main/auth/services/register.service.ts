@@ -4,7 +4,7 @@ import { RegisterDto } from '../dto/register.dto';
 import { ApiResponse } from 'src/common/types/apiResponse';
 import { LibService } from 'src/utils/lib/lib.service';
 import { DbService } from 'src/utils/db/db.service';
-import { UserType } from 'generated/prisma';
+import { UserType, User } from 'generated/prisma';
 
 @Injectable()
 export class RegisterService {
@@ -34,27 +34,29 @@ export class RegisterService {
       password: rawData.password,
     });
 
-    const profileIncludes = {
-      [UserType.CLIENT]: { clientProfile: true },
-    };
-
-    const user = await this.db.user.create({
-      data: {
-        ...rawData,
-        ...(rawData.UserType === 'CLIENT' && {
-          clientProfile: {
-            create: {},
-          },
-        }),
-      },
-      include: profileIncludes[rawData.UserType],
-    });
-
+    let user: any;
     let profileId: string | null = null;
 
+    // Create user with the appropriate profile based on UserType
     if (rawData.UserType === 'CLIENT') {
+      user = await this.db.user.create({
+        data: { ...rawData },
+        include: { clientProfile: true },
+      });
       profileId = user.clientProfile?.id ?? null;
+    } else if (rawData.UserType === 'WORKER') {
+      user = await this.db.user.create({
+        data: { ...rawData },
+        include: { workerProfile: true },
+      });
+      profileId = user.workerProfile?.id ?? null;
+    } else {
+      // Default case - no profile included
+      user = await this.db.user.create({
+        data: { ...rawData },
+      });
     }
+
     const token = await this.commonService.generateToken({
       email: user.email,
       id: user.id,

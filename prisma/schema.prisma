@@ -83,10 +83,12 @@ enum TaskType {
 //=================== <**********> =======================
 
 model ClientProfile {
-  id       String  @id @default(uuid())
-  User     User?   @relation(fields: [userId], references: [id])
-  userId   String? @unique
-  location Json?
+  id         String        @id @default(uuid()) 
+  User       User?         @relation(fields: [userId], references: [id])
+  userId     String?       @unique 
+  location   Json?
+  userName   String?        @unique
+  profilePic FileInstance?
 }
 
 //=================== <**********> =======================
@@ -112,7 +114,7 @@ model AdminProfile {
 //=================== <**********> =======================
 
 model FileInstance {
-  id               String          @id @default(uuid()) @db.Uuid
+  id               String          @id @default(uuid()) 
   createdAt        DateTime        @default(now())
   filename         String
   originalFilename String
@@ -123,6 +125,8 @@ model FileInstance {
   size             Int
   ServiceRequest   ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
   serviceRequestId String?         @unique @db.Uuid
+  ClientProfile    ClientProfile?  @relation(fields: [clientProfileId], references: [id])
+  clientProfileId  String?         @unique 
 }
 
 //=================== <**********> =======================
@@ -166,4 +170,4 @@ enum RequestStatus {
 
 //=================== <**********> =======================
 // ServiceRequest Instance end
-//=================== <**********> =======================
+//=================== <**********> =======================∂

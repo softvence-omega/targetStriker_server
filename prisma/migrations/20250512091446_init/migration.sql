@@ -37,7 +37,8 @@ CREATE TABLE "WorkerProfile" (
 CREATE TABLE "ClientProfile" (
     "id" TEXT NOT NULL,
     "userId" TEXT,
-    "location" JSONB NOT NULL,
+    "location" JSONB,
+    "userName" TEXT,
 
     CONSTRAINT "ClientProfile_pkey" PRIMARY KEY ("id")
 );
@@ -52,7 +53,7 @@ CREATE TABLE "AdminProfile" (
 
 -- CreateTable
 CREATE TABLE "FileInstance" (
-    "id" UUID NOT NULL,
+    "id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "filename" TEXT NOT NULL,
     "originalFilename" TEXT NOT NULL,
@@ -62,6 +63,7 @@ CREATE TABLE "FileInstance" (
     "mimeType" TEXT NOT NULL,
     "size" INTEGER NOT NULL,
     "serviceRequestId" UUID,
+    "clientProfileId" TEXT,
 
     CONSTRAINT "FileInstance_pkey" PRIMARY KEY ("id")
 );
@@ -103,10 +105,16 @@ CREATE UNIQUE INDEX "WorkerProfile_workerId_key" ON "WorkerProfile"("workerId");
 CREATE UNIQUE INDEX "ClientProfile_userId_key" ON "ClientProfile"("userId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "ClientProfile_userName_key" ON "ClientProfile"("userName");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "AdminProfile_userId_key" ON "AdminProfile"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "FileInstance_serviceRequestId_key" ON "FileInstance"("serviceRequestId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "FileInstance_clientProfileId_key" ON "FileInstance"("clientProfileId");
 
 -- AddForeignKey
 ALTER TABLE "WorkerProfile" ADD CONSTRAINT "WorkerProfile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -119,3 +127,6 @@ ALTER TABLE "AdminProfile" ADD CONSTRAINT "AdminProfile_userId_fkey" FOREIGN KEY
 
 -- AddForeignKey
 ALTER TABLE "FileInstance" ADD CONSTRAINT "FileInstance_serviceRequestId_fkey" FOREIGN KEY ("serviceRequestId") REFERENCES "ServiceRequest"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FileInstance" ADD CONSTRAINT "FileInstance_clientProfileId_fkey" FOREIGN KEY ("clientProfileId") REFERENCES "ClientProfile"("id") ON DELETE SET NULL ON UPDATE CASCADE;
