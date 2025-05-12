@@ -3621,17 +3621,20 @@ export namespace Prisma {
   export type ClientProfileMinAggregateOutputType = {
     id: string | null
     userId: string | null
+    userName: string | null
   }
 
   export type ClientProfileMaxAggregateOutputType = {
     id: string | null
     userId: string | null
+    userName: string | null
   }
 
   export type ClientProfileCountAggregateOutputType = {
     id: number
     userId: number
     location: number
+    userName: number
     _all: number
   }
 
@@ -3639,17 +3642,20 @@ export namespace Prisma {
   export type ClientProfileMinAggregateInputType = {
     id?: true
     userId?: true
+    userName?: true
   }
 
   export type ClientProfileMaxAggregateInputType = {
     id?: true
     userId?: true
+    userName?: true
   }
 
   export type ClientProfileCountAggregateInputType = {
     id?: true
     userId?: true
     location?: true
+    userName?: true
     _all?: true
   }
 
@@ -3729,6 +3735,7 @@ export namespace Prisma {
     id: string
     userId: string | null
     location: JsonValue | null
+    userName: string | null
     _count: ClientProfileCountAggregateOutputType | null
     _min: ClientProfileMinAggregateOutputType | null
     _max: ClientProfileMaxAggregateOutputType | null
@@ -3752,13 +3759,16 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     location?: boolean
+    userName?: boolean
     User?: boolean | ClientProfile$UserArgs<ExtArgs>
+    profilePic?: boolean | ClientProfile$profilePicArgs<ExtArgs>
   }, ExtArgs["result"]["clientProfile"]>
 
   export type ClientProfileSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
     location?: boolean
+    userName?: boolean
     User?: boolean | ClientProfile$UserArgs<ExtArgs>
   }, ExtArgs["result"]["clientProfile"]>
 
@@ -3766,6 +3776,7 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     location?: boolean
+    userName?: boolean
     User?: boolean | ClientProfile$UserArgs<ExtArgs>
   }, ExtArgs["result"]["clientProfile"]>
 
@@ -3773,11 +3784,13 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     location?: boolean
+    userName?: boolean
   }
 
-  export type ClientProfileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "location", ExtArgs["result"]["clientProfile"]>
+  export type ClientProfileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "location" | "userName", ExtArgs["result"]["clientProfile"]>
   export type ClientProfileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     User?: boolean | ClientProfile$UserArgs<ExtArgs>
+    profilePic?: boolean | ClientProfile$profilePicArgs<ExtArgs>
   }
   export type ClientProfileIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     User?: boolean | ClientProfile$UserArgs<ExtArgs>
@@ -3790,11 +3803,13 @@ export namespace Prisma {
     name: "ClientProfile"
     objects: {
       User: Prisma.$UserPayload<ExtArgs> | null
+      profilePic: Prisma.$FileInstancePayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       userId: string | null
       location: Prisma.JsonValue | null
+      userName: string | null
     }, ExtArgs["result"]["clientProfile"]>
     composites: {}
   }
@@ -4190,6 +4205,7 @@ export namespace Prisma {
   export interface Prisma__ClientProfileClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     User<T extends ClientProfile$UserArgs<ExtArgs> = {}>(args?: Subset<T, ClientProfile$UserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    profilePic<T extends ClientProfile$profilePicArgs<ExtArgs> = {}>(args?: Subset<T, ClientProfile$profilePicArgs<ExtArgs>>): Prisma__FileInstanceClient<$Result.GetResult<Prisma.$FileInstancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4222,6 +4238,7 @@ export namespace Prisma {
     readonly id: FieldRef<"ClientProfile", 'String'>
     readonly userId: FieldRef<"ClientProfile", 'String'>
     readonly location: FieldRef<"ClientProfile", 'Json'>
+    readonly userName: FieldRef<"ClientProfile", 'String'>
   }
     
 
@@ -4634,6 +4651,25 @@ export namespace Prisma {
      */
     include?: UserInclude<ExtArgs> | null
     where?: UserWhereInput
+  }
+
+  /**
+   * ClientProfile.profilePic
+   */
+  export type ClientProfile$profilePicArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FileInstance
+     */
+    select?: FileInstanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FileInstance
+     */
+    omit?: FileInstanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FileInstanceInclude<ExtArgs> | null
+    where?: FileInstanceWhereInput
   }
 
   /**
@@ -5724,6 +5760,7 @@ export namespace Prisma {
     mimeType: string | null
     size: number | null
     serviceRequestId: string | null
+    clientProfileId: string | null
   }
 
   export type FileInstanceMaxAggregateOutputType = {
@@ -5737,6 +5774,7 @@ export namespace Prisma {
     mimeType: string | null
     size: number | null
     serviceRequestId: string | null
+    clientProfileId: string | null
   }
 
   export type FileInstanceCountAggregateOutputType = {
@@ -5750,6 +5788,7 @@ export namespace Prisma {
     mimeType: number
     size: number
     serviceRequestId: number
+    clientProfileId: number
     _all: number
   }
 
@@ -5773,6 +5812,7 @@ export namespace Prisma {
     mimeType?: true
     size?: true
     serviceRequestId?: true
+    clientProfileId?: true
   }
 
   export type FileInstanceMaxAggregateInputType = {
@@ -5786,6 +5826,7 @@ export namespace Prisma {
     mimeType?: true
     size?: true
     serviceRequestId?: true
+    clientProfileId?: true
   }
 
   export type FileInstanceCountAggregateInputType = {
@@ -5799,6 +5840,7 @@ export namespace Prisma {
     mimeType?: true
     size?: true
     serviceRequestId?: true
+    clientProfileId?: true
     _all?: true
   }
 
@@ -5899,6 +5941,7 @@ export namespace Prisma {
     mimeType: string
     size: number
     serviceRequestId: string | null
+    clientProfileId: string | null
     _count: FileInstanceCountAggregateOutputType | null
     _avg: FileInstanceAvgAggregateOutputType | null
     _sum: FileInstanceSumAggregateOutputType | null
@@ -5931,7 +5974,9 @@ export namespace Prisma {
     mimeType?: boolean
     size?: boolean
     serviceRequestId?: boolean
+    clientProfileId?: boolean
     ServiceRequest?: boolean | FileInstance$ServiceRequestArgs<ExtArgs>
+    ClientProfile?: boolean | FileInstance$ClientProfileArgs<ExtArgs>
   }, ExtArgs["result"]["fileInstance"]>
 
   export type FileInstanceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -5945,7 +5990,9 @@ export namespace Prisma {
     mimeType?: boolean
     size?: boolean
     serviceRequestId?: boolean
+    clientProfileId?: boolean
     ServiceRequest?: boolean | FileInstance$ServiceRequestArgs<ExtArgs>
+    ClientProfile?: boolean | FileInstance$ClientProfileArgs<ExtArgs>
   }, ExtArgs["result"]["fileInstance"]>
 
   export type FileInstanceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -5959,7 +6006,9 @@ export namespace Prisma {
     mimeType?: boolean
     size?: boolean
     serviceRequestId?: boolean
+    clientProfileId?: boolean
     ServiceRequest?: boolean | FileInstance$ServiceRequestArgs<ExtArgs>
+    ClientProfile?: boolean | FileInstance$ClientProfileArgs<ExtArgs>
   }, ExtArgs["result"]["fileInstance"]>
 
   export type FileInstanceSelectScalar = {
@@ -5973,23 +6022,28 @@ export namespace Prisma {
     mimeType?: boolean
     size?: boolean
     serviceRequestId?: boolean
+    clientProfileId?: boolean
   }
 
-  export type FileInstanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdAt" | "filename" | "originalFilename" | "path" | "url" | "fileType" | "mimeType" | "size" | "serviceRequestId", ExtArgs["result"]["fileInstance"]>
+  export type FileInstanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdAt" | "filename" | "originalFilename" | "path" | "url" | "fileType" | "mimeType" | "size" | "serviceRequestId" | "clientProfileId", ExtArgs["result"]["fileInstance"]>
   export type FileInstanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     ServiceRequest?: boolean | FileInstance$ServiceRequestArgs<ExtArgs>
+    ClientProfile?: boolean | FileInstance$ClientProfileArgs<ExtArgs>
   }
   export type FileInstanceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     ServiceRequest?: boolean | FileInstance$ServiceRequestArgs<ExtArgs>
+    ClientProfile?: boolean | FileInstance$ClientProfileArgs<ExtArgs>
   }
   export type FileInstanceIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     ServiceRequest?: boolean | FileInstance$ServiceRequestArgs<ExtArgs>
+    ClientProfile?: boolean | FileInstance$ClientProfileArgs<ExtArgs>
   }
 
   export type $FileInstancePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "FileInstance"
     objects: {
       ServiceRequest: Prisma.$ServiceRequestPayload<ExtArgs> | null
+      ClientProfile: Prisma.$ClientProfilePayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6002,6 +6056,7 @@ export namespace Prisma {
       mimeType: string
       size: number
       serviceRequestId: string | null
+      clientProfileId: string | null
     }, ExtArgs["result"]["fileInstance"]>
     composites: {}
   }
@@ -6397,6 +6452,7 @@ export namespace Prisma {
   export interface Prisma__FileInstanceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     ServiceRequest<T extends FileInstance$ServiceRequestArgs<ExtArgs> = {}>(args?: Subset<T, FileInstance$ServiceRequestArgs<ExtArgs>>): Prisma__ServiceRequestClient<$Result.GetResult<Prisma.$ServiceRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    ClientProfile<T extends FileInstance$ClientProfileArgs<ExtArgs> = {}>(args?: Subset<T, FileInstance$ClientProfileArgs<ExtArgs>>): Prisma__ClientProfileClient<$Result.GetResult<Prisma.$ClientProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6436,6 +6492,7 @@ export namespace Prisma {
     readonly mimeType: FieldRef<"FileInstance", 'String'>
     readonly size: FieldRef<"FileInstance", 'Int'>
     readonly serviceRequestId: FieldRef<"FileInstance", 'String'>
+    readonly clientProfileId: FieldRef<"FileInstance", 'String'>
   }
     
 
@@ -6848,6 +6905,25 @@ export namespace Prisma {
      */
     include?: ServiceRequestInclude<ExtArgs> | null
     where?: ServiceRequestWhereInput
+  }
+
+  /**
+   * FileInstance.ClientProfile
+   */
+  export type FileInstance$ClientProfileArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClientProfile
+     */
+    select?: ClientProfileSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ClientProfile
+     */
+    omit?: ClientProfileOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ClientProfileInclude<ExtArgs> | null
+    where?: ClientProfileWhereInput
   }
 
   /**
@@ -8139,7 +8215,8 @@ export namespace Prisma {
   export const ClientProfileScalarFieldEnum: {
     id: 'id',
     userId: 'userId',
-    location: 'location'
+    location: 'location',
+    userName: 'userName'
   };
 
   export type ClientProfileScalarFieldEnum = (typeof ClientProfileScalarFieldEnum)[keyof typeof ClientProfileScalarFieldEnum]
@@ -8163,7 +8240,8 @@ export namespace Prisma {
     fileType: 'fileType',
     mimeType: 'mimeType',
     size: 'size',
-    serviceRequestId: 'serviceRequestId'
+    serviceRequestId: 'serviceRequestId',
+    clientProfileId: 'clientProfileId'
   };
 
   export type FileInstanceScalarFieldEnum = (typeof FileInstanceScalarFieldEnum)[keyof typeof FileInstanceScalarFieldEnum]
@@ -8508,30 +8586,37 @@ export namespace Prisma {
     id?: StringFilter<"ClientProfile"> | string
     userId?: StringNullableFilter<"ClientProfile"> | string | null
     location?: JsonNullableFilter<"ClientProfile">
+    userName?: StringNullableFilter<"ClientProfile"> | string | null
     User?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    profilePic?: XOR<FileInstanceNullableScalarRelationFilter, FileInstanceWhereInput> | null
   }
 
   export type ClientProfileOrderByWithRelationInput = {
     id?: SortOrder
     userId?: SortOrderInput | SortOrder
     location?: SortOrderInput | SortOrder
+    userName?: SortOrderInput | SortOrder
     User?: UserOrderByWithRelationInput
+    profilePic?: FileInstanceOrderByWithRelationInput
   }
 
   export type ClientProfileWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     userId?: string
+    userName?: string
     AND?: ClientProfileWhereInput | ClientProfileWhereInput[]
     OR?: ClientProfileWhereInput[]
     NOT?: ClientProfileWhereInput | ClientProfileWhereInput[]
     location?: JsonNullableFilter<"ClientProfile">
     User?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
-  }, "id" | "userId">
+    profilePic?: XOR<FileInstanceNullableScalarRelationFilter, FileInstanceWhereInput> | null
+  }, "id" | "userId" | "userName">
 
   export type ClientProfileOrderByWithAggregationInput = {
     id?: SortOrder
     userId?: SortOrderInput | SortOrder
     location?: SortOrderInput | SortOrder
+    userName?: SortOrderInput | SortOrder
     _count?: ClientProfileCountOrderByAggregateInput
     _max?: ClientProfileMaxOrderByAggregateInput
     _min?: ClientProfileMinOrderByAggregateInput
@@ -8544,6 +8629,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"ClientProfile"> | string
     userId?: StringNullableWithAggregatesFilter<"ClientProfile"> | string | null
     location?: JsonNullableWithAggregatesFilter<"ClientProfile">
+    userName?: StringNullableWithAggregatesFilter<"ClientProfile"> | string | null
   }
 
   export type AdminProfileWhereInput = {
@@ -8590,7 +8676,7 @@ export namespace Prisma {
     AND?: FileInstanceWhereInput | FileInstanceWhereInput[]
     OR?: FileInstanceWhereInput[]
     NOT?: FileInstanceWhereInput | FileInstanceWhereInput[]
-    id?: UuidFilter<"FileInstance"> | string
+    id?: StringFilter<"FileInstance"> | string
     createdAt?: DateTimeFilter<"FileInstance"> | Date | string
     filename?: StringFilter<"FileInstance"> | string
     originalFilename?: StringFilter<"FileInstance"> | string
@@ -8600,7 +8686,9 @@ export namespace Prisma {
     mimeType?: StringFilter<"FileInstance"> | string
     size?: IntFilter<"FileInstance"> | number
     serviceRequestId?: UuidNullableFilter<"FileInstance"> | string | null
+    clientProfileId?: StringNullableFilter<"FileInstance"> | string | null
     ServiceRequest?: XOR<ServiceRequestNullableScalarRelationFilter, ServiceRequestWhereInput> | null
+    ClientProfile?: XOR<ClientProfileNullableScalarRelationFilter, ClientProfileWhereInput> | null
   }
 
   export type FileInstanceOrderByWithRelationInput = {
@@ -8614,12 +8702,15 @@ export namespace Prisma {
     mimeType?: SortOrder
     size?: SortOrder
     serviceRequestId?: SortOrderInput | SortOrder
+    clientProfileId?: SortOrderInput | SortOrder
     ServiceRequest?: ServiceRequestOrderByWithRelationInput
+    ClientProfile?: ClientProfileOrderByWithRelationInput
   }
 
   export type FileInstanceWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     serviceRequestId?: string
+    clientProfileId?: string
     AND?: FileInstanceWhereInput | FileInstanceWhereInput[]
     OR?: FileInstanceWhereInput[]
     NOT?: FileInstanceWhereInput | FileInstanceWhereInput[]
@@ -8632,7 +8723,8 @@ export namespace Prisma {
     mimeType?: StringFilter<"FileInstance"> | string
     size?: IntFilter<"FileInstance"> | number
     ServiceRequest?: XOR<ServiceRequestNullableScalarRelationFilter, ServiceRequestWhereInput> | null
-  }, "id" | "serviceRequestId">
+    ClientProfile?: XOR<ClientProfileNullableScalarRelationFilter, ClientProfileWhereInput> | null
+  }, "id" | "serviceRequestId" | "clientProfileId">
 
   export type FileInstanceOrderByWithAggregationInput = {
     id?: SortOrder
@@ -8645,6 +8737,7 @@ export namespace Prisma {
     mimeType?: SortOrder
     size?: SortOrder
     serviceRequestId?: SortOrderInput | SortOrder
+    clientProfileId?: SortOrderInput | SortOrder
     _count?: FileInstanceCountOrderByAggregateInput
     _avg?: FileInstanceAvgOrderByAggregateInput
     _max?: FileInstanceMaxOrderByAggregateInput
@@ -8656,7 +8749,7 @@ export namespace Prisma {
     AND?: FileInstanceScalarWhereWithAggregatesInput | FileInstanceScalarWhereWithAggregatesInput[]
     OR?: FileInstanceScalarWhereWithAggregatesInput[]
     NOT?: FileInstanceScalarWhereWithAggregatesInput | FileInstanceScalarWhereWithAggregatesInput[]
-    id?: UuidWithAggregatesFilter<"FileInstance"> | string
+    id?: StringWithAggregatesFilter<"FileInstance"> | string
     createdAt?: DateTimeWithAggregatesFilter<"FileInstance"> | Date | string
     filename?: StringWithAggregatesFilter<"FileInstance"> | string
     originalFilename?: StringWithAggregatesFilter<"FileInstance"> | string
@@ -8666,6 +8759,7 @@ export namespace Prisma {
     mimeType?: StringWithAggregatesFilter<"FileInstance"> | string
     size?: IntWithAggregatesFilter<"FileInstance"> | number
     serviceRequestId?: UuidNullableWithAggregatesFilter<"FileInstance"> | string | null
+    clientProfileId?: StringNullableWithAggregatesFilter<"FileInstance"> | string | null
   }
 
   export type ServiceRequestWhereInput = {
@@ -8929,42 +9023,53 @@ export namespace Prisma {
   export type ClientProfileCreateInput = {
     id?: string
     location?: NullableJsonNullValueInput | InputJsonValue
+    userName?: string | null
     User?: UserCreateNestedOneWithoutClientProfileInput
+    profilePic?: FileInstanceCreateNestedOneWithoutClientProfileInput
   }
 
   export type ClientProfileUncheckedCreateInput = {
     id?: string
     userId?: string | null
     location?: NullableJsonNullValueInput | InputJsonValue
+    userName?: string | null
+    profilePic?: FileInstanceUncheckedCreateNestedOneWithoutClientProfileInput
   }
 
   export type ClientProfileUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     location?: NullableJsonNullValueInput | InputJsonValue
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
     User?: UserUpdateOneWithoutClientProfileNestedInput
+    profilePic?: FileInstanceUpdateOneWithoutClientProfileNestedInput
   }
 
   export type ClientProfileUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableJsonNullValueInput | InputJsonValue
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
+    profilePic?: FileInstanceUncheckedUpdateOneWithoutClientProfileNestedInput
   }
 
   export type ClientProfileCreateManyInput = {
     id?: string
     userId?: string | null
     location?: NullableJsonNullValueInput | InputJsonValue
+    userName?: string | null
   }
 
   export type ClientProfileUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     location?: NullableJsonNullValueInput | InputJsonValue
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ClientProfileUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableJsonNullValueInput | InputJsonValue
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AdminProfileCreateInput = {
@@ -9012,6 +9117,7 @@ export namespace Prisma {
     mimeType: string
     size: number
     ServiceRequest?: ServiceRequestCreateNestedOneWithoutFileInput
+    ClientProfile?: ClientProfileCreateNestedOneWithoutProfilePicInput
   }
 
   export type FileInstanceUncheckedCreateInput = {
@@ -9025,6 +9131,7 @@ export namespace Prisma {
     mimeType: string
     size: number
     serviceRequestId?: string | null
+    clientProfileId?: string | null
   }
 
   export type FileInstanceUpdateInput = {
@@ -9038,6 +9145,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     size?: IntFieldUpdateOperationsInput | number
     ServiceRequest?: ServiceRequestUpdateOneWithoutFileNestedInput
+    ClientProfile?: ClientProfileUpdateOneWithoutProfilePicNestedInput
   }
 
   export type FileInstanceUncheckedUpdateInput = {
@@ -9051,6 +9159,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     size?: IntFieldUpdateOperationsInput | number
     serviceRequestId?: NullableStringFieldUpdateOperationsInput | string | null
+    clientProfileId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type FileInstanceCreateManyInput = {
@@ -9064,6 +9173,7 @@ export namespace Prisma {
     mimeType: string
     size: number
     serviceRequestId?: string | null
+    clientProfileId?: string | null
   }
 
   export type FileInstanceUpdateManyMutationInput = {
@@ -9089,6 +9199,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     size?: IntFieldUpdateOperationsInput | number
     serviceRequestId?: NullableStringFieldUpdateOperationsInput | string | null
+    clientProfileId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ServiceRequestCreateInput = {
@@ -9514,20 +9625,28 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type FileInstanceNullableScalarRelationFilter = {
+    is?: FileInstanceWhereInput | null
+    isNot?: FileInstanceWhereInput | null
+  }
+
   export type ClientProfileCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
     location?: SortOrder
+    userName?: SortOrder
   }
 
   export type ClientProfileMaxOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
+    userName?: SortOrder
   }
 
   export type ClientProfileMinOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
+    userName?: SortOrder
   }
   export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -9571,18 +9690,6 @@ export namespace Prisma {
     userId?: SortOrder
   }
 
-  export type UuidFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[] | ListStringFieldRefInput<$PrismaModel>
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedUuidFilter<$PrismaModel> | string
-  }
-
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -9622,6 +9729,7 @@ export namespace Prisma {
     mimeType?: SortOrder
     size?: SortOrder
     serviceRequestId?: SortOrder
+    clientProfileId?: SortOrder
   }
 
   export type FileInstanceAvgOrderByAggregateInput = {
@@ -9639,6 +9747,7 @@ export namespace Prisma {
     mimeType?: SortOrder
     size?: SortOrder
     serviceRequestId?: SortOrder
+    clientProfileId?: SortOrder
   }
 
   export type FileInstanceMinOrderByAggregateInput = {
@@ -9652,25 +9761,11 @@ export namespace Prisma {
     mimeType?: SortOrder
     size?: SortOrder
     serviceRequestId?: SortOrder
+    clientProfileId?: SortOrder
   }
 
   export type FileInstanceSumOrderByAggregateInput = {
     size?: SortOrder
-  }
-
-  export type UuidWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[] | ListStringFieldRefInput<$PrismaModel>
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedUuidWithAggregatesFilter<$PrismaModel> | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedStringFilter<$PrismaModel>
-    _max?: NestedStringFilter<$PrismaModel>
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -9704,6 +9799,18 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
+  export type UuidFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidFilter<$PrismaModel> | string
+  }
+
   export type DateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -9720,11 +9827,6 @@ export namespace Prisma {
     in?: $Enums.RequestStatus[] | ListEnumRequestStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.RequestStatus[] | ListEnumRequestStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumRequestStatusFilter<$PrismaModel> | $Enums.RequestStatus
-  }
-
-  export type FileInstanceNullableScalarRelationFilter = {
-    is?: FileInstanceWhereInput | null
-    isNot?: FileInstanceWhereInput | null
   }
 
   export type ServiceRequestCountOrderByAggregateInput = {
@@ -9787,6 +9889,21 @@ export namespace Prisma {
 
   export type ServiceRequestSumOrderByAggregateInput = {
     taskTypeId?: SortOrder
+  }
+
+  export type UuidWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidWithAggregatesFilter<$PrismaModel> | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedStringFilter<$PrismaModel>
+    _max?: NestedStringFilter<$PrismaModel>
   }
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -9955,6 +10072,18 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type FileInstanceCreateNestedOneWithoutClientProfileInput = {
+    create?: XOR<FileInstanceCreateWithoutClientProfileInput, FileInstanceUncheckedCreateWithoutClientProfileInput>
+    connectOrCreate?: FileInstanceCreateOrConnectWithoutClientProfileInput
+    connect?: FileInstanceWhereUniqueInput
+  }
+
+  export type FileInstanceUncheckedCreateNestedOneWithoutClientProfileInput = {
+    create?: XOR<FileInstanceCreateWithoutClientProfileInput, FileInstanceUncheckedCreateWithoutClientProfileInput>
+    connectOrCreate?: FileInstanceCreateOrConnectWithoutClientProfileInput
+    connect?: FileInstanceWhereUniqueInput
+  }
+
   export type UserUpdateOneWithoutClientProfileNestedInput = {
     create?: XOR<UserCreateWithoutClientProfileInput, UserUncheckedCreateWithoutClientProfileInput>
     connectOrCreate?: UserCreateOrConnectWithoutClientProfileInput
@@ -9963,6 +10092,26 @@ export namespace Prisma {
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutClientProfileInput, UserUpdateWithoutClientProfileInput>, UserUncheckedUpdateWithoutClientProfileInput>
+  }
+
+  export type FileInstanceUpdateOneWithoutClientProfileNestedInput = {
+    create?: XOR<FileInstanceCreateWithoutClientProfileInput, FileInstanceUncheckedCreateWithoutClientProfileInput>
+    connectOrCreate?: FileInstanceCreateOrConnectWithoutClientProfileInput
+    upsert?: FileInstanceUpsertWithoutClientProfileInput
+    disconnect?: FileInstanceWhereInput | boolean
+    delete?: FileInstanceWhereInput | boolean
+    connect?: FileInstanceWhereUniqueInput
+    update?: XOR<XOR<FileInstanceUpdateToOneWithWhereWithoutClientProfileInput, FileInstanceUpdateWithoutClientProfileInput>, FileInstanceUncheckedUpdateWithoutClientProfileInput>
+  }
+
+  export type FileInstanceUncheckedUpdateOneWithoutClientProfileNestedInput = {
+    create?: XOR<FileInstanceCreateWithoutClientProfileInput, FileInstanceUncheckedCreateWithoutClientProfileInput>
+    connectOrCreate?: FileInstanceCreateOrConnectWithoutClientProfileInput
+    upsert?: FileInstanceUpsertWithoutClientProfileInput
+    disconnect?: FileInstanceWhereInput | boolean
+    delete?: FileInstanceWhereInput | boolean
+    connect?: FileInstanceWhereUniqueInput
+    update?: XOR<XOR<FileInstanceUpdateToOneWithWhereWithoutClientProfileInput, FileInstanceUpdateWithoutClientProfileInput>, FileInstanceUncheckedUpdateWithoutClientProfileInput>
   }
 
   export type UserCreateNestedOneWithoutAdminProfileInput = {
@@ -9987,6 +10136,12 @@ export namespace Prisma {
     connect?: ServiceRequestWhereUniqueInput
   }
 
+  export type ClientProfileCreateNestedOneWithoutProfilePicInput = {
+    create?: XOR<ClientProfileCreateWithoutProfilePicInput, ClientProfileUncheckedCreateWithoutProfilePicInput>
+    connectOrCreate?: ClientProfileCreateOrConnectWithoutProfilePicInput
+    connect?: ClientProfileWhereUniqueInput
+  }
+
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
@@ -10003,6 +10158,16 @@ export namespace Prisma {
     delete?: ServiceRequestWhereInput | boolean
     connect?: ServiceRequestWhereUniqueInput
     update?: XOR<XOR<ServiceRequestUpdateToOneWithWhereWithoutFileInput, ServiceRequestUpdateWithoutFileInput>, ServiceRequestUncheckedUpdateWithoutFileInput>
+  }
+
+  export type ClientProfileUpdateOneWithoutProfilePicNestedInput = {
+    create?: XOR<ClientProfileCreateWithoutProfilePicInput, ClientProfileUncheckedCreateWithoutProfilePicInput>
+    connectOrCreate?: ClientProfileCreateOrConnectWithoutProfilePicInput
+    upsert?: ClientProfileUpsertWithoutProfilePicInput
+    disconnect?: ClientProfileWhereInput | boolean
+    delete?: ClientProfileWhereInput | boolean
+    connect?: ClientProfileWhereUniqueInput
+    update?: XOR<XOR<ClientProfileUpdateToOneWithWhereWithoutProfilePicInput, ClientProfileUpdateWithoutProfilePicInput>, ClientProfileUncheckedUpdateWithoutProfilePicInput>
   }
 
   export type FileInstanceCreateNestedOneWithoutServiceRequestInput = {
@@ -10247,17 +10412,6 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type NestedUuidFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[] | ListStringFieldRefInput<$PrismaModel>
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedUuidFilter<$PrismaModel> | string
-  }
-
   export type NestedUuidNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -10267,20 +10421,6 @@ export namespace Prisma {
     gt?: string | StringFieldRefInput<$PrismaModel>
     gte?: string | StringFieldRefInput<$PrismaModel>
     not?: NestedUuidNullableFilter<$PrismaModel> | string | null
-  }
-
-  export type NestedUuidWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel>
-    in?: string[] | ListStringFieldRefInput<$PrismaModel>
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedUuidWithAggregatesFilter<$PrismaModel> | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedStringFilter<$PrismaModel>
-    _max?: NestedStringFilter<$PrismaModel>
   }
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -10324,6 +10464,17 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
+  export type NestedUuidFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidFilter<$PrismaModel> | string
+  }
+
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -10340,6 +10491,20 @@ export namespace Prisma {
     in?: $Enums.RequestStatus[] | ListEnumRequestStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.RequestStatus[] | ListEnumRequestStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumRequestStatusFilter<$PrismaModel> | $Enums.RequestStatus
+  }
+
+  export type NestedUuidWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidWithAggregatesFilter<$PrismaModel> | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedStringFilter<$PrismaModel>
+    _max?: NestedStringFilter<$PrismaModel>
   }
 
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -10388,11 +10553,15 @@ export namespace Prisma {
   export type ClientProfileCreateWithoutUserInput = {
     id?: string
     location?: NullableJsonNullValueInput | InputJsonValue
+    userName?: string | null
+    profilePic?: FileInstanceCreateNestedOneWithoutClientProfileInput
   }
 
   export type ClientProfileUncheckedCreateWithoutUserInput = {
     id?: string
     location?: NullableJsonNullValueInput | InputJsonValue
+    userName?: string | null
+    profilePic?: FileInstanceUncheckedCreateNestedOneWithoutClientProfileInput
   }
 
   export type ClientProfileCreateOrConnectWithoutUserInput = {
@@ -10452,11 +10621,15 @@ export namespace Prisma {
   export type ClientProfileUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     location?: NullableJsonNullValueInput | InputJsonValue
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
+    profilePic?: FileInstanceUpdateOneWithoutClientProfileNestedInput
   }
 
   export type ClientProfileUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     location?: NullableJsonNullValueInput | InputJsonValue
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
+    profilePic?: FileInstanceUncheckedUpdateOneWithoutClientProfileNestedInput
   }
 
   export type AdminProfileUpsertWithoutUserInput = {
@@ -10583,6 +10756,37 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutClientProfileInput, UserUncheckedCreateWithoutClientProfileInput>
   }
 
+  export type FileInstanceCreateWithoutClientProfileInput = {
+    id?: string
+    createdAt?: Date | string
+    filename: string
+    originalFilename: string
+    path: string
+    url: string
+    fileType: string
+    mimeType: string
+    size: number
+    ServiceRequest?: ServiceRequestCreateNestedOneWithoutFileInput
+  }
+
+  export type FileInstanceUncheckedCreateWithoutClientProfileInput = {
+    id?: string
+    createdAt?: Date | string
+    filename: string
+    originalFilename: string
+    path: string
+    url: string
+    fileType: string
+    mimeType: string
+    size: number
+    serviceRequestId?: string | null
+  }
+
+  export type FileInstanceCreateOrConnectWithoutClientProfileInput = {
+    where: FileInstanceWhereUniqueInput
+    create: XOR<FileInstanceCreateWithoutClientProfileInput, FileInstanceUncheckedCreateWithoutClientProfileInput>
+  }
+
   export type UserUpsertWithoutClientProfileInput = {
     update: XOR<UserUpdateWithoutClientProfileInput, UserUncheckedUpdateWithoutClientProfileInput>
     create: XOR<UserCreateWithoutClientProfileInput, UserUncheckedCreateWithoutClientProfileInput>
@@ -10620,6 +10824,43 @@ export namespace Prisma {
     UserType?: EnumUserTypeFieldUpdateOperationsInput | $Enums.UserType
     workerProfile?: WorkerProfileUncheckedUpdateOneWithoutUserNestedInput
     adminProfile?: AdminProfileUncheckedUpdateOneWithoutUserNestedInput
+  }
+
+  export type FileInstanceUpsertWithoutClientProfileInput = {
+    update: XOR<FileInstanceUpdateWithoutClientProfileInput, FileInstanceUncheckedUpdateWithoutClientProfileInput>
+    create: XOR<FileInstanceCreateWithoutClientProfileInput, FileInstanceUncheckedCreateWithoutClientProfileInput>
+    where?: FileInstanceWhereInput
+  }
+
+  export type FileInstanceUpdateToOneWithWhereWithoutClientProfileInput = {
+    where?: FileInstanceWhereInput
+    data: XOR<FileInstanceUpdateWithoutClientProfileInput, FileInstanceUncheckedUpdateWithoutClientProfileInput>
+  }
+
+  export type FileInstanceUpdateWithoutClientProfileInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    filename?: StringFieldUpdateOperationsInput | string
+    originalFilename?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    fileType?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    size?: IntFieldUpdateOperationsInput | number
+    ServiceRequest?: ServiceRequestUpdateOneWithoutFileNestedInput
+  }
+
+  export type FileInstanceUncheckedUpdateWithoutClientProfileInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    filename?: StringFieldUpdateOperationsInput | string
+    originalFilename?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    url?: StringFieldUpdateOperationsInput | string
+    fileType?: StringFieldUpdateOperationsInput | string
+    mimeType?: StringFieldUpdateOperationsInput | string
+    size?: IntFieldUpdateOperationsInput | number
+    serviceRequestId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type UserCreateWithoutAdminProfileInput = {
@@ -10735,6 +10976,25 @@ export namespace Prisma {
     create: XOR<ServiceRequestCreateWithoutFileInput, ServiceRequestUncheckedCreateWithoutFileInput>
   }
 
+  export type ClientProfileCreateWithoutProfilePicInput = {
+    id?: string
+    location?: NullableJsonNullValueInput | InputJsonValue
+    userName?: string | null
+    User?: UserCreateNestedOneWithoutClientProfileInput
+  }
+
+  export type ClientProfileUncheckedCreateWithoutProfilePicInput = {
+    id?: string
+    userId?: string | null
+    location?: NullableJsonNullValueInput | InputJsonValue
+    userName?: string | null
+  }
+
+  export type ClientProfileCreateOrConnectWithoutProfilePicInput = {
+    where: ClientProfileWhereUniqueInput
+    create: XOR<ClientProfileCreateWithoutProfilePicInput, ClientProfileUncheckedCreateWithoutProfilePicInput>
+  }
+
   export type ServiceRequestUpsertWithoutFileInput = {
     update: XOR<ServiceRequestUpdateWithoutFileInput, ServiceRequestUncheckedUpdateWithoutFileInput>
     create: XOR<ServiceRequestCreateWithoutFileInput, ServiceRequestUncheckedCreateWithoutFileInput>
@@ -10782,6 +11042,31 @@ export namespace Prisma {
     status?: EnumRequestStatusFieldUpdateOperationsInput | $Enums.RequestStatus
   }
 
+  export type ClientProfileUpsertWithoutProfilePicInput = {
+    update: XOR<ClientProfileUpdateWithoutProfilePicInput, ClientProfileUncheckedUpdateWithoutProfilePicInput>
+    create: XOR<ClientProfileCreateWithoutProfilePicInput, ClientProfileUncheckedCreateWithoutProfilePicInput>
+    where?: ClientProfileWhereInput
+  }
+
+  export type ClientProfileUpdateToOneWithWhereWithoutProfilePicInput = {
+    where?: ClientProfileWhereInput
+    data: XOR<ClientProfileUpdateWithoutProfilePicInput, ClientProfileUncheckedUpdateWithoutProfilePicInput>
+  }
+
+  export type ClientProfileUpdateWithoutProfilePicInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    location?: NullableJsonNullValueInput | InputJsonValue
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
+    User?: UserUpdateOneWithoutClientProfileNestedInput
+  }
+
+  export type ClientProfileUncheckedUpdateWithoutProfilePicInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    location?: NullableJsonNullValueInput | InputJsonValue
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type FileInstanceCreateWithoutServiceRequestInput = {
     id?: string
     createdAt?: Date | string
@@ -10792,6 +11077,7 @@ export namespace Prisma {
     fileType: string
     mimeType: string
     size: number
+    ClientProfile?: ClientProfileCreateNestedOneWithoutProfilePicInput
   }
 
   export type FileInstanceUncheckedCreateWithoutServiceRequestInput = {
@@ -10804,6 +11090,7 @@ export namespace Prisma {
     fileType: string
     mimeType: string
     size: number
+    clientProfileId?: string | null
   }
 
   export type FileInstanceCreateOrConnectWithoutServiceRequestInput = {
@@ -10832,6 +11119,7 @@ export namespace Prisma {
     fileType?: StringFieldUpdateOperationsInput | string
     mimeType?: StringFieldUpdateOperationsInput | string
     size?: IntFieldUpdateOperationsInput | number
+    ClientProfile?: ClientProfileUpdateOneWithoutProfilePicNestedInput
   }
 
   export type FileInstanceUncheckedUpdateWithoutServiceRequestInput = {
@@ -10844,6 +11132,7 @@ export namespace Prisma {
     fileType?: StringFieldUpdateOperationsInput | string
     mimeType?: StringFieldUpdateOperationsInput | string
     size?: IntFieldUpdateOperationsInput | number
+    clientProfileId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
 

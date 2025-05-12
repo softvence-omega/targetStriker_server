@@ -7,6 +7,7 @@ RUN apk add --no-cache \
   g++ \
   gcc \
   && ln -sf python3 /usr/bin/python
+
 # Set working directory
 WORKDIR /app
 
@@ -18,6 +19,9 @@ RUN npm install --legacy-peer-deps --build-from-source
 
 # Copy the rest of the application
 COPY . .
+
+# 👇 Create uploads folder (ensure it exists inside the container)
+RUN mkdir -p uploads
 
 # Generate Prisma client
 RUN npx prisma generate

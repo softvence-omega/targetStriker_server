@@ -143,7 +143,8 @@ exports.Prisma.WorkerProfileScalarFieldEnum = {
 exports.Prisma.ClientProfileScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  location: 'location'
+  location: 'location',
+  userName: 'userName'
 };
 
 exports.Prisma.AdminProfileScalarFieldEnum = {
@@ -161,7 +162,8 @@ exports.Prisma.FileInstanceScalarFieldEnum = {
   fileType: 'fileType',
   mimeType: 'mimeType',
   size: 'size',
-  serviceRequestId: 'serviceRequestId'
+  serviceRequestId: 'serviceRequestId',
+  clientProfileId: 'clientProfileId'
 };
 
 exports.Prisma.ServiceRequestScalarFieldEnum = {
