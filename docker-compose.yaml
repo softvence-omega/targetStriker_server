@@ -6,7 +6,7 @@ services:
     container_name: targetStriker_app
     restart: always
     ports:
-      - "5005:3000"
+      - "5101:3000"
     environment:
       DATABASE_URL: postgresql://myuser:mypassword@db:5432/mydatabase
     depends_on:
