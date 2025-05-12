@@ -13,7 +13,7 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, documentFactory);
+  SwaggerModule.setup('ts/docs', app, documentFactory);
   app.useGlobalFilters(new GlobalErrorHandlerFilter());
   app.setGlobalPrefix('ts');
 
