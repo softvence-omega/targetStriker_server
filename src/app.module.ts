@@ -16,7 +16,7 @@ import { MainModule } from './main/main.module';
     UtilsModule,
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'), // Folder with static files
-      serveRoot: '/files', // Files will be served at /files/<filename>
+      serveRoot: '/ts/files', // Files will be served at /files/<filename>
     }),
     ConfigModule.forRoot({
       isGlobal: true,
