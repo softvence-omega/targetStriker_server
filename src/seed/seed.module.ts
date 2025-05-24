@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AdminService } from './admin.service';
+import { AdminService } from './services/admin.service';
+import { FolderServiceSeeder } from './services/folder.service';
 
 @Module({
-  providers: [AdminService]
+  providers: [AdminService, FolderServiceSeeder]
 })
 export class SeedModule {}
