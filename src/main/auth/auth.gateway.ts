@@ -13,7 +13,7 @@ import { DbService } from 'src/utils/db/db.service';
 import { Server, WebSocket } from 'ws';
 
 @WebSocketGateway({
-  path: '/weak_up',
+  path: '/ts/weak_up',
   cors: { origin: '*' },
 })
 @Injectable()
