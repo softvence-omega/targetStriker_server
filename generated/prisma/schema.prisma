@@ -31,6 +31,7 @@ model User {
   clientProfile ClientProfile?
   adminProfile  AdminProfile?
   UserType      UserType
+  active        Boolean        @default(false)
 }
 
 // ##################### $ User Type Enum Start $ ##############
@@ -124,7 +125,7 @@ model FileInstance {
   mimeType         String
   size             Int
   ServiceRequest   ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
-  serviceRequestId String?         @unique @db.Uuid
+  serviceRequestId String?         @unique
   ClientProfile    ClientProfile?  @relation(fields: [clientProfileId], references: [id])
   clientProfileId  String?         @unique
 }
@@ -138,7 +139,7 @@ model FileInstance {
 //=================== <**********> =======================
 
 model ServiceRequest {
-  id                  String        @id @default(uuid()) @db.Uuid
+  id                  String        @id @default(uuid())
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
   name                String

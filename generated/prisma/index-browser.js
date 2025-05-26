@@ -129,7 +129,8 @@ exports.Prisma.UserScalarFieldEnum = {
   isVerified: 'isVerified',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  UserType: 'UserType'
+  UserType: 'UserType',
+  active: 'active'
 };
 
 exports.Prisma.WorkerProfileScalarFieldEnum = {

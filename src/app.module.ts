@@ -10,7 +10,10 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { MainModule } from './main/main.module';
-
+import { CacheModule } from '@nestjs/cache-manager';
+import { createKeyv } from '@keyv/redis';
+import { Keyv } from 'keyv';
+import { CacheableMemory } from 'cacheable';
 @Module({
   imports: [
     UtilsModule,
@@ -32,6 +35,19 @@ import { MainModule } from './main/main.module';
       inject: [ConfigService],
     }),
     MainModule,
+    CacheModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        stores: [
+          new Keyv({
+            store: new CacheableMemory(),
+          }),
+          createKeyv(configService.getOrThrow<string>('REDIS_URL')),
+        ],
+      }),
+      isGlobal: true,
+    }),
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],

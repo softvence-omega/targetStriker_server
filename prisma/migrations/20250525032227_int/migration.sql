@@ -62,7 +62,7 @@ CREATE TABLE "FileInstance" (
     "fileType" TEXT NOT NULL,
     "mimeType" TEXT NOT NULL,
     "size" INTEGER NOT NULL,
-    "serviceRequestId" UUID,
+    "serviceRequestId" TEXT,
     "clientProfileId" TEXT,
 
     CONSTRAINT "FileInstance_pkey" PRIMARY KEY ("id")
@@ -70,7 +70,7 @@ CREATE TABLE "FileInstance" (
 
 -- CreateTable
 CREATE TABLE "ServiceRequest" (
-    "id" UUID NOT NULL,
+    "id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "name" TEXT NOT NULL,

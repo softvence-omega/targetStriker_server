@@ -31,6 +31,7 @@ model User {
   clientProfile ClientProfile?
   adminProfile  AdminProfile?
   UserType      UserType
+  active        Boolean        @default(false)
 }
 
 // ##################### $ User Type Enum Start $ ##############
@@ -83,11 +84,11 @@ enum TaskType {
 //=================== <**********> =======================
 
 model ClientProfile {
-  id         String        @id @default(uuid()) 
+  id         String        @id @default(uuid())
   User       User?         @relation(fields: [userId], references: [id])
-  userId     String?       @unique 
+  userId     String?       @unique
   location   Json?
-  userName   String?        @unique
+  userName   String?       @unique
   profilePic FileInstance?
 }
 
@@ -114,7 +115,7 @@ model AdminProfile {
 //=================== <**********> =======================
 
 model FileInstance {
-  id               String          @id @default(uuid()) 
+  id               String          @id @default(uuid())
   createdAt        DateTime        @default(now())
   filename         String
   originalFilename String
@@ -124,9 +125,9 @@ model FileInstance {
   mimeType         String
   size             Int
   ServiceRequest   ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
-  serviceRequestId String?         @unique @db.Uuid
+  serviceRequestId String?         @unique
   ClientProfile    ClientProfile?  @relation(fields: [clientProfileId], references: [id])
-  clientProfileId  String?         @unique 
+  clientProfileId  String?         @unique
 }
 
 //=================== <**********> =======================
@@ -138,7 +139,7 @@ model FileInstance {
 //=================== <**********> =======================
 
 model ServiceRequest {
-  id                  String        @id @default(uuid()) @db.Uuid
+  id                  String        @id @default(uuid())
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
   name                String
