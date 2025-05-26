@@ -14,6 +14,9 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { createKeyv } from '@keyv/redis';
 import { Keyv } from 'keyv';
 import { CacheableMemory } from 'cacheable';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { QueuesModule } from './queues/queues.module';
+import { BullModule } from '@nestjs/bullmq';
 @Module({
   imports: [
     UtilsModule,
@@ -48,6 +51,21 @@ import { CacheableMemory } from 'cacheable';
       }),
       isGlobal: true,
     }),
+
+    EventEmitterModule.forRoot({}),
+
+    QueuesModule,
+
+    BullModule.registerQueueAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.getOrThrow('REDIS_HOST'),
+          port: configService.getOrThrow('REDIS_PORT'),
+        },
+      }),
+    }),
+
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],
