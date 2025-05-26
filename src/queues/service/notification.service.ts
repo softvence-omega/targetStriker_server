@@ -1,4 +1,9 @@
+import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 
-@Injectable()
-export class NotificationService {}
+@Processor('notification')
+export class NotificationService extends WorkerHost {
+    async process(job) {
+        console.log(job);
+    }
+}

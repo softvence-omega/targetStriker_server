@@ -56,16 +56,22 @@ import { BullModule } from '@nestjs/bullmq';
 
     QueuesModule,
 
-    BullModule.registerQueueAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        connection: {
-          host: configService.getOrThrow('REDIS_HOST'),
-          port: configService.getOrThrow('REDIS_PORT'),
-        },
-      }),
+    
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService], // <- this line is required
+      useFactory: async (configService: ConfigService) => {
+        const host = configService.getOrThrow<string>('REDIS_HOST');
+        const port = configService.getOrThrow<string>('REDIS_PORT');
+        
+        return {
+          connection: {
+            host,
+            port:parseInt(port, 10),
+          },
+        };
+      },
     }),
-
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],
