@@ -33,6 +33,7 @@ model User {
   UserType      UserType
   active        Boolean        @default(false)
   fcm_token     Fcm_token?
+  modifications Notification[]
 }
 
 // ##################### $ User Type Enum Start $ ##############
@@ -164,13 +165,13 @@ model ServiceRequest {
   city                String
   postalCode          String
   locationDescription String        @db.Text
-  taskType            TaskType
   taskTypeId          Int
   problemDescription  String        @db.Text
   file                FileInstance?
   preferredTime       String?
   preferredDate       DateTime?
   status              RequestStatus @default(PENDING)
+  tasks               Task[]
 }
 
 // ##################### $ RequestStatus Type Enum Start $ ##############
@@ -187,4 +188,39 @@ enum RequestStatus {
 
 //=================== <**********> =======================
 // ServiceRequest Instance end
-//=================== <**********> =======================∂
+//=================== <**********> =======================
+
+//=================== <**********> =======================
+// Task Start
+//=================== <**********> =======================m
+
+model Task {
+  id               String          @id @default(uuid())
+  taskType         TaskType
+  price            Int
+  ServiceRequest   ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
+  serviceRequestId String?
+}
+
+//=================== <**********> =======================
+// Task End
+//=================== <**********> =======================
+
+//=================== <**********> =======================
+// Notification Start
+//=================== <**********> =======================
+model Notification {
+  id        String   @id @default(uuid())
+  title     String
+  body      String
+  data      Json?
+  profileId String
+  read      Boolean  @default(false)
+  time      DateTime @default(now())
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+//=================== <**********> =======================
+// Notification Start
+//=================== <**********> =======================

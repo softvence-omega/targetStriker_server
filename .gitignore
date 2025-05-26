@@ -2,6 +2,7 @@
 /dist
 /node_modules
 /build
+/generated
 
 # Logs
 logs
@@ -58,6 +59,8 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # Ignore uploaded files
 /uploads/*
 !/uploads/.gitkeep
+
+
 
 /temp/*
 !/temp/.gitkeep
