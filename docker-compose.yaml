@@ -9,7 +9,7 @@ services:
       - "5101:3000"
     environment:
       DATABASE_URL: postgresql://myuser:mypassword@db:5432/mydatabase
-      REDIS_URL: redis://redis:6380
+      REDIS_URL: redis://redis:6379
     depends_on:
       - db
       - redis
