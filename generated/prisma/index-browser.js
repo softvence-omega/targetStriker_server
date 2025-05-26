@@ -133,6 +133,12 @@ exports.Prisma.UserScalarFieldEnum = {
   active: 'active'
 };
 
+exports.Prisma.Fcm_tokenScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  userId: 'userId'
+};
+
 exports.Prisma.WorkerProfileScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -204,15 +210,15 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
 exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
-};
-
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
 };
 exports.UserType = exports.$Enums.UserType = {
   ADMIN: 'ADMIN',
@@ -240,6 +246,7 @@ exports.RequestStatus = exports.$Enums.RequestStatus = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  Fcm_token: 'Fcm_token',
   WorkerProfile: 'WorkerProfile',
   ClientProfile: 'ClientProfile',
   AdminProfile: 'AdminProfile',

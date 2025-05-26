@@ -32,6 +32,7 @@ model User {
   adminProfile  AdminProfile?
   UserType      UserType
   active        Boolean        @default(false)
+  fcm_token     Fcm_token?
 }
 
 // ##################### $ User Type Enum Start $ ##############
@@ -43,6 +44,21 @@ enum UserType {
 }
 
 // ##################### $ User Type Enum Start $ ##############
+
+//=================== <**********> =======================
+// Fcm_token Start
+//=================== <**********> =======================
+
+model Fcm_token {
+  id     String  @id @default(uuid())
+  token  String  @unique
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String? @unique
+}
+
+//=================== <**********> =======================
+// Fcm_token End
+//=================== <**********> =======================
 
 //=================== <**********> =======================
 // User End

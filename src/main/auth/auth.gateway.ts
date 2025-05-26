@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UseFilters } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import {
@@ -6,12 +6,15 @@ import {
   OnGatewayDisconnect,
   WebSocketGateway,
   WebSocketServer,
+  WsException,
 } from '@nestjs/websockets';
 import { IncomingMessage } from 'http';
+import { WebSocketExceptionsFilter } from 'src/error/wsError.filter';
 import { CacheService } from 'src/utils/cache/cache.service';
 import { DbService } from 'src/utils/db/db.service';
 import { Server, WebSocket } from 'ws';
 
+@UseFilters(WebSocketExceptionsFilter)
 @WebSocketGateway({
   path: '/ts/weak_up',
   cors: { origin: '*' },
@@ -33,6 +36,13 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleConnection(client: WebSocket, ...args: any[]) {
     const req = args[0] as IncomingMessage;
     const authHeader = req.headers['authorization'];
+    const fcmToken = req.headers['fcm_token'];
+
+    if (!fcmToken) {
+      this.logger.warn('Missing FCM token in request headers');
+      client.close();
+      return;
+    }
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       this.logger.warn('Missing or invalid Authorization header');
@@ -59,6 +69,8 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
         where: { id: userId },
         data: { active: true },
       });
+
+      await this.saveFcmToken(userId, fcmToken as string);
 
       await this.broadcastUserStatus(userId, true);
 
@@ -99,7 +111,9 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.cacheService.cleanupWatchersForClient(clientId);
     await this.cacheService.removeClientUserMapping(clientId);
 
-    this.logger.log(`User ${userId} disconnected, client ${clientId} cleaned up`);
+    this.logger.log(
+      `User ${userId} disconnected, client ${clientId} cleaned up`,
+    );
   }
 
   private generateClientId(): string {
@@ -132,14 +146,17 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const client = connectedClients.find(
         (c) => (c as any).clientId === watcherId,
       );
-      
+
       if (client && client.readyState === WebSocket.OPEN) {
         try {
           client.send(message);
           activeWatchers.push(watcherId);
           sentCount++;
         } catch (error) {
-          this.logger.warn(`Failed to send message to client ${watcherId}:`, error);
+          this.logger.warn(
+            `Failed to send message to client ${watcherId}:`,
+            error,
+          );
         }
       }
     }
@@ -153,7 +170,9 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
     }
 
-    this.logger.debug(`Broadcasted status for user ${userId} to ${sentCount} watchers`);
+    this.logger.debug(
+      `Broadcasted status for user ${userId} to ${sentCount} watchers`,
+    );
   }
 
   private getConnectedClients(): WebSocket[] {
@@ -168,24 +187,31 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async broadcastToUserWatchers(userId: string, message: any) {
     const watcherIds = await this.cacheService.getUserWatchers(userId);
     const connectedClients = this.getConnectedClients();
-    
+
     const messageStr = JSON.stringify(message);
     let sentCount = 0;
 
     for (const watcherId of watcherIds) {
-      const client = connectedClients.find(c => (c as any).clientId === watcherId);
-      
+      const client = connectedClients.find(
+        (c) => (c as any).clientId === watcherId,
+      );
+
       if (client && client.readyState === WebSocket.OPEN) {
         try {
           client.send(messageStr);
           sentCount++;
         } catch (error) {
-          this.logger.warn(`Failed to send custom message to client ${watcherId}:`, error);
+          this.logger.warn(
+            `Failed to send custom message to client ${watcherId}:`,
+            error,
+          );
         }
       }
     }
 
-    this.logger.debug(`Sent custom message to ${sentCount} watchers of user ${userId}`);
+    this.logger.debug(
+      `Sent custom message to ${sentCount} watchers of user ${userId}`,
+    );
     return sentCount;
   }
 
@@ -195,24 +221,31 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async broadcastToUser(userId: string, message: any) {
     const clientIds = await this.cacheService.getClientIdsByUserId(userId);
     const connectedClients = this.getConnectedClients();
-    
+
     const messageStr = JSON.stringify(message);
     let sentCount = 0;
 
     for (const clientId of clientIds) {
-      const client = connectedClients.find(c => (c as any).clientId === clientId);
-      
+      const client = connectedClients.find(
+        (c) => (c as any).clientId === clientId,
+      );
+
       if (client && client.readyState === WebSocket.OPEN) {
         try {
           client.send(messageStr);
           sentCount++;
         } catch (error) {
-          this.logger.warn(`Failed to send message to user ${userId}, client ${clientId}:`, error);
+          this.logger.warn(
+            `Failed to send message to user ${userId}, client ${clientId}:`,
+            error,
+          );
         }
       }
     }
 
-    this.logger.debug(`Sent message to user ${userId} on ${sentCount} connections`);
+    this.logger.debug(
+      `Sent message to user ${userId} on ${sentCount} connections`,
+    );
     return sentCount;
   }
 
@@ -221,5 +254,38 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
    */
   async getConnectionStats() {
     return await this.cacheService.getCacheStatistics();
+  }
+
+  /**
+   * Save or update a user's FCM token
+   */
+  public async saveFcmToken(userId: string, fcmToken: string) {
+    try {
+      const isExist = await this.db.fcm_token.findUnique({
+        where: {
+          userId: userId,
+        },
+      });
+
+      if (isExist) {
+        await this.db.fcm_token.update({
+          where: {
+            userId: userId,
+          },
+          data: {
+            token: fcmToken,
+          },
+        });
+      } else {
+        await this.db.fcm_token.create({
+          data: {
+            userId: userId,
+            token: fcmToken,
+          },
+        });
+      }
+    } catch (error) {
+      throw new WsException(error);
+    }
   }
 }
