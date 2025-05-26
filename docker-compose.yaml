@@ -9,7 +9,7 @@ services:
       - "5101:3000"
     environment:
       DATABASE_URL: postgresql://myuser:mypassword@db:5432/mydatabase
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://redis:6380
     depends_on:
       - db
       - redis
@@ -36,7 +36,7 @@ services:
     container_name: baxton_redis
     restart: always
     ports:
-      - "6379:6379"
+      - "6380:6379"
 
 volumes:
   pgdata:
