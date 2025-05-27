@@ -178,6 +178,7 @@ model ServiceRequest {
   tasks               Task[]
   WorkerProfile       WorkerProfile? @relation(fields: [workerProfileId], references: [id])
   workerProfileId     String?
+  taskType            TaskType
 }
 
 // ##################### $ RequestStatus Type Enum Start $ ##############
@@ -202,7 +203,6 @@ enum RequestStatus {
 
 model Task {
   id               String          @id @default(uuid())
-  taskType         TaskType
   price            Int
   ServiceRequest   ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
   serviceRequestId String?

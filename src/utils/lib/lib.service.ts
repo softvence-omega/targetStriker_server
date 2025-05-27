@@ -24,4 +24,5 @@ export class LibService {
     }): Promise<boolean> {
         return bcrypt.compare(password, hashedPassword);
     }
+
 }
