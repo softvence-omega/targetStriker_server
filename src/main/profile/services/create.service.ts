@@ -53,7 +53,6 @@ export class CreateService {
         success: true,
         message: 'Client profile created successfully',
         data,
-        statusCode: 201,
       };
     } catch (error) {
       throw new BadRequestException(

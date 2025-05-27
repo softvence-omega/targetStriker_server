@@ -70,12 +70,13 @@ model Fcm_token {
 //=================== <**********> =======================
 
 model WorkerProfile {
-  id       String   @id @default(uuid())
-  User     User?    @relation(fields: [userId], references: [id])
-  userId   String?  @unique
-  taskType TaskType
-  workerId String   @unique
-  location Json
+  id              String           @id @default(uuid())
+  User            User?            @relation(fields: [userId], references: [id])
+  userId          String?          @unique
+  taskType        TaskType
+  workerId        String           @unique
+  location        Json
+  assignedService ServiceRequest[]
 }
 
 // ##################### $ Work Type Enum Start $ ##############
@@ -141,8 +142,10 @@ model FileInstance {
   fileType         String
   mimeType         String
   size             Int
-  ServiceRequest   ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
+  ServiceRequest   ServiceRequest? @relation("ReqPhoto", fields: [serviceRequestId], references: [id])
   serviceRequestId String?         @unique
+  ServiceAfter     ServiceRequest? @relation("AfterPhoto", fields: [serviceAfterId], references: [id])
+  serviceAfterId   String?         @unique
   ClientProfile    ClientProfile?  @relation(fields: [clientProfileId], references: [id])
   clientProfileId  String?         @unique
 }
@@ -156,22 +159,25 @@ model FileInstance {
 //=================== <**********> =======================
 
 model ServiceRequest {
-  id                  String        @id @default(uuid())
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
+  id                  String         @id @default(uuid())
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
   name                String
   phoneNumber         String
   email               String
   city                String
   postalCode          String
-  locationDescription String        @db.Text
+  locationDescription String         @db.Text
   taskTypeId          Int
-  problemDescription  String        @db.Text
-  file                FileInstance?
+  problemDescription  String         @db.Text
+  reqPhoto            FileInstance?  @relation("ReqPhoto")
+  afterPhoto          FileInstance?  @relation("AfterPhoto")
   preferredTime       String?
   preferredDate       DateTime?
-  status              RequestStatus @default(PENDING)
+  status              RequestStatus  @default(PENDING)
   tasks               Task[]
+  WorkerProfile       WorkerProfile? @relation(fields: [workerProfileId], references: [id])
+  workerProfileId     String?
 }
 
 // ##################### $ RequestStatus Type Enum Start $ ##############
@@ -210,15 +216,14 @@ model Task {
 // Notification Start
 //=================== <**********> =======================
 model Notification {
-  id        String   @id @default(uuid())
-  title     String
-  body      String
-  data      Json?
-  profileId String
-  read      Boolean  @default(false)
-  time      DateTime @default(now())
-  User      User?    @relation(fields: [userId], references: [id])
-  userId    String?
+  id     String   @id @default(uuid())
+  title  String
+  body   String
+  data   Json?
+  read   Boolean  @default(false)
+  time   DateTime @default(now())
+  User   User?    @relation(fields: [userId], references: [id])
+  userId String?
 }
 
 //=================== <**********> =======================

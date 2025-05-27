@@ -5,7 +5,6 @@ export interface ResponseMeta {
   }
   
   export interface ApiResponse<T> {
-    statusCode: number;
     success: boolean;
     message: string;
     meta?: ResponseMeta;
