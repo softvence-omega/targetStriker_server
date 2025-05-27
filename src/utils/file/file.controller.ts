@@ -9,8 +9,6 @@ import {
 import { FileService } from './file.service';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import * as path from 'path';
 import { IdDto } from 'src/common/dto/id.dto';
 import { FileType, MulterService } from '../lib/multer.service';
 
