@@ -5,12 +5,14 @@ import { DbService } from './db/db.service';
 import { FileService } from './file/file.service';
 import { FileController } from './file/file.controller';
 import { CacheService } from './cache/cache.service';
+import { EventService } from './event/event.service';
+import { MulterService } from './lib/multer.service';
 
 
 @Global()
 @Module({
-  providers: [LibService, EmailService, DbService, FileService, CacheService],
-  exports:[LibService, EmailService, DbService, FileService, CacheService],
+  providers: [LibService, EmailService, DbService, FileService, CacheService, EventService, MulterService],
+  exports:[LibService, EmailService, DbService, FileService, CacheService, EventService],
   controllers: [FileController]
 })
 export class UtilsModule {}

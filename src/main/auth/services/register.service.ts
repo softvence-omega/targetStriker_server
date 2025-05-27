@@ -71,7 +71,6 @@ export class RegisterService {
         user,
       },
       message: 'User registered successfully',
-      statusCode: 201,
       success: true,
     };
   }

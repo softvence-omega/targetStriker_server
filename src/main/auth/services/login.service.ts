@@ -64,7 +64,6 @@ export class LoginService {
         token,
         user:cleanUser,
       },
-      statusCode: 200,
     };
   }
 }
