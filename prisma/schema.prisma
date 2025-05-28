@@ -19,21 +19,23 @@ datasource db {
 //=================== <**********> =======================
 
 model User {
-  id            String         @id @default(uuid())
-  email         String         @unique
-  phone         String         @unique
-  password      String
-  name          String
-  isVerified    Boolean        @default(false)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  workerProfile WorkerProfile?
-  clientProfile ClientProfile?
-  adminProfile  AdminProfile?
-  UserType      UserType
-  active        Boolean        @default(false)
-  fcm_token     Fcm_token?
-  modifications Notification[]
+  id                     String         @id @default(uuid())
+  email                  String         @unique
+  phone                  String         @unique
+  password               String
+  name                   String
+  isVerified             Boolean        @default(false)
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+  workerProfile          WorkerProfile?
+  clientProfile          ClientProfile?
+  adminProfile           AdminProfile?
+  UserType               UserType
+  active                 Boolean        @default(false)
+  fcm_token              Fcm_token?
+  modifications          Notification[]
+  conversationsInitiated Conversation[] @relation("MemberOne")
+  conversationsReceived  Conversation[] @relation("MemberTwo")
 }
 
 // ##################### $ User Type Enum Start $ ##############
@@ -77,6 +79,7 @@ model WorkerProfile {
   workerId        String           @unique
   location        Json
   assignedService ServiceRequest[]
+  invoice         Invoice[]
 }
 
 // ##################### $ Work Type Enum Start $ ##############
@@ -108,6 +111,7 @@ model ClientProfile {
   location   Json?
   userName   String?       @unique
   profilePic FileInstance?
+  invoice    Invoice[]
 }
 
 //=================== <**********> =======================
@@ -172,13 +176,15 @@ model ServiceRequest {
   problemDescription  String         @db.Text
   reqPhoto            FileInstance?  @relation("ReqPhoto")
   afterPhoto          FileInstance?  @relation("AfterPhoto")
-  preferredTime       String?
-  preferredDate       DateTime?
+  preferredTime       DateTime
+  preferredDate       DateTime
   status              RequestStatus  @default(PENDING)
   tasks               Task[]
   WorkerProfile       WorkerProfile? @relation(fields: [workerProfileId], references: [id])
   workerProfileId     String?
   taskType            TaskType
+  Invoice             Invoice?       @relation(fields: [invoiceId], references: [id])
+  invoiceId           String?        @unique
 }
 
 // ##################### $ RequestStatus Type Enum Start $ ##############
@@ -204,6 +210,7 @@ enum RequestStatus {
 model Task {
   id               String          @id @default(uuid())
   price            Int
+  name             String
   ServiceRequest   ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
   serviceRequestId String?
 }
@@ -228,4 +235,59 @@ model Notification {
 
 //=================== <**********> =======================
 // Notification Start
+//=================== <**********> =======================
+
+//=================== <**********> =======================
+// Conversation Start
+//=================== <**********> =======================
+model Conversation {
+  id             String    @id @default(uuid())
+  memberOneId    String
+  memberOne      User      @relation("MemberOne", fields: [memberOneId], references: [id], onDelete: Cascade)
+  memberTwoId    String
+  memberTwo      User      @relation("MemberTwo", fields: [memberTwoId], references: [id], onDelete: Cascade)
+  directMessages Message[]
+  lasMessage     Message?  @relation("LastConversationMessage")
+
+  @@unique([memberOneId, memberTwoId])
+  @@index([memberTwoId])
+}
+
+//=================== <**********> =======================
+// Conversation Start
+//=================== <**********> =======================
+
+//=================== <**********> =======================
+// Message Start
+//=================== <**********> =======================
+
+model Message {
+  id                        String        @id @default(uuid())
+  Conversation              Conversation? @relation(fields: [conversationId], references: [id])
+  conversationId            String?
+  lastConversationMessage   Conversation? @relation("LastConversationMessage", fields: [lastConversationMessageId], references: [id])
+  lastConversationMessageId String?       @unique
+}
+
+//=================== <**********> =======================
+// Message Start
+//=================== <**********> =======================
+
+//=================== <**********> =======================
+// Invoice Start
+//=================== <**********> =======================
+
+model Invoice {
+  id              String          @id @default(uuid())
+  serviceRequest  ServiceRequest?
+  invoiceNumber   String          @unique
+  bankName        String?
+  ClientProfile   ClientProfile?  @relation(fields: [clientProfileId], references: [id])
+  clientProfileId String?
+  WorkerProfile   WorkerProfile?  @relation(fields: [workerProfileId], references: [id])
+  workerProfileId String?
+}
+
+//=================== <**********> =======================
+// Invoice End
 //=================== <**********> =======================
