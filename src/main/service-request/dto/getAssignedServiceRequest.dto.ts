@@ -9,6 +9,7 @@ export class GetAssignedServiceRequestDto extends PaginationDto {
         example: '2024-12-25T10:00:00Z',
         type: String,
         format: 'date-time',
+        required: false
       })
       @IsDateString()
       date?: string;
