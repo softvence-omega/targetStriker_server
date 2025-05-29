@@ -7,12 +7,14 @@ import { CommonService } from './common.service';
 import { LoginDto } from '../dto/login.dto';
 import { LibService } from 'src/utils/lib/lib.service';
 import { ApiResponse } from 'src/common/types/apiResponse';
+import { DbService } from 'src/utils/db/db.service';
 
 @Injectable()
 export class LoginService {
   constructor(
     private readonly commonService: CommonService,
     private readonly lib: LibService,
+    private dbService: DbService
   ) {}
 
   async login(rawData: LoginDto): Promise<ApiResponse<any>> {
@@ -51,7 +53,7 @@ export class LoginService {
     });
 
     const cleanUser = {
-      ...user,
+      ...(this.dbService.exclude(user, ['password'])),
       clientProfile: undefined,
       workerProfile: undefined,
       adminProfile: undefined,
