@@ -38,11 +38,13 @@ export class CommonService {
   }
 
   public async isUserExit(id: IdDto) {
-    return await this.db.user.findUnique({
+    const data = await this.db.user.findUnique({
       where: {
         id: id.id,
       },
     });
+    
+    return data && this.db.exclude(data, ['password']);
   }
 
   public async isUserExistByEmail(email: EmailDto) {
