@@ -44,7 +44,7 @@ export class AssignTaskService {
 
   public async getAssignedServiceRequest(
     { id }: IdDto,
-    { take, skip, date }: GetAssignedServiceRequestDto,
+    { take, skip }: GetAssignedServiceRequestDto,
   ): Promise<ApiResponse<any>> {
     const isUserExist = await this.db.user.findFirst({
       where: {
