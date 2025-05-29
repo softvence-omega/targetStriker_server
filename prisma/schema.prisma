@@ -72,34 +72,49 @@ model Fcm_token {
 //=================== <**********> =======================
 
 model WorkerProfile {
-  id              String           @id @default(uuid())
-  User            User?            @relation(fields: [userId], references: [id])
-  userId          String?          @unique
-  userName        String?          @unique
-  taskType        TaskType
-  workerId        String           @unique
-  location        Json
-  assignedService ServiceRequest[]
-  invoice         Invoice[]
-  profilePic      FileInstance?
+  id                 String            @id @default(uuid())
+  User               User?             @relation(fields: [userId], references: [id])
+  userId             String?           @unique
+  userName           String?           @unique
+  workerId           String            @unique
+  location           Json
+  assignedService    ServiceRequest[]
+  invoice            Invoice[]
+  profilePic         FileInstance?
+  WorkerSpecialist   WorkerSpecialist? @relation(fields: [workerSpecialistId], references: [id])
+  workerSpecialistId String?
 }
-
-// ##################### $ Work Type Enum Start $ ##############
-
-enum TaskType {
-  SCHIMMEL_INSPECTIES_BEHANDELINGEN
-  INSPECTIES_HUURWONINGEN_NAZORG
-  VOCHTBEHEERSING
-  STUCWERK
-  SCHILDEREN_COATING
-  NICOTINEVLEKKEN_VERWIJDERING
-  REDDERSTEAM_NOODDIENST_24_7
-}
-
-// ##################### $ Work Type Enum End $ ##############
 
 //=================== <**********> =======================
 // Worker Profile End
+//=================== <**********> =======================
+
+//=================== <**********> =======================
+// WorkerSpecialist Type Start
+//=================== <**********> =======================
+
+model WorkerSpecialist {
+  id            String          @id @default(uuid())
+  name          String          @unique
+  workerProfile WorkerProfile[]
+}
+
+//=================== <**********> =======================
+// WorkerSpecialist Type end
+//=================== <**********> =======================
+
+//=================== <**********> =======================
+// Task Type Start
+//=================== <**********> =======================
+
+model TaskType {
+  id             String           @id @default(uuid())
+  name           String           @unique
+  serviceRequest ServiceRequest[]
+}
+
+//=================== <**********> =======================
+// Task Type End
 //=================== <**********> =======================
 
 //=================== <**********> =======================
@@ -186,11 +201,12 @@ model ServiceRequest {
   tasks               Task[]
   WorkerProfile       WorkerProfile? @relation(fields: [workerProfileId], references: [id])
   workerProfileId     String?
-  taskType            TaskType
   Invoice             Invoice?       @relation(fields: [invoiceId], references: [id])
   invoiceId           String?        @unique
   ClientProfile       ClientProfile? @relation(fields: [clientProfileId], references: [id])
   clientProfileId     String?
+  TaskType            TaskType?      @relation(fields: [taskTypeId], references: [id])
+  taskTypeId          String?
 }
 
 // ##################### $ RequestStatus Type Enum Start $ ##############
@@ -287,11 +303,20 @@ model Invoice {
   id              String          @id @default(uuid())
   serviceRequest  ServiceRequest?
   invoiceNumber   String          @unique
-  bankName        String?
   ClientProfile   ClientProfile?  @relation(fields: [clientProfileId], references: [id])
   clientProfileId String?
   WorkerProfile   WorkerProfile?  @relation(fields: [workerProfileId], references: [id])
   workerProfileId String?
+  BankInfo        BankInfo?       @relation(fields: [bankInfoId], references: [id])
+  bankInfoId      String?
+}
+
+model BankInfo {
+  id           String    @id @default(uuid())
+  bankName     String
+  IBAN         String
+  BIC_or_SWIFT String
+  invoice      Invoice[]
 }
 
 //=================== <**********> =======================

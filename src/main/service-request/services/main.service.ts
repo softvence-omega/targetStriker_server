@@ -17,6 +17,7 @@ export class MainService {
       reqPhoto,
       name,
       taskName,
+      taskTypeId,
       ...rest
     } = rawDate;
 
@@ -43,6 +44,11 @@ export class MainService {
               price:0
             },
           },
+          TaskType:{
+            connect: {
+              id: taskTypeId,
+            },
+          }
         },
         include:{
           reqPhoto:{
@@ -57,7 +63,6 @@ export class MainService {
             },
           },
         },
-       
       });
 
       return {

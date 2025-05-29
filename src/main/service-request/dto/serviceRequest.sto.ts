@@ -8,6 +8,7 @@ import {
   MaxLength,
   IsInt,
   Min,
+  IsUUID,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { TaskType } from 'generated/prisma';
@@ -80,7 +81,7 @@ export class CreateServiceRequestDTO {
   @IsNotEmpty()
   problemDescription: string;
 
- @ApiProperty({
+  @ApiProperty({
     description: 'Photo showing the problem (required)',
     type: 'string',
     format: 'binary',
@@ -106,13 +107,11 @@ export class CreateServiceRequestDTO {
   preferredDate: string;
 
   @ApiProperty({
-    description: 'Type of task/service being requested',
-    enum: TaskType,
-    example: TaskType.SCHIMMEL_INSPECTIES_BEHANDELINGEN,
-    enumName: 'TaskType',
+    description: 'Unique identifier (UUID)',
+    example: '550e8400-e29b-41d4-a716-446655440000',
   })
-  @IsEnum(TaskType)
-  taskType: TaskType;
+  @IsUUID('4', { message: 'ID must be a valid UUID (version 4).' })
+  taskTypeId: string;
 
   @ApiProperty({
     description: 'The name of the task',
