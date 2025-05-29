@@ -3,15 +3,18 @@ import {
   IsEmail,
   IsNumber,
   IsEnum,
-  IsOptional,
   IsDateString,
   IsNotEmpty,
+  MaxLength,
+  IsInt,
+  Min,
 } from 'class-validator';
-import { Transform } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { TaskType } from 'generated/prisma';
+import { Transform } from 'class-transformer';
+import { BadRequestException } from '@nestjs/common';
 
-export class CreateServiceRequestDTOWithValidation {
+export class CreateServiceRequestDTO {
   @ApiProperty({
     description: 'Full name of the person requesting the service',
     example: 'John Doe',
@@ -19,7 +22,7 @@ export class CreateServiceRequestDTOWithValidation {
   })
   @IsString()
   @IsNotEmpty()
-  name: string;
+  taskName: string;
 
   @ApiProperty({
     description: 'Phone number for contact',
@@ -67,14 +70,6 @@ export class CreateServiceRequestDTOWithValidation {
   locationDescription: string;
 
   @ApiProperty({
-    description: 'Numeric identifier for the task type',
-    example: 1,
-    type: Number,
-  })
-  @IsNumber()
-  taskTypeId: number;
-
-  @ApiProperty({
     description:
       'Detailed description of the problem that needs to be addressed',
     example:
@@ -85,14 +80,13 @@ export class CreateServiceRequestDTOWithValidation {
   @IsNotEmpty()
   problemDescription: string;
 
-  @ApiProperty({
+ @ApiProperty({
     description: 'Photo showing the problem (required)',
     type: 'string',
     format: 'binary',
     required: true,
   })
-  @IsNotEmpty()
-  reqPhoto: Buffer | Express.Multer.File;
+  reqPhoto?: Express.Multer.File; //
 
   @ApiProperty({
     description: 'Preferred time for the service',
@@ -100,7 +94,7 @@ export class CreateServiceRequestDTOWithValidation {
     type: String,
   })
   @IsDateString()
-  preferredTime?: string;
+  preferredTime: string;
 
   @ApiProperty({
     description: 'Preferred date for the service',
@@ -109,7 +103,7 @@ export class CreateServiceRequestDTOWithValidation {
     format: 'date-time',
   })
   @IsDateString()
-  preferredDate: Date;
+  preferredDate: string;
 
   @ApiProperty({
     description: 'Type of task/service being requested',
@@ -119,4 +113,34 @@ export class CreateServiceRequestDTOWithValidation {
   })
   @IsEnum(TaskType)
   taskType: TaskType;
+
+  @ApiProperty({
+    description: 'The name of the task',
+    example: 'Schimmel inspectie woonkamer',
+    maxLength: 255,
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(255, { message: 'Task name must not exceed 255 characters' })
+  name: string;
+
+  // @ApiProperty({
+  //   description:
+  //     'The price of the task in cents (to avoid floating point issues)',
+  //   example: 15000,
+  //   minimum: 0,
+  // })
+  // @IsInt()
+  // @Transform(({ value }) => {
+  //   if (typeof value === 'string') {
+  //     const parsed = parseInt(value, 10);
+  //     if (Number.isNaN(parsed)) {
+  //       throw new BadRequestException('Price must be a valid number');
+  //     }
+  //     return parsed;
+  //   }
+  //   return value;
+  // })
+  // @Min(0, { message: 'Price must be a positive integer' })
+  // price: number;
 }
