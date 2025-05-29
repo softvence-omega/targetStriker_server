@@ -7,6 +7,8 @@ import { ServiceRequestModule } from './service-request/service-request.module';
 import { ChatModule } from './chat/chat.module';
 import { AdminModule } from './admin/admin.module';
 import { MetaModule } from './meta/meta.module';
+import { WorkerModule } from './worker/worker.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { MetaModule } from './meta/meta.module';
     ChatModule,
     AdminModule,
     MetaModule,
+    WorkerModule,
+    SettingsModule,
   ],
 })
 export class MainModule {}

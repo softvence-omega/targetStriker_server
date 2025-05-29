@@ -199,6 +199,7 @@ model ServiceRequest {
   preferredDate       DateTime
   status              RequestStatus  @default(PENDING)
   tasks               Task[]
+  basePrice           Int            @default(0)
   WorkerProfile       WorkerProfile? @relation(fields: [workerProfileId], references: [id])
   workerProfileId     String?
   Invoice             Invoice?       @relation(fields: [invoiceId], references: [id])
@@ -207,7 +208,17 @@ model ServiceRequest {
   clientProfileId     String?
   TaskType            TaskType?      @relation(fields: [taskTypeId], references: [id])
   taskTypeId          String?
+  paymentType         PaymentType    @default(POSTPAID)
 }
+
+// ##################### $ Payment Type Enum Start $ ##############
+
+enum PaymentType {
+  PREPAID
+  POSTPAID
+}
+
+// ##################### $ Payment Type Enum End $ ##############
 
 // ##################### $ RequestStatus Type Enum Start $ ##############
 
@@ -313,10 +324,16 @@ model Invoice {
 
 model BankInfo {
   id           String    @id @default(uuid())
-  bankName     String
-  IBAN         String
-  BIC_or_SWIFT String
+  bankName     String?
+  IBAN         String?
+  BIC_or_SWIFT String?
   invoice      Invoice[]
+}
+
+model PaymentTerm {
+  id       String  @id @default(uuid())
+  prePaid  Boolean @default(false)
+  postPaid Boolean @default(false)
 }
 
 //=================== <**********> =======================

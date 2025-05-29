@@ -38,12 +38,6 @@ export class MainService {
           },
           name: taskName,
           ...rest,
-          tasks: {
-            create: {
-              name,
-              price:0
-            },
-          },
           TaskType:{
             connect: {
               id: taskTypeId,
