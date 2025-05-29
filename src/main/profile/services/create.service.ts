@@ -93,7 +93,11 @@ export class CreateService {
             },
           },
           workerId: rawData.workerId,
-          taskType: rawData.taskType,
+          WorkerSpecialist:{
+            connect: {
+              id: rawData.workerSpecialtyId
+            }
+          }
         },
         include: {
           profilePic: true,

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsString } from 'class-validator';
+import { IsEnum, IsString, IsUUID } from 'class-validator';
 import { TaskType } from 'generated/prisma';
 
 export class CreateWorkerProfileDto {
@@ -23,11 +23,9 @@ export class CreateWorkerProfileDto {
   workerId: string;
 
   @ApiProperty({
-    description: 'Type of task/service being requested',
-    enum: TaskType,
-    example: TaskType.SCHIMMEL_INSPECTIES_BEHANDELINGEN,
-    enumName: 'TaskType',
+    description: 'Unique identifier (UUID)',
+    example: '550e8400-e29b-41d4-a716-446655440000',
   })
-  @IsEnum(TaskType)
-  taskType: TaskType;
+  @IsUUID('4', { message: 'ID must be a valid UUID (version 4).' })
+  workerSpecialtyId: string;
 }
