@@ -44,7 +44,7 @@ export class AssignTaskService {
 
   public async getAssignedServiceRequest(
     { id }: IdDto,
-    { take, skip, date }: GetAssignedServiceRequestDto,
+    { take, skip }: GetAssignedServiceRequestDto,
   ): Promise<ApiResponse<any>> {
     const isUserExist = await this.db.user.findFirst({
       where: {
@@ -58,15 +58,6 @@ export class AssignTaskService {
       throw new BadRequestException('User not found');
     }
 
-    // Use provided date or default to today
-    const filterDate = date ? new Date(date) : new Date();
-
-    // Set time to start and end of day for proper filtering
-    const startOfDay = new Date(filterDate);
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const endOfDay = new Date(filterDate);
-    endOfDay.setHours(23, 59, 59, 999);
 
     const data = await this.db.serviceRequest.findMany({
       where: {
@@ -74,11 +65,6 @@ export class AssignTaskService {
           userId: id,
         },
         // Add date filter - assuming you have a createdAt or scheduledDate field
-        createdAt: {
-          // or scheduledDate, appointmentDate, etc.
-          gte: startOfDay,
-          lte: endOfDay,
-        },
       },
       take,
       skip,
