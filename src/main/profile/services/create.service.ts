@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { DbService } from 'src/utils/db/db.service';
 import { CreateClientProfileDto } from '../dto/createClientProfile.dto';
 import { IdDto } from 'src/common/dto/id.dto';
-import { CommonService as UserCommonService } from 'src/main/auth/services/common.service';
+import { CommonService, CommonService as UserCommonService } from 'src/main/auth/services/common.service';
 import { ApiResponse } from 'src/common/types/apiResponse';
 import { FileService } from 'src/utils/file/file.service';
 import { CreateWorkerProfileDto } from '../dto/createWrokerProficle.dto';
@@ -13,6 +13,7 @@ export class CreateService {
     private readonly db: DbService,
     private readonly UserCommonService: UserCommonService,
     private readonly fileService: FileService,
+    private readonly commonService: CommonService
   ) {}
 
   public async createClientProfile(
@@ -53,7 +54,16 @@ export class CreateService {
       return {
         success: true,
         message: 'Client profile created successfully',
-        data,
+        data:{
+          data,
+          token: await this.commonService.generateToken({
+            email: isExist.email,
+            id: isExist.id,
+            roles: isExist.UserType,
+            isVerified: isExist.isVerified,
+            profileId: data.id
+          })
+        },
       };
     } catch (error) {
       this.fileService.remove(fileInstance.id);
@@ -107,7 +117,16 @@ export class CreateService {
       return {
         success: true,
         message: 'Client profile created successfully',
-        data,
+        data:{
+          data,
+          token: await this.commonService.generateToken({
+            email: isExist.email,
+            id: isExist.id,
+            roles: isExist.UserType,
+            isVerified: isExist.isVerified,
+            profileId: data.id
+          })
+        },
       };
     } catch (error) {
       this.fileService.remove(fileInstance.id);

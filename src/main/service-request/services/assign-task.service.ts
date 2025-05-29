@@ -18,7 +18,8 @@ export class AssignTaskService {
     taskId,
     workerId,
   }: AssignTaskDto): Promise<ApiResponse<any>> {
-    const isExist = this.commonService.findServiceRequest({ id: taskId });
+    const isExist = await this.commonService.findServiceRequest({ id: taskId });
+    
     if (!isExist) {
       throw new BadRequestException('Service request not found');
     }
@@ -62,7 +63,7 @@ export class AssignTaskService {
     const data = await this.db.serviceRequest.findMany({
       where: {
         WorkerProfile: {
-          userId: id,
+          id
         },
         // Add date filter - assuming you have a createdAt or scheduledDate field
       },
