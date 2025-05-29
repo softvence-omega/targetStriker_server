@@ -324,9 +324,9 @@ model Invoice {
 
 model BankInfo {
   id           String    @id @default(uuid())
-  bankName     String
-  IBAN         String
-  BIC_or_SWIFT String
+  bankName     String?
+  IBAN         String?
+  BIC_or_SWIFT String?
   invoice      Invoice[]
 }
 
