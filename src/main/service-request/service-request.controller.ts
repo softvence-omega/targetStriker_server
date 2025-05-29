@@ -25,6 +25,7 @@ import { CommonService } from './services/common.service';
 import { IdDto } from 'src/common/dto/id.dto';
 import { AssignTaskService } from './services/assign-task.service';
 import { AssignTaskDto } from './dto/assignTask.dto';
+import { GetAssignedServiceRequestDto } from './dto/getAssignedServiceRequest.dto';
 
 @Controller('service-request')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -87,12 +88,12 @@ export class ServiceRequestController {
   @Roles("WORKER")
   getAssignedServiceRequest(
     @Req() Req: AuthenticatedRequest, 
-    @Query() pagination: PaginationDto,
+    @Query() rawData: GetAssignedServiceRequestDto,
   ) {
     if (!Req.user.profileId) {
       throw new BadRequestException('Profile not Created');
       
     }
-    return this.assignTaskService.getAssignedServiceRequest({id: Req.user.profileId}, pagination)
+    return this.assignTaskService.getAssignedServiceRequest({id: Req.user.profileId}, rawData)
   }
 }
