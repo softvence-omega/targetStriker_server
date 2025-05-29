@@ -75,11 +75,13 @@ model WorkerProfile {
   id              String           @id @default(uuid())
   User            User?            @relation(fields: [userId], references: [id])
   userId          String?          @unique
+  userName        String?          @unique
   taskType        TaskType
   workerId        String           @unique
   location        Json
   assignedService ServiceRequest[]
   invoice         Invoice[]
+  profilePic      FileInstance?
 }
 
 // ##################### $ Work Type Enum Start $ ##############
@@ -105,13 +107,14 @@ enum TaskType {
 //=================== <**********> =======================
 
 model ClientProfile {
-  id         String        @id @default(uuid())
-  User       User?         @relation(fields: [userId], references: [id])
-  userId     String?       @unique
-  location   Json?
-  userName   String?       @unique
-  profilePic FileInstance?
-  invoice    Invoice[]
+  id             String           @id @default(uuid())
+  User           User?            @relation(fields: [userId], references: [id])
+  userId         String?          @unique
+  location       String
+  userName       String?          @unique
+  profilePic     FileInstance?
+  invoice        Invoice[]
+  serviceRequest ServiceRequest[]
 }
 
 //=================== <**********> =======================
@@ -152,6 +155,8 @@ model FileInstance {
   serviceAfterId   String?         @unique
   ClientProfile    ClientProfile?  @relation(fields: [clientProfileId], references: [id])
   clientProfileId  String?         @unique
+  WorkerProfile    WorkerProfile?  @relation(fields: [workerProfileId], references: [id])
+  workerProfileId  String?         @unique
 }
 
 //=================== <**********> =======================
@@ -172,7 +177,6 @@ model ServiceRequest {
   city                String
   postalCode          String
   locationDescription String         @db.Text
-  taskTypeId          Int
   problemDescription  String         @db.Text
   reqPhoto            FileInstance?  @relation("ReqPhoto")
   afterPhoto          FileInstance?  @relation("AfterPhoto")
@@ -185,6 +189,8 @@ model ServiceRequest {
   taskType            TaskType
   Invoice             Invoice?       @relation(fields: [invoiceId], references: [id])
   invoiceId           String?        @unique
+  ClientProfile       ClientProfile? @relation(fields: [clientProfileId], references: [id])
+  clientProfileId     String?
 }
 
 // ##################### $ RequestStatus Type Enum Start $ ##############

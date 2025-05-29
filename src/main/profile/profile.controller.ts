@@ -17,6 +17,8 @@ import { Roles } from 'src/decorator/roles.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as path from 'path';
+import { FileType, MulterService } from 'src/utils/lib/multer.service';
+import { CreateWorkerProfileDto } from './dto/createWrokerProficle.dto';
 
 @Controller('profile')
 @UseGuards(AuthGuard('jwt'))
@@ -28,22 +30,7 @@ export class ProfileController {
   @Roles('CLIENT')
   @UseGuards(RolesGuard)
   @ApiConsumes('multipart/form-data','application/json')
-  @UseInterceptors(FileInterceptor('profilePic',{
-    storage: diskStorage({
-            destination: './temp',
-            filename: (req, file, cb) => {
-              const uniqueSuffix =
-                Date.now() + '-' + Math.round(Math.random() * 1e9);
-              cb(null, `temp-${uniqueSuffix}${path.extname(file.originalname)}`);
-            },
-          }),
-          limits: {
-            fileSize: 10 * 1024 * 1024, // 10MB
-          },
-          fileFilter: (req, file, cb) => {
-            cb(null, true);
-          },
-  }))
+  @UseInterceptors(FileInterceptor('profilePic', new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE) ))
   async createClientProfile(
     @Req() req: AuthenticatedRequest,
     @Body() rawData: CreateClientProfileDto,
@@ -58,4 +45,25 @@ export class ProfileController {
       data,
     );
   }
+
+  @Post('create-worker-profile')
+  @Roles("WORKER")
+  @UseGuards(RolesGuard)
+  @ApiConsumes('multipart/form-data','application/json')
+  @UseInterceptors(FileInterceptor('profilePic', new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE) ))
+  async createServiceWorkerProfile(
+    @Req() req: AuthenticatedRequest,
+    @Body() rawData: CreateWorkerProfileDto,
+    @UploadedFile() profilePic: Express.Multer.File,
+  ) {
+    const data: CreateWorkerProfileDto = {
+      ...rawData,
+      profilePic,
+    };
+    return this.createService.createWorkerProfile(
+      { id: req.user.sub },
+      data,
+    )
+  }
+
 }

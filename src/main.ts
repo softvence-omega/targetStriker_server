@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { GlobalErrorHandlerFilter } from './error/globlaErrorHandler.filter';
 import { WsAdapter } from '@nestjs/platform-ws';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,6 +17,9 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('ts/docs', app, documentFactory);
   app.useGlobalFilters(new GlobalErrorHandlerFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({ whitelist: true, transform: true }),
+  );
   app.setGlobalPrefix('ts');
   app.useWebSocketAdapter(new WsAdapter(app));
   await app.listen(process.env.PORT ?? 3000);

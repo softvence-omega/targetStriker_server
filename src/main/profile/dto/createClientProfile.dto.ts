@@ -2,10 +2,9 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsJSON, IsOptional, IsString } from 'class-validator';
 
 export class CreateClientProfileDto {
-  @ApiPropertyOptional({ description: 'JSON object representing the location' })
-  @IsOptional()
-  @IsJSON()
-  location?: Record<string, any>; // You can use Record<string, any> if you want better typing
+  @ApiProperty({ description: 'representing the location' })
+  @IsString()
+  location: string; // You can use Record<string, any> if you want better typing
 
   @ApiProperty({ description: 'Unique username of the user' })
   @IsString()
