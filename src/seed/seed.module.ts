@@ -3,8 +3,9 @@ import { AdminService } from './services/admin.service';
 import { FolderServiceSeeder } from './services/folder.service';
 import { WorkerSpecialistTypeService } from './services/worker-specialist-type.service';
 import { TaskTypeService } from './services/task-type.service';
+import { SettingService } from './services/setting.service';
 
 @Module({
-  providers: [AdminService, FolderServiceSeeder, WorkerSpecialistTypeService, TaskTypeService]
+  providers: [AdminService, FolderServiceSeeder, WorkerSpecialistTypeService, TaskTypeService, SettingService]
 })
 export class SeedModule {}

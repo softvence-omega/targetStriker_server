@@ -330,6 +330,12 @@ model BankInfo {
   invoice      Invoice[]
 }
 
+model PaymentTerm {
+  id       String  @id @default(uuid())
+  prePaid  Boolean @default(false)
+  postPaid Boolean @default(false)
+}
+
 //=================== <**********> =======================
 // Invoice End
 //=================== <**********> =======================
