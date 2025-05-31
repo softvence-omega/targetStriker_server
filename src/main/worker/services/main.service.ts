@@ -24,8 +24,8 @@ export class MainService {
             id
           },
           data:{
-            basePrice: price
-          }
+            basePrice: price,
+          },
         })
         return {
             data,

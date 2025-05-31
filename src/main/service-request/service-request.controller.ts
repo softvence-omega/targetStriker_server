@@ -26,6 +26,7 @@ import { IdDto } from 'src/common/dto/id.dto';
 import { AssignTaskService } from './services/assign-task.service';
 import { AssignTaskDto } from './dto/assignTask.dto';
 import { GetAssignedServiceRequestDto } from './dto/getAssignedServiceRequest.dto';
+import { ViewAllDto } from './dto/viewAll.dot';
 
 @Controller('service-request')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -34,11 +35,11 @@ export class ServiceRequestController {
   constructor(
     private readonly mainService: MainService,
     private readonly commonService: CommonService,
-    private readonly assignTaskService: AssignTaskService
+    private readonly assignTaskService: AssignTaskService,
   ) {}
 
   @Post('create')
-  @Roles("CLIENT")
+  @Roles('CLIENT')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileInterceptor(
@@ -68,32 +69,93 @@ export class ServiceRequestController {
   }
 
   @Get('list')
-  @Roles("ADMIN")
+  @Roles('ADMIN')
   list(@Query() rawDate: PaginationDto) {
-   return this.commonService.getServiceRequestList(rawDate)
+    return this.commonService.getServiceRequestList(rawDate);
   }
 
   @Get('get/:id')
   get(@Param() id: IdDto) {
-    return this.commonService.findServiceRequest(id)
+    return this.commonService.findServiceRequest(id);
   }
 
-  @Post("assign-task")
-  @Roles("ADMIN")
+  @Post('assign-task')
+  @Roles('ADMIN')
   assignTask(@Body() body: AssignTaskDto) {
-    return this.assignTaskService.assignTask(body)
+    return this.assignTaskService.assignTask(body);
   }
 
-  @Get("get-assign-service-request")
-  @Roles("WORKER")
+  @Get('get-assign-service-request')
+  @Roles('WORKER')
   getAssignedServiceRequest(
-    @Req() Req: AuthenticatedRequest, 
+    @Req() Req: AuthenticatedRequest,
     @Query() rawData: GetAssignedServiceRequestDto,
   ) {
     if (!Req.user.profileId) {
       throw new BadRequestException('Profile not Created');
-      
     }
-    return this.assignTaskService.getAssignedServiceRequest({id: Req.user.profileId}, rawData)
+    return this.assignTaskService.getAssignedServiceRequest(
+      { id: Req.user.profileId },
+      rawData,
+    );
+  }
+
+  @Get('get-my-service-request')
+  @Roles('CLIENT')
+  getRequest(
+    @Req() Req: AuthenticatedRequest,
+    @Query() rawData: GetAssignedServiceRequestDto,
+  ) {
+    if (!Req.user.profileId) {
+      throw new BadRequestException('Profile not Created');
+    }
+    return this.commonService.getMyServiceRequest(
+      { id: Req.user.profileId },
+      rawData,
+    );
+  }
+
+  @Get('get-client-service-request-overview')
+  @Roles('CLIENT')
+  getServiceRequestOverview(@Req() Req: AuthenticatedRequest) {
+    if (!Req.user.profileId) {
+      throw new BadRequestException('Profile not Created');
+    }
+    return this.commonService.getMyRequestOverview({ id: Req.user.profileId });
+  }
+
+  @Get('get-worker-service-request-overview')
+  @Roles('CLIENT')
+  getWorkerServiceRequestOverview(@Req() Req: AuthenticatedRequest) {
+    if (!Req.user.profileId) {
+      throw new BadRequestException('Profile not Created');
+    }
+    return this.commonService.getMyRequestOverviewByWorker({
+      id: Req.user.profileId,
+    });
+  }
+
+  @Get('get-all-client-service-request')
+  @Roles('CLIENT', 'CLIENT')
+  getClientServiceRequestOverview(
+    @Req() Req: AuthenticatedRequest,
+    @Query() data: ViewAllDto,
+  ) {
+    if (!Req.user.profileId) {
+      throw new BadRequestException('Profile not Created');
+    }
+    return this.commonService.getViewServiceRequest(
+      { id: Req.user.profileId },
+      data,
+    );
+  }
+
+  @Post("confirm-service-request/:id")
+  @Roles('CLIENT')
+  confirmServiceRequest(@Req() req: AuthenticatedRequest, @Param() id: IdDto) {
+    if (!req.user.profileId) {
+      throw new BadRequestException('Profile not Created');
+    }
+    return this.assignTaskService.confirmServiceRequest({ id: req.user.profileId }, id.id);
   }
 }

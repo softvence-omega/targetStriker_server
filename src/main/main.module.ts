@@ -9,6 +9,7 @@ import { AdminModule } from './admin/admin.module';
 import { MetaModule } from './meta/meta.module';
 import { WorkerModule } from './worker/worker.module';
 import { SettingsModule } from './settings/settings.module';
+import { InvoiceModule } from './invoice/invoice.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { SettingsModule } from './settings/settings.module';
     MetaModule,
     WorkerModule,
     SettingsModule,
+    InvoiceModule,
   ],
 })
 export class MainModule {}

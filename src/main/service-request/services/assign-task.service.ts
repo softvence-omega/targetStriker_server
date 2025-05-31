@@ -77,4 +77,21 @@ export class AssignTaskService {
       success: true,
     };
   }
+
+  public async confirmServiceRequest({ id:clientProfileId }: IdDto, id:string): Promise<ApiResponse<any>> {
+    const data = await this.db.serviceRequest.update({
+      where: {
+        id: id,
+        clientProfileId
+      },
+      data: {
+        status: 'CONFIRMED',
+      },
+    });
+    return {
+      data,
+      message: 'Service request confirmed successfully',
+      success: true,
+    };
+  }
 }
