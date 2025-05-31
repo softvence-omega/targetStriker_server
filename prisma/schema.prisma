@@ -155,23 +155,25 @@ model AdminProfile {
 //=================== <**********> =======================
 
 model FileInstance {
-  id               String          @id @default(uuid())
-  createdAt        DateTime        @default(now())
-  filename         String
-  originalFilename String
-  path             String
-  url              String
-  fileType         String
-  mimeType         String
-  size             Int
-  ServiceRequest   ServiceRequest? @relation("ReqPhoto", fields: [serviceRequestId], references: [id])
-  serviceRequestId String?         @unique
-  ServiceAfter     ServiceRequest? @relation("AfterPhoto", fields: [serviceAfterId], references: [id])
-  serviceAfterId   String?         @unique
-  ClientProfile    ClientProfile?  @relation(fields: [clientProfileId], references: [id])
-  clientProfileId  String?         @unique
-  WorkerProfile    WorkerProfile?  @relation(fields: [workerProfileId], references: [id])
-  workerProfileId  String?         @unique
+  id                 String          @id @default(uuid())
+  createdAt          DateTime        @default(now())
+  filename           String
+  originalFilename   String
+  path               String
+  url                String
+  fileType           String
+  mimeType           String
+  size               Int
+  ServiceRequest     ServiceRequest? @relation("ReqPhoto", fields: [serviceRequestId], references: [id])
+  serviceRequestId   String?         @unique
+  ServiceAfter       ServiceRequest? @relation("AfterPhoto", fields: [serviceAfterId], references: [id])
+  serviceAfterId     String?         @unique
+  ClientProfile      ClientProfile?  @relation(fields: [clientProfileId], references: [id])
+  clientProfileId    String?         @unique
+  WorkerProfile      WorkerProfile?  @relation(fields: [workerProfileId], references: [id])
+  workerProfileId    String?         @unique
+  ServiceSignature   ServiceRequest? @relation("Signature", fields: [ServiceSignatureId], references: [id])
+  ServiceSignatureId String?         @unique
 }
 
 //=================== <**********> =======================
@@ -209,6 +211,10 @@ model ServiceRequest {
   TaskType            TaskType?      @relation(fields: [taskTypeId], references: [id])
   taskTypeId          String?
   paymentType         PaymentType    @default(POSTPAID)
+  signature           FileInstance?  @relation("Signature")
+  rating              Int            @default(0)
+  review              String?
+  accept              Boolean        @default(false)
 }
 
 // ##################### $ Payment Type Enum Start $ ##############
@@ -224,10 +230,10 @@ enum PaymentType {
 
 enum RequestStatus {
   PENDING
-  APPROVED
-  SCHEDULED
+  CONFIRMED
   COMPLETED
   CANCELLED
+  ASSIGNED
 }
 
 // ##################### $ RequestStatus Type Enum End $ ##############
