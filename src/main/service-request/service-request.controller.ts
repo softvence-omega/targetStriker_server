@@ -14,7 +14,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/guard/role.guard';
 import { MainService } from './services/main.service';
-import { ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileType, MulterService } from 'src/utils/lib/multer.service';
 import { CreateServiceRequestDTO } from './dto/serviceRequest.sto';
@@ -152,6 +152,7 @@ export class ServiceRequestController {
 
   @Post("confirm-service-request/:id")
   @Roles('CLIENT')
+  @ApiOperation({summary: 'Confirm Service Request'})
   confirmServiceRequest(@Req() req: AuthenticatedRequest, @Param() id: IdDto) {
     if (!req.user.profileId) {
       throw new BadRequestException('Profile not Created');
