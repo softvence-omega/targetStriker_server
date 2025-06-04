@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { LoginService } from './services/login.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterService } from './services/register.service';
@@ -11,6 +11,7 @@ import { ForgetPassService } from './services/forget-pass.service';
 import { SendResetCodeDto, VerifyCodeOnlyDto } from './dto/VerifyCodeOnly.Dto';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
 import { CodeService } from 'src/utils/code/code.service';
+import { MeService } from './services/me.service';
 
 @Controller('auth')
 export class AuthController {
@@ -19,7 +20,8 @@ export class AuthController {
     private readonly RegisterService: RegisterService,
     private readonly commonService: CommonService,
     private readonly forgetPassword: ForgetPassService,
-    private readonly code: CodeService
+    private readonly code: CodeService,
+    private readonly me: MeService
   ) {}
 
   @Post("login")
@@ -55,6 +57,13 @@ export class AuthController {
     return await this.commonService.deleteUser({
       id: req.user.sub,
     });
+  }
+
+  @Get("me")
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  async getMe(@Req() req: AuthenticatedRequest) {
+    return await this.me.getMe(req.user.email);
   }
   
 }

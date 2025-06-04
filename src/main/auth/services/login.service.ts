@@ -44,6 +44,9 @@ export class LoginService {
             ? user.adminProfile
             : null;
 
+    // Check if profile is created based on user type
+    const isProfileCreated = this.commonService.checkProfileCreated(user.UserType, profile);
+
     const token = await this.commonService.generateToken({
       email: user.email,
       id: user.id,
@@ -58,13 +61,15 @@ export class LoginService {
       workerProfile: undefined,
       adminProfile: undefined,
       [`${user.UserType.toLowerCase()}Profile`]: profile,
+      isProfileCreated,
     };
+
     return {
       success: true,
       message: 'Login successful',
       data: {
         token,
-        user:cleanUser,
+        user: cleanUser,
       },
     };
   }

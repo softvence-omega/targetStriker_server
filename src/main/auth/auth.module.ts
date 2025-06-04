@@ -6,11 +6,12 @@ import { RegisterService } from './services/register.service';
 import { JwtService } from '@nestjs/jwt';
 import { AuthGateway } from './auth.gateway';
 import { ForgetPassService } from './services/forget-pass.service';
+import { MeService } from './services/me.service';
 
 @Global()
 @Module({
   controllers: [AuthController],
-  providers: [CommonService, LoginService, RegisterService, JwtService, AuthGateway, ForgetPassService],
+  providers: [CommonService, LoginService, RegisterService, JwtService, AuthGateway, ForgetPassService, MeService],
   exports:[CommonService]
 })
 export class AuthModule {}

@@ -55,8 +55,24 @@ export class CommonService {
       },
       include: {
         adminProfile: true,
-        clientProfile: true,
-        workerProfile: true,
+        clientProfile: {
+          include:{
+            profilePic:{
+              select:{
+                url: true
+              }
+            }
+          }
+        },
+        workerProfile: {
+          include:{
+            profilePic:{
+              select:{
+                url: true
+              }
+            }
+          }
+        },
       },
     });
   }
@@ -114,6 +130,37 @@ export class CommonService {
       data,
       message: 'User deleted successfully',
       success: true
+    }
+  }
+
+  public checkProfileCreated(userType: UserType, profile: any): boolean {
+    if (!profile) {
+      return false;
+    }
+
+    switch (userType) {
+      case 'CLIENT':
+        // Check if essential client profile fields are present
+        return !!(
+          profile.location &&
+          profile.userName
+        );
+      
+      case 'WORKER':
+        // Check if essential worker profile fields are present
+        return !!(
+          profile.location &&
+          profile.userName &&
+          profile.workerId &&
+          profile.workerSpecialistId
+        );
+      
+      case 'ADMIN':
+        // Admin profile exists, so it's considered created
+        return true;
+      
+      default:
+        return false;
     }
   }
 }
