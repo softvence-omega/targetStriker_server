@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { $Enums, UserType } from 'generated/prisma';
 import { EmailDto } from 'src/common/dto/email.dto';
 import { IdDto } from 'src/common/dto/id.dto';
+import { ApiResponse } from 'src/common/types/apiResponse';
 import { DbService } from 'src/utils/db/db.service';
 
 @Injectable()
@@ -100,5 +101,19 @@ export class CommonService {
       secret: this.configService.getOrThrow('JWT_SECRET'),
       expiresIn: '7d',
     });
+  }
+
+  public async deleteUser(id: IdDto):Promise<ApiResponse<any>> {
+    const data = await this.db.user.deleteMany({
+      where: {
+        id: id.id,
+      },
+    });
+
+    return  {
+      data,
+      message: 'User deleted successfully',
+      success: true
+    }
   }
 }
