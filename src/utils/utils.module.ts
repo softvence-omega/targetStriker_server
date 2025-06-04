@@ -7,12 +7,13 @@ import { FileController } from './file/file.controller';
 import { CacheService } from './cache/cache.service';
 import { EventService } from './event/event.service';
 import { MulterService } from './lib/multer.service';
+import { CodeService } from './code/code.service';
 
 
 @Global()
 @Module({
-  providers: [LibService, EmailService, DbService, FileService, CacheService, EventService, MulterService],
-  exports:[LibService, EmailService, DbService, FileService, CacheService, EventService],
+  providers: [LibService, EmailService, DbService, FileService, CacheService, EventService, MulterService, CodeService],
+  exports:[LibService, EmailService, DbService, FileService, CacheService, EventService, CodeService],
   controllers: [FileController]
 })
 export class UtilsModule {}
