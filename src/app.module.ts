@@ -20,15 +20,23 @@ import { BullModule } from '@nestjs/bullmq';
 @Module({
   imports: [
     UtilsModule,
+    CacheModule.register({
+      isGlobal: true,
+    }),
+
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'), // Folder with static files
       serveRoot: '/ts/files', // Files will be served at /files/<filename>
     }),
+
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+
     SeedModule,
+
     PassportModule,
+    
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -37,7 +45,9 @@ import { BullModule } from '@nestjs/bullmq';
       }),
       inject: [ConfigService],
     }),
+
     MainModule,
+
     CacheModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -56,7 +66,6 @@ import { BullModule } from '@nestjs/bullmq';
 
     QueuesModule,
 
-    
     BullModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService], // <- this line is required
@@ -74,7 +83,10 @@ import { BullModule } from '@nestjs/bullmq';
     }),
   ],
   controllers: [AppController],
+
   providers: [AppService, JwtStrategy],
+
   exports: [JwtStrategy],
+  
 })
 export class AppModule {}
