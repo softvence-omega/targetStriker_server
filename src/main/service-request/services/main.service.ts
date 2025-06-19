@@ -42,7 +42,12 @@ export class MainService {
             connect: {
               id: taskTypeId,
             },
-          }
+          },
+          ClientProfile: {
+            connect: {
+              id,
+            },
+          },
         },
         include:{
           reqPhoto:{
