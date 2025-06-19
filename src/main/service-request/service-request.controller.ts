@@ -14,7 +14,12 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/guard/role.guard';
 import { MainService } from './services/main.service';
-import { ApiBearerAuth, ApiConsumes, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileType, MulterService } from 'src/utils/lib/multer.service';
 import { CreateServiceRequestDTO } from './dto/serviceRequest.sto';
@@ -68,6 +73,7 @@ export class ServiceRequestController {
     });
   }
 
+  @ApiTags('Admin')
   @Get('list')
   @Roles('ADMIN')
   list(@Query() rawDate: PaginationDto) {
@@ -79,6 +85,7 @@ export class ServiceRequestController {
     return this.commonService.findServiceRequest(id);
   }
 
+  @ApiTags('Admin')
   @Post('assign-task')
   @Roles('ADMIN')
   assignTask(@Body() body: AssignTaskDto) {
@@ -87,6 +94,7 @@ export class ServiceRequestController {
 
   @Get('get-assign-service-request')
   @Roles('WORKER')
+  @ApiTags('Worker')
   getAssignedServiceRequest(
     @Req() Req: AuthenticatedRequest,
     @Query() rawData: GetAssignedServiceRequestDto,
@@ -102,6 +110,7 @@ export class ServiceRequestController {
 
   @Get('get-my-service-request')
   @Roles('CLIENT')
+  @ApiTags('Client')
   getRequest(
     @Req() Req: AuthenticatedRequest,
     @Query() rawData: GetAssignedServiceRequestDto,
@@ -117,6 +126,7 @@ export class ServiceRequestController {
 
   @Get('get-client-service-request-overview')
   @Roles('CLIENT')
+  @ApiTags('Client')
   getServiceRequestOverview(@Req() Req: AuthenticatedRequest) {
     if (!Req.user.profileId) {
       throw new BadRequestException('Profile not Created');
@@ -126,6 +136,7 @@ export class ServiceRequestController {
 
   @Get('get-worker-service-request-overview')
   @Roles('CLIENT')
+  @ApiTags('Client')
   getWorkerServiceRequestOverview(@Req() Req: AuthenticatedRequest) {
     if (!Req.user.profileId) {
       throw new BadRequestException('Profile not Created');
@@ -136,7 +147,8 @@ export class ServiceRequestController {
   }
 
   @Get('get-all-client-service-request')
-  @Roles('CLIENT', 'CLIENT')
+  @Roles('CLIENT',)
+  @ApiTags('Client')
   getClientServiceRequestOverview(
     @Req() Req: AuthenticatedRequest,
     @Query() data: ViewAllDto,
@@ -150,13 +162,17 @@ export class ServiceRequestController {
     );
   }
 
-  @Post("confirm-service-request/:id")
+  @Post('confirm-service-request/:id')
   @Roles('CLIENT')
-  @ApiOperation({summary: 'Confirm Service Request'})
+  @ApiTags('Client')
+  @ApiOperation({ summary: 'Confirm Service Request' })
   confirmServiceRequest(@Req() req: AuthenticatedRequest, @Param() id: IdDto) {
     if (!req.user.profileId) {
       throw new BadRequestException('Profile not Created');
     }
-    return this.assignTaskService.confirmServiceRequest({ id: req.user.profileId }, id.id);
+    return this.assignTaskService.confirmServiceRequest(
+      { id: req.user.profileId },
+      id.id,
+    );
   }
 }

@@ -29,6 +29,7 @@ export class CommonService {
         createdAt: true,
         ClientProfile: {
           select: {
+            id: true,
             User: {
               select: {
                 name: true,
@@ -40,6 +41,9 @@ export class CommonService {
       },
       where: {
         status: 'PENDING',
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
 

@@ -42,9 +42,9 @@ export class AdminService implements OnModuleInit {
           adminProfile: { create: {} },
         },
       });
-      Logger.log('Super Admin user created successfully.');
+      this.logger.log('Super Admin user created successfully.');
     } else {
-      Logger.log('Super Admin user already exists.');
+      this.logger.log('Super Admin user already exists.');
     }
   }
 }
