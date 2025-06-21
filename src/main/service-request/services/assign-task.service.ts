@@ -34,6 +34,7 @@ export class AssignTaskService {
             id: workerId,
           },
         },
+        status: 'ASSIGNED',
       },
     });
     return {
