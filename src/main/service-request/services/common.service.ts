@@ -25,6 +25,7 @@ export class CommonService {
       take,
       skip,
       select: {
+        id: true,
         name: true,
         createdAt: true,
         ClientProfile: {

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotAcceptableException, Post, Req, UseGuards } from '@nestjs/common';
 import { LoginService } from './services/login.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterService } from './services/register.service';
@@ -54,6 +54,9 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   async selfDestruct(@Req() req: AuthenticatedRequest) {
+    if (req.user.roles === "ADMIN") {
+      throw new NotAcceptableException("Admins cannot self-destruct");
+    }
     return await this.commonService.deleteUser({
       id: req.user.sub,
     });
