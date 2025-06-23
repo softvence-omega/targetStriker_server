@@ -7,6 +7,14 @@ import { $Enums, RequestStatus } from 'generated/prisma';
 export class ReportAnalysesService {
   constructor(private readonly db: DbService) {}
 
+  public async getReport() {
+    return {
+      monthlyTurnoverReport: await this.getMonthlyTurnoverReport(),
+      monthlyCompletionRate: await this.getMonthlyCompletionRate(),
+      taskTypeStatistics: await this.getTaskTypeStatistics(),
+    };
+  }
+
   private async getMonthlyCompletionRate(month?: string) {
     const zone = 'Europe/Copenhagen';
 
@@ -53,9 +61,9 @@ export class ReportAnalysesService {
       previousMonth: previousMonthCompleted,
       progressRate: Number(progressRate.toFixed(2)),
     };
-  }
 
-  async getMonthlyTurnoverReport(month?: string) {
+  }
+  private async getMonthlyTurnoverReport(month?: string) {
     const zone = 'Europe/Copenhagen';
 
     const targetMonth = month
