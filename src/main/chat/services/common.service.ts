@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
+import { IdDto } from 'src/common/dto/id.dto';
+import { ApiResponse } from 'src/common/types/apiResponse';
 import { EVENT_TYPES } from 'src/interfaces/event';
 import { DbService } from 'src/utils/db/db.service';
 import { EventService } from 'src/utils/event/event.service';
@@ -55,5 +57,22 @@ export class CommonService {
     }
 
     return await this.createConversation(memberOneId, memberTwoId);
+  }
+
+  public async getMessages({ id: conversationId }: IdDto, { id: cursor }: IdDto):Promise<ApiResponse<any>> {
+    const data = await this.db.message.findMany({
+      where: {
+        conversationId,
+      },
+      cursor: {
+        id: cursor,
+      },
+    });
+
+    return {
+      data,
+      message: 'Messages fetched successfully',
+      success: true,
+    };
   }
 }
