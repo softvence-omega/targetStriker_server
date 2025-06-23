@@ -110,4 +110,21 @@ export class ReportAnalysesService {
       progressRate: Number(progressRate.toFixed(2)), // as percent
     };
   }
+
+   private async getTaskTypeStatistics() {
+    // Fetch all available task types
+    const taskTypes = await this.db.taskType.findMany();
+
+    // For each task type, count the number of service requests
+    const data = await Promise.all(
+      taskTypes.map(async (type) => {
+        const count = await this.db.serviceRequest.count({
+          where: { taskTypeId: type.id }
+        });
+        return { label: type.name, count };
+      })
+    );
+
+    return data;
+  }
 }
