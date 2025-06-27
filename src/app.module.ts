@@ -44,6 +44,7 @@ import { BullModule } from '@nestjs/bullmq';
         signOptions: { expiresIn: '7d' },
       }),
       inject: [ConfigService],
+      global: true,
     }),
 
     MainModule,

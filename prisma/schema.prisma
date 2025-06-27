@@ -254,6 +254,7 @@ model Task {
   name             String
   ServiceRequest   ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
   serviceRequestId String?
+  done             Boolean         @default(false)
 }
 
 //=================== <**********> =======================

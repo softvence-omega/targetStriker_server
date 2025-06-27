@@ -7,6 +7,14 @@ import { $Enums, RequestStatus } from 'generated/prisma';
 export class ReportAnalysesService {
   constructor(private readonly db: DbService) {}
 
+  public async getReport() {
+    return {
+      monthlyTurnoverReport: await this.getMonthlyTurnoverReport(),
+      monthlyCompletionRate: await this.getMonthlyCompletionRate(),
+      taskTypeStatistics: await this.getTaskTypeStatistics(),
+    };
+  }
+
   private async getMonthlyCompletionRate(month?: string) {
     const zone = 'Europe/Copenhagen';
 
@@ -53,9 +61,9 @@ export class ReportAnalysesService {
       previousMonth: previousMonthCompleted,
       progressRate: Number(progressRate.toFixed(2)),
     };
-  }
 
-  async getMonthlyTurnoverReport(month?: string) {
+  }
+  private async getMonthlyTurnoverReport(month?: string) {
     const zone = 'Europe/Copenhagen';
 
     const targetMonth = month
@@ -109,5 +117,22 @@ export class ReportAnalysesService {
       previousTurnover,
       progressRate: Number(progressRate.toFixed(2)), // as percent
     };
+  }
+
+   private async getTaskTypeStatistics() {
+    // Fetch all available task types
+    const taskTypes = await this.db.taskType.findMany();
+
+    // For each task type, count the number of service requests
+    const data = await Promise.all(
+      taskTypes.map(async (type) => {
+        const count = await this.db.serviceRequest.count({
+          where: { taskTypeId: type.id }
+        });
+        return { label: type.name, count };
+      })
+    );
+
+    return data;
   }
 }

@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
+  Param,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -12,12 +15,17 @@ import { AuthGuard } from '@nestjs/passport';
 import { CreateMessageService } from './services/create-message.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileType, MulterService } from 'src/utils/lib/multer.service';
+import { IdDto } from 'src/common/dto/id.dto';
+import { CommonService } from './services/common.service';
 
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
 @Controller('chat')
 export class ChatController {
-  constructor(private readonly createMessageService: CreateMessageService) {}
+  constructor(
+    private readonly createMessageService: CreateMessageService,
+    private readonly commonService: CommonService
+  ) {}
 
   @Post('create-message')
   @UseInterceptors(
@@ -35,5 +43,13 @@ export class ChatController {
       conversationId: data.conversationId,
       file,
     });
+  }
+
+  @Get('messages/:id')
+  getMessages(
+    @Param() { id: conversationId }: IdDto,
+    @Query() { id: cursor }: IdDto,
+  ) {
+    return this.commonService.getMessages({ id: conversationId }, { id: cursor });
   }
 }

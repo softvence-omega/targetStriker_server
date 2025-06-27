@@ -10,6 +10,7 @@ import { FilterWorkerDto } from './dto/filterWroker.dto';
 import { WorkerDetailsService } from './services/worker-details.service';
 import { IdDto } from 'src/common/dto/id.dto';
 import { WorkerAssignedTaskDto } from './dto/workerAssignedTask.dto';
+import { ReportAnalysesService } from './services/report-analyses.service';
 
 @ApiTags('Admin')
 @Controller('admin')
@@ -22,6 +23,7 @@ export class AdminController {
     private readonly taskManagementService: TaskManagementService,
     private readonly employeeService: EmployeeService,
     private readonly workerDetailsService: WorkerDetailsService,
+    private readonly reportAnalysesService: ReportAnalysesService
   ) {}
 
   @Get('home-data')
@@ -67,4 +69,10 @@ export class AdminController {
       { id: data.workerId },
     );
   }
+
+  @Get('report-analyses')
+  async getReportAnalyses() {
+    return await this.reportAnalysesService.getReport();
+  }
+
 }

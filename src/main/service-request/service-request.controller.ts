@@ -43,6 +43,7 @@ export class ServiceRequestController {
     private readonly assignTaskService: AssignTaskService,
   ) {}
 
+  @ApiTags('Client')
   @Post('create')
   @Roles('CLIENT')
   @ApiConsumes('multipart/form-data')
@@ -108,6 +109,7 @@ export class ServiceRequestController {
     );
   }
 
+  @ApiTags('Client')
   @Get('get-my-service-request')
   @Roles('CLIENT')
   @ApiTags('Client')
@@ -124,6 +126,7 @@ export class ServiceRequestController {
     );
   }
 
+  @ApiTags('Client')
   @Get('get-client-service-request-overview')
   @Roles('CLIENT')
   @ApiTags('Client')

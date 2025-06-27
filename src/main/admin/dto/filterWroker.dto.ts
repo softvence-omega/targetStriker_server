@@ -12,3 +12,5 @@ export class FilterWorkerDto {
   @IsUUID('4', { message: 'ID must be a valid UUID (version 4).' })
   workerTypeId: string;
 }
+
+
