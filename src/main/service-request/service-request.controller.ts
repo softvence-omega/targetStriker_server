@@ -138,8 +138,8 @@ export class ServiceRequestController {
   }
 
   @Get('get-worker-service-request-overview')
-  @Roles('CLIENT')
-  @ApiTags('Client')
+  @Roles('WORKER')
+  @ApiTags('Worker')
   getWorkerServiceRequestOverview(@Req() Req: AuthenticatedRequest) {
     if (!Req.user.profileId) {
       throw new BadRequestException('Profile not Created');

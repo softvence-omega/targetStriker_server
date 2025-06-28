@@ -7,11 +7,21 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthGateway } from './auth.gateway';
 import { ForgetPassService } from './services/forget-pass.service';
 import { MeService } from './services/me.service';
+import { HomeDataService } from '../admin/services/home-data.service';
 
 @Global()
 @Module({
   controllers: [AuthController],
-  providers: [CommonService, LoginService, RegisterService, JwtService, AuthGateway, ForgetPassService, MeService],
-  exports:[CommonService]
+  providers: [
+    CommonService,
+    LoginService,
+    RegisterService,
+    JwtService,
+    AuthGateway,
+    ForgetPassService,
+    MeService,
+    HomeDataService
+  ],
+  exports: [CommonService],
 })
 export class AuthModule {}
