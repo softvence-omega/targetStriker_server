@@ -12,6 +12,8 @@ export class ReportAnalysesService {
       monthlyTurnoverReport: await this.getMonthlyTurnoverReport(),
       monthlyCompletionRate: await this.getMonthlyCompletionRate(),
       taskTypeStatistics: await this.getTaskTypeStatistics(),
+      taskStatus: await this.statusCount(),
+      averageRatingAndReviews: await this.averageRating(),
     };
   }
 
@@ -61,7 +63,6 @@ export class ReportAnalysesService {
       previousMonth: previousMonthCompleted,
       progressRate: Number(progressRate.toFixed(2)),
     };
-
   }
   private async getMonthlyTurnoverReport(month?: string) {
     const zone = 'Europe/Copenhagen';
@@ -101,7 +102,10 @@ export class ReportAnalysesService {
 
     const sumTurnover = (requests: any[]) =>
       requests.reduce((total, req) => {
-        const taskTotal = req.tasks.reduce((sum, task) => sum + (task.price || 0), 0);
+        const taskTotal = req.tasks.reduce(
+          (sum, task) => sum + (task.price || 0),
+          0,
+        );
         return total + req.basePrice + taskTotal;
       }, 0);
 
@@ -109,7 +113,8 @@ export class ReportAnalysesService {
     const previousTurnover = sumTurnover(previousRequests);
 
     const progressRate =
-      ((currentTurnover - previousTurnover) / Math.max(previousTurnover, 1)) * 100;
+      ((currentTurnover - previousTurnover) / Math.max(previousTurnover, 1)) *
+      100;
 
     return {
       targetMonth: targetMonth.toFormat('yyyy-MM'),
@@ -119,7 +124,7 @@ export class ReportAnalysesService {
     };
   }
 
-   private async getTaskTypeStatistics() {
+  private async getTaskTypeStatistics() {
     // Fetch all available task types
     const taskTypes = await this.db.taskType.findMany();
 
@@ -127,12 +132,52 @@ export class ReportAnalysesService {
     const data = await Promise.all(
       taskTypes.map(async (type) => {
         const count = await this.db.serviceRequest.count({
-          where: { taskTypeId: type.id }
+          where: { taskTypeId: type.id },
         });
         return { label: type.name, count };
-      })
+      }),
     );
 
     return data;
+  }
+
+  private async statusCount() {
+    const statusCounts = await this.db.serviceRequest.groupBy({
+      by: ['status'],
+      _count: {
+        status: true,
+      },
+    });
+
+    return statusCounts;
+  }
+
+  private async averageRating() {
+    const averageRating = await this.db.serviceRequest.aggregate({
+      _avg: {
+        rating: true,
+      },
+    });
+    const firstThreeReviews = await this.db.serviceRequest.findMany({
+      where: {
+        review: {
+          not: null, // or not: '' if you're storing empty strings
+        },
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+      select: {
+        review: true,
+        rating: true,
+        createdAt: true,
+      },
+      take: 3,
+    });
+
+    return {
+      averageRating: averageRating._avg.rating,
+      firstThreeReviews,
+    }
   }
 }

@@ -333,6 +333,14 @@ model Invoice {
   workerProfileId String?
   BankInfo        BankInfo?       @relation(fields: [bankInfoId], references: [id])
   bankInfoId      String?
+  dateIssued      DateTime        @default(now())
+  duaDate         DateTime?
+  invoiceStatus   InvoiceStatus   @default(IN_PROGRESS)
+}
+
+enum InvoiceStatus {
+  IN_PROGRESS
+  CONFIRMED
 }
 
 model BankInfo {

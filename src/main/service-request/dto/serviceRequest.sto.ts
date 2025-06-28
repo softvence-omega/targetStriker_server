@@ -16,14 +16,7 @@ import { Transform } from 'class-transformer';
 import { BadRequestException } from '@nestjs/common';
 
 export class CreateServiceRequestDTO {
-  @ApiProperty({
-    description: 'Full name of the person requesting the service',
-    example: 'John Doe',
-    type: String,
-  })
-  @IsString()
-  @IsNotEmpty()
-  taskName: string;
+
 
   @ApiProperty({
     description: 'Phone number for contact',
