@@ -5,6 +5,7 @@ import { ApiResponse } from 'src/common/types/apiResponse';
 import { LibService } from 'src/utils/lib/lib.service';
 import { DbService } from 'src/utils/db/db.service';
 import { UserType, User } from 'generated/prisma';
+import { HomeDataService } from 'src/main/admin/services/home-data.service';
 
 @Injectable()
 export class RegisterService {
