@@ -11,6 +11,8 @@ export class ReportAnalysesService {
     return {
       monthlyTurnoverReport: await this.getMonthlyTurnoverReport(),
       monthlyCompletionRate: await this.getMonthlyCompletionRate(),
+      confirmedInvoicesLineChartData:
+        await this.getConfirmedInvoicesLineChartData(),
       taskTypeStatistics: await this.getTaskTypeStatistics(),
       taskStatus: await this.statusCount(),
       averageRatingAndReviews: await this.averageRating(),
@@ -178,6 +180,30 @@ export class ReportAnalysesService {
     return {
       averageRating: averageRating._avg.rating,
       firstThreeReviews,
-    }
+    };
+  }
+
+  async getConfirmedInvoicesLineChartData() {
+    const rawResult = await this.db.$queryRaw<
+      { week: Date; count: bigint; total: number }[]
+    >`
+     SELECT
+        DATE_TRUNC('week', "dateIssued") AS week,
+        COUNT(*) AS count,
+        SUM("totalAmount") AS total
+      FROM "Invoice"
+      WHERE "invoiceStatus" = 'CONFIRMED'
+        AND "dateIssued" >= NOW() - INTERVAL '5 weeks'
+      GROUP BY week
+      ORDER BY week ASC;
+    `;
+
+    const lineChartData = rawResult.map((item) => ({
+      week: item.week.toISOString().slice(0, 10), // e.g., '2025-06-24'
+      count: Number(item.count),
+      total: Number(item.total),
+    }));
+
+    return lineChartData;
   }
 }
