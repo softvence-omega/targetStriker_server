@@ -16,7 +16,6 @@ export class MainService {
     const {
       reqPhoto,
       name,
-      taskName,
       taskTypeId,
       ...rest
     } = rawDate;
@@ -36,7 +35,7 @@ export class MainService {
               id: file.id,
             },
           },
-          name: taskName,
+          name,
           ...rest,
           TaskType:{
             connect: {

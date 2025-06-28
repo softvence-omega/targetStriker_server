@@ -35,7 +35,8 @@ export class MainService {
 
     // Calculate total price
     
-
+const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 7)
     // Create invoice
     const invoice = await this.db.invoice.create({
       data: {
@@ -62,6 +63,7 @@ export class MainService {
         invoiceNumber: this.commonService.generateId({
           strategy: IdStrategy.TIMESTAMP,
         }),
+        duaDate: dueDate
       },
       include: {
         BankInfo: true,
@@ -117,7 +119,10 @@ export class MainService {
     };
   }
 
+  
+
   public async getInvoiceById(id: IdDto): Promise<ApiResponse<any>> {
+    
     const invoice = await this.db.invoice.findUnique({
       where:  id ,
       include: {
