@@ -5,7 +5,6 @@ import { ApiResponse } from 'src/common/types/apiResponse';
 import { LibService } from 'src/utils/lib/lib.service';
 import { DbService } from 'src/utils/db/db.service';
 import { UserType, User } from 'generated/prisma';
-import { HomeDataService } from 'src/main/admin/services/home-data.service';
 
 @Injectable()
 export class RegisterService {
@@ -13,7 +12,7 @@ export class RegisterService {
     private readonly commonService: CommonService,
     private readonly lib: LibService,
     private readonly db: DbService,
-  ) {}
+  ) { }
 
   public async register(rawData: RegisterDto): Promise<ApiResponse<any>> {
     const isExist = await this.commonService.isUserExistByEmailOrPhone({
@@ -27,7 +26,7 @@ export class RegisterService {
 
     if (isExist) {
       throw new BadRequestException(
-        `User already exist with email:${rawData.email} or phone:${rawData.phone}`,
+        `User already exists with email: ${rawData.email} or phone: ${rawData.phone}`,
       );
     }
 
@@ -40,19 +39,43 @@ export class RegisterService {
 
     // Create user with the appropriate profile based on UserType
     if (rawData.UserType === 'CLIENT') {
+      const generatedUserName = `${rawData.email.split('@')[0]}-${Date.now()}`;
+
       user = await this.db.user.create({
-        data: { ...rawData },
+        data: {
+          ...rawData,
+          clientProfile: {
+            create: {
+              location: '', // default empty location
+              userName: generatedUserName, // ensure uniqueness
+            },
+          },
+        },
         include: { clientProfile: true },
       });
+
       profileId = user.clientProfile?.id ?? null;
     } else if (rawData.UserType === 'WORKER') {
+      const generatedWorkerId = `W-${Date.now()}`; // make sure this is unique
+      const generatedUserName = `${rawData.email.split('@')[0]}-${Date.now()}`;
+
       user = await this.db.user.create({
-        data: { ...rawData },
+        data: {
+          ...rawData,
+          workerProfile: {
+            create: {
+              userName: generatedUserName,
+              workerId: generatedWorkerId,
+              location: {}, // pass an empty object or a valid location structure
+            },
+          },
+        },
         include: { workerProfile: true },
       });
-      profileId = user.workerProfile?.id ?? null;
-    } else {
-      // Default case - no profile included
+
+      profileId = user.workerProfile?.id ?? null
+    }
+    else {
       user = await this.db.user.create({
         data: { ...rawData },
       });

@@ -14,95 +14,112 @@ export class UpdateService {
     private readonly db: DbService,
     private readonly fileService: FileService,
     private readonly commonService: CommonService,
-  ) {}
+  ) { }
 
-  public async updateClientProfile(
-    { id }: IdDto,
-    rawData: UpdateClientProfileDto,
-  ): Promise<ApiResponse<any>> {
-    // Check if client profile exists
-    const existingProfile = await this.db.clientProfile.findUnique({
-      where: { id },
-      include: {
-        profilePic: true,
-        User: true,
-      },
+public async updateClientProfile(
+  { id }: IdDto,
+  rawData: UpdateClientProfileDto,
+): Promise<ApiResponse<any>> {
+  console.log('[Service] Searching clientProfile with userId:', id);
+
+  // Find by userId because userId is unique and links profile to user
+  const existingProfile = await this.db.clientProfile.findUnique({
+    where: { userId: id },
+    include: {
+      profilePic: true,
+      User: true,
+    },
+  });
+
+  console.log('[Service] existingProfile found:', existingProfile);
+
+  if (!existingProfile) {
+    console.error(`[Service] Client profile for User ID ${id} not found`);
+    throw new NotFoundException(`Client profile for User ID ${id} not found`);
+  }
+
+  if (!existingProfile.User) {
+    console.error(`[Service] User related to client profile ${id} not found`);
+    throw new NotFoundException(`User with ID ${id} not found`);
+  }
+
+  let fileInstance: FileInstance | null = null;
+  let oldFileId: string | undefined = undefined;
+
+  if (rawData.profilePic) {
+    console.log('[Service] Processing uploaded file...');
+    fileInstance = await this.fileService.processUploadedFile(rawData.profilePic);
+    oldFileId = existingProfile.profilePic?.id;
+    console.log('[Service] New file processed with ID:', fileInstance.id);
+    console.log('[Service] Old profilePic ID:', oldFileId);
+  } else {
+    console.log('[Service] No new profilePic to process');
+  }
+
+  try {
+    const updateData: any = {};
+
+    if (rawData.location !== undefined) {
+      updateData.location = rawData.location;
+      console.log('[Service] Updating location:', rawData.location);
+    }
+    if (rawData.userName !== undefined) {
+      updateData.userName = rawData.userName;
+      console.log('[Service] Updating userName:', rawData.userName);
+    }
+    if (fileInstance) {
+      updateData.profilePic = {
+        connect: { id: fileInstance.id },
+      };
+      console.log('[Service] Linking new profilePic ID:', fileInstance.id);
+    }
+
+    console.log('[Service] Performing update with data:', updateData);
+
+    // IMPORTANT: Update by profile id, not userId
+    // Because profile id is the primary key for update operations
+    const data = await this.db.clientProfile.update({
+      where: { id: existingProfile.id }, // <-- Use profile's own id here!
+      data: updateData,
+      include: { profilePic: true },
     });
 
-    if (!existingProfile) {
-      throw new NotFoundException(`Client profile with ID ${id} not found`);
+    console.log('[Service] Update successful, updated data:', data);
+
+    if (oldFileId && fileInstance) {
+      console.log('[Service] Removing old profilePic with ID:', oldFileId);
+      await this.fileService.remove(oldFileId);
     }
 
-    if (!existingProfile.User) {
-        throw new NotFoundException(`User with ID ${id} not found`);
+    const tokenPayload = {
+      email: existingProfile.User.email,
+      id: existingProfile.User.id,
+      roles: existingProfile.User.UserType,
+      isVerified: existingProfile.User.isVerified,
+      profileId: data.id,
+    };
+    const token = await this.commonService.generateToken(tokenPayload);
+
+    console.log('[Service] Generated new token for user:', tokenPayload);
+
+    return {
+      success: true,
+      message: 'Client profile updated successfully',
+      data: {
+        data,
+        token,
+      },
+    };
+  } catch (error) {
+    console.error('[Service] Error during update:', error);
+    if (fileInstance) {
+      console.log('[Service] Cleaning up uploaded file due to error, file ID:', fileInstance.id);
+      await this.fileService.remove(fileInstance.id);
     }
-
-    let fileInstance: FileInstance | null = null;
-    let oldFileId: string | undefined = undefined;
-
-    // Handle file update if provided
-    if (rawData.profilePic) {
-      fileInstance = await this.fileService.processUploadedFile(
-        rawData.profilePic,
-      );
-      oldFileId = existingProfile.profilePic?.id;
-    }
-
-    try {
-      // Prepare update data
-      const updateData: any = {};
-
-      if (rawData.location !== undefined) {
-        updateData.location = rawData.location;
-      }
-      if (rawData.userName !== undefined) {
-        updateData.userName = rawData.userName;
-      }
-      if (fileInstance) {
-        updateData.profilePic = {
-          connect: {
-            id: fileInstance.id,
-          },
-        };
-      }
-
-      const data = await this.db.clientProfile.update({
-        where: { id },
-        data: updateData,
-        include: {
-          profilePic: true,
-        },
-      });
-
-      // Remove old file if new one was uploaded
-      if (oldFileId && fileInstance) {
-        await this.fileService.remove(oldFileId);
-      }
-
-      return {
-        success: true,
-        message: 'Client profile updated successfully',
-        data: {
-          data,
-          token: await this.commonService.generateToken({
-            email: existingProfile.User.email,
-            id: existingProfile.User.id,
-            roles: existingProfile.User.UserType,
-            isVerified: existingProfile.User.isVerified,
-            profileId: data.id
-          })
-        },
-      };
-    } catch (error) {
-      // Clean up new file if update failed
-      if (fileInstance) {
-        await this.fileService.remove(fileInstance.id);
-      }
-      throw new BadRequestException(
-        `Failed to update client profile\n${error}`,
-      );
-    }
+    throw new BadRequestException(`Failed to update client profile\n${error}`);
   }
+}
+
 
   public async updateWorkerProfile(
     { id }: IdDto,
@@ -123,7 +140,7 @@ export class UpdateService {
     }
 
     if (!existingProfile.User) {
-        throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
 
     let fileInstance: FileInstance | null = null;
