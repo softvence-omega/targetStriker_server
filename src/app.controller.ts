@@ -1,7 +1,5 @@
-import { Controller, Get, Inject } from '@nestjs/common';
+import { Controller, Get, Head } from '@nestjs/common';
 import { AppService } from './app.service';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
 import { CacheService } from './utils/cache/cache.service';
 
 @Controller()
@@ -14,5 +12,10 @@ export class AppController {
   @Get()
   async getHello() {
     return this.cacheManager.getAllUsersConnectionInfo();
+  }
+
+  @Head()
+  handleHead(): void {
+    // Responds with 200 OK and no body
   }
 }
