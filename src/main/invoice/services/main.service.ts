@@ -33,10 +33,17 @@ export class MainService {
       throw new NotFoundException('Service Request not found');
     }
 
+    const base = serviceRequest.basePrice ?? 0;
+    const taskTotal = serviceRequest.tasks.reduce(
+      (sum, task) => sum + task.price,
+      0,
+    );
+    const totalAmount = base + taskTotal;
+
     // Calculate total price
-    
-const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + 7)
+
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 7);
     // Create invoice
     const invoice = await this.db.invoice.create({
       data: {
@@ -63,7 +70,8 @@ const dueDate = new Date();
         invoiceNumber: this.commonService.generateId({
           strategy: IdStrategy.TIMESTAMP,
         }),
-        duaDate: dueDate
+        duaDate: dueDate,
+        totalAmount,
       },
       include: {
         BankInfo: true,
@@ -119,12 +127,9 @@ const dueDate = new Date();
     };
   }
 
-  
-
   public async getInvoiceById(id: IdDto): Promise<ApiResponse<any>> {
-    
     const invoice = await this.db.invoice.findUnique({
-      where:  id ,
+      where: id,
       include: {
         BankInfo: true,
         ClientProfile: {
@@ -137,11 +142,11 @@ const dueDate = new Date();
             User: true,
           },
         },
-        serviceRequest:{
+        serviceRequest: {
           include: {
             tasks: true,
-          }
-        }
+          },
+        },
       },
     });
 
@@ -180,6 +185,6 @@ const dueDate = new Date();
       },
       message: 'Invoice fetched successfully',
       success: true,
-    }
+    };
   }
 }

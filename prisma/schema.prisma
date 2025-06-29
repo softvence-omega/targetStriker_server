@@ -336,6 +336,7 @@ model Invoice {
   dateIssued      DateTime        @default(now())
   duaDate         DateTime?
   invoiceStatus   InvoiceStatus   @default(IN_PROGRESS)
+  totalAmount     Int             @default(0)
 }
 
 enum InvoiceStatus {
