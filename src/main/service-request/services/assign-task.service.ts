@@ -6,12 +6,14 @@ import { ApiResponse } from 'src/common/types/apiResponse';
 import { IdDto } from 'src/common/dto/id.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { GetAssignedServiceRequestDto } from '../dto/getAssignedServiceRequest.dto';
+import { MainService } from 'src/main/invoice/services/main.service';
 
 @Injectable()
 export class AssignTaskService {
   constructor(
     private readonly db: DbService,
     private readonly commonService: CommonService,
+    private readonly mainService: MainService,
   ) {}
 
   public async assignTask({
@@ -19,7 +21,7 @@ export class AssignTaskService {
     workerId,
   }: AssignTaskDto): Promise<ApiResponse<any>> {
     const isExist = await this.commonService.findServiceRequest({ id: taskId });
-    
+
     if (!isExist) {
       throw new BadRequestException('Service request not found');
     }
@@ -60,11 +62,10 @@ export class AssignTaskService {
       throw new BadRequestException('User not found');
     }
 
-
     const data = await this.db.serviceRequest.findMany({
       where: {
         WorkerProfile: {
-          id
+          id,
         },
         // Add date filter - assuming you have a createdAt or scheduledDate field
       },
@@ -79,18 +80,32 @@ export class AssignTaskService {
     };
   }
 
-  public async confirmServiceRequest({ id:clientProfileId }: IdDto, id:string): Promise<ApiResponse<any>> {
-    const data = await this.db.serviceRequest.update({
+  public async confirmServiceRequest(
+    { id: clientProfileId }: IdDto,
+    id: string,
+  ): Promise<ApiResponse<any>> {
+    const serviceRequest = await this.db.serviceRequest.update({
       where: {
-        id: id,
-        clientProfileId
+        id,
+        workerProfileId: {
+          not: null,
+        },
       },
       data: {
         status: 'CONFIRMED',
       },
     });
+    const invoice = await this.mainService.createInvoice({
+      serviceRequestId: id,
+      clientId: clientProfileId,
+      workerId: serviceRequest.workerProfileId || '',
+    });
+
     return {
-      data,
+      data: {
+        serviceRequest,
+        invoice,  
+      },
       message: 'Service request confirmed successfully',
       success: true,
     };

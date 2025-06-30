@@ -3,6 +3,7 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ApiResponse } from 'src/common/types/apiResponse';
 import { DbService } from 'src/utils/db/db.service';
 import { FilterWorkerDto } from '../dto/filterWroker.dto';
+import { Prisma } from 'generated/prisma';
 
 @Injectable()
 export class EmployeeService {
@@ -10,18 +11,49 @@ export class EmployeeService {
 
   public async getAllWorkerProfiles({
     skip,
-    take
-  }: PaginationDto): Promise<ApiResponse<any>> {
+    take,
+    search,
+    workerTypeId,
+  }: FilterWorkerDto): Promise<ApiResponse<any>> {
+    const filter: Prisma.WorkerProfileWhereInput = {};
+
+    if (search) {
+      filter.User = {
+        name: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      };
+    }
+
+    if (workerTypeId) {
+      filter.WorkerSpecialist = {
+        id: workerTypeId,
+      };
+    }
+
     const data = await this.db.workerProfile.findMany({
       include: {
-        User:{
-            select:{
-                name: true
-            }
-        }, // this pulls the full user object
+        User: {
+          select: {
+            name: true,
+          },
+        },
+        profilePic: {
+          select: {
+            url: true,
+          },
+        },
+        WorkerSpecialist: {
+          select: {
+            name: true,
+            id: true,
+          },
+        },
       },
       skip,
-      take
+      take,
+      where: filter,
     });
 
     return {
@@ -33,32 +65,32 @@ export class EmployeeService {
 
   public async searOrFilterWorkerProfiles({
     search,
-    workerTypeId
+    workerTypeId,
   }: FilterWorkerDto): Promise<ApiResponse<any>> {
-      const data = await this.db.workerProfile.findMany({
-        where: {
-          OR: [
-            {
-              User: {
-                name: {
-                  contains: search,
-                  mode: 'insensitive',
-                },
+    const data = await this.db.workerProfile.findMany({
+      where: {
+        OR: [
+          {
+            User: {
+              name: {
+                contains: search,
+                mode: 'insensitive',
               },
             },
-            {
-              WorkerSpecialist: {
-                id: workerTypeId,
-              },
+          },
+          {
+            WorkerSpecialist: {
+              id: workerTypeId,
             },
-          ],
-        },
-      })
+          },
+        ],
+      },
+    });
 
-      return {
-          data,
-          message: 'Worker profiles fetched successfully',
-          success: true
-      }
-  } 
+    return {
+      data,
+      message: 'Worker profiles fetched successfully',
+      success: true,
+    };
+  }
 }

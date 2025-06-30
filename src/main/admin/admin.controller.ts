@@ -11,6 +11,7 @@ import { WorkerDetailsService } from './services/worker-details.service';
 import { IdDto } from 'src/common/dto/id.dto';
 import { WorkerAssignedTaskDto } from './dto/workerAssignedTask.dto';
 import { ReportAnalysesService } from './services/report-analyses.service';
+import { FilterTaskDto } from './dto/filtertask.dto';
 
 @ApiTags('Admin')
 @Controller('admin')
@@ -31,28 +32,29 @@ export class AdminController {
     return await this.homeDataService.getHomeData();
   }
 
-  @Get('task-management')
+  @Get('task-management/get-tasks')
   async getServiceRequestsWithStatusLabel(
-    @Query() PaginationDto: PaginationDto,
+    @Query() PaginationDto: FilterTaskDto,
   ) {
     return await this.taskManagementService.getServiceRequestsWithStatusLabel(
-      PaginationDto,
+    {
+      skip: PaginationDto.skip,
+      take: PaginationDto.take
+    },
+    {
+      location: PaginationDto.location,
+      taskTypeId: PaginationDto.taskTypeId,
+      status: PaginationDto.status,
+      search: PaginationDto.search
+    }
     );
   }
 
   @Get('employees')
-  async getEmployees(@Query() PaginationDto: PaginationDto) {
+  async getEmployees(@Query() PaginationDto: FilterWorkerDto) {
     return await this.employeeService.getAllWorkerProfiles(PaginationDto);
   }
 
-  @Get('search_or_filter_worker_profiles')
-  async searchOrFilterWorkerProfiles(
-    @Query() FilterWorkerDto: FilterWorkerDto,
-  ) {
-    return await this.employeeService.searOrFilterWorkerProfiles(
-      FilterWorkerDto,
-    );
-  }
 
   @Get('worker-details')
   async getWorkerDetails(@Query() id: IdDto) {
@@ -61,13 +63,13 @@ export class AdminController {
 
   @Get('worker/assigned/task')
   async getWorkerAssignedTask(@Query() data: WorkerAssignedTaskDto) {
-    return await this.taskManagementService.getServiceRequestsWithStatusLabel(
-      {
-        skip: data.skip,
-        take: data.take,
-      },
-      { id: data.workerId },
-    );
+    // return await this.taskManagementService.getServiceRequestsWithStatusLabel(
+    //   {
+    //     skip: data.skip,
+    //     take: data.take,
+    //   },
+    //   { id: data.workerId },
+    // );
   }
 
   @Get('report-analyses')
