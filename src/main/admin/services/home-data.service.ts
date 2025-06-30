@@ -58,8 +58,22 @@ export class HomeDataService {
     };
   }
 
+  public async totalWorkers(){
+    return this.db.workerProfile.count();
+  }
+
+  public async getAverageRating(){
+    return this.db.serviceRequest.aggregate({
+      _avg: {
+        rating: true,
+      },
+    })
+  }
+
   public async getHomeData():Promise<ApiResponse<any>> {
     const taskStatistics = await this.getTaskStatistics();
+    const totalWorkers = await this.totalWorkers();
+    const averageRating = await this.getAverageRating();
     const firstThreeTasks = await this.db.serviceRequest.findMany({
       take: 3,
       orderBy: {
@@ -72,7 +86,9 @@ export class HomeDataService {
     return {
         data: {
             taskStatistics,
-            firstThreeTasks
+            firstThreeTasks,
+            totalWorkers,
+            averageRating
         },
         message: 'Home data fetched successfully',
         success: true
