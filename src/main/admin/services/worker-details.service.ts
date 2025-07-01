@@ -20,6 +20,11 @@ export class WorkerDetailsService {
             phone: true,
           },
         },
+        profilePic: {
+          select: {
+            url: true,
+          },
+        },
         WorkerSpecialist: {
           select: {
             name: true,

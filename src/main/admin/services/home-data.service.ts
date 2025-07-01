@@ -80,7 +80,16 @@ export class HomeDataService {
         createdAt: 'desc',
       },
       where:{
-        status: RequestStatus.PENDING
+        status: RequestStatus.PENDING,
+        workerProfileId: null
+      },
+      include:{
+        TaskType:{
+          select: {
+            name: true,
+            id: true
+          }
+        }
       }
     })
     return {
