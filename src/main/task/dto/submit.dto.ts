@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class SubmitDto {
@@ -19,6 +20,7 @@ export class SubmitDto {
   @IsInt()
   @Min(0)
   @Max(5)
+  @Type(() => Number)
   rating: number;
 
   @ApiPropertyOptional({

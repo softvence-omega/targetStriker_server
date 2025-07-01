@@ -167,7 +167,7 @@ model FileInstance {
   ServiceRequest     ServiceRequest? @relation("ReqPhoto", fields: [serviceRequestId], references: [id])
   serviceRequestId   String?         @unique
   ServiceAfter       ServiceRequest? @relation("AfterPhoto", fields: [serviceAfterId], references: [id])
-  serviceAfterId     String?         @unique
+  serviceAfterId     String?
   ClientProfile      ClientProfile?  @relation(fields: [clientProfileId], references: [id])
   clientProfileId    String?         @unique
   WorkerProfile      WorkerProfile?  @relation(fields: [workerProfileId], references: [id])
@@ -176,6 +176,10 @@ model FileInstance {
   ServiceSignatureId String?         @unique
   Message            Message?        @relation(fields: [messageId], references: [id])
   messageId          String?         @unique
+  beforePhoto        ServiceRequest? @relation("BeforePhoto", fields: [beforePhotoId], references: [id])
+  beforePhotoId      String?
+  ReportPhoto        ReportPhoto?    @relation(fields: [reportPhotoId], references: [id])
+  reportPhotoId      String?         @unique
 }
 
 //=================== <**********> =======================
@@ -198,7 +202,8 @@ model ServiceRequest {
   locationDescription String         @db.Text
   problemDescription  String         @db.Text
   reqPhoto            FileInstance?  @relation("ReqPhoto")
-  afterPhoto          FileInstance?  @relation("AfterPhoto")
+  beforePhoto         FileInstance[] @relation("BeforePhoto")
+  afterPhoto          FileInstance[] @relation("AfterPhoto")
   preferredTime       DateTime
   preferredDate       DateTime
   status              RequestStatus  @default(PENDING)
@@ -217,6 +222,16 @@ model ServiceRequest {
   rating              Int            @default(0)
   review              String?
   accept              Boolean        @default(false)
+  reportPhoto         ReportPhoto[]
+}
+
+model ReportPhoto {
+  id               String          @id @default(uuid())
+  isPrev           Boolean         @default(false)
+  pic              FileInstance?
+  caption          String
+  ServiceRequest   ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
+  serviceRequestId String?
 }
 
 // ##################### $ Payment Type Enum Start $ ##############

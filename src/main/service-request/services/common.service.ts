@@ -14,6 +14,13 @@ export class CommonService {
       where: {
         id: id,
       },
+      include:{
+        TaskType:{
+          select: {
+            name: true,
+          }
+        }
+      }
     });
   }
 

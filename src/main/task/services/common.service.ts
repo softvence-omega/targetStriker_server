@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { ReportPhoto } from 'generated/prisma';
 import { IdDto } from 'src/common/dto/id.dto';
 import { ApiResponse } from 'src/common/types/apiResponse';
 import { DbService } from 'src/utils/db/db.service';
@@ -18,33 +19,38 @@ export class CommonService {
             include: {
              tasks:{
                 select:{
-                    name: true
+                    name: true,
                 }
              },
-             reqPhoto: {
-                select: {
-                  url: true,
-                },
-              },
-             afterPhoto: {
-                select: {
-                  url: true,
-                },
-             }
+             reportPhoto:true
             },
         }) 
+
+        let prevPhoto:ReportPhoto[] = []
+        let afterPhoto:ReportPhoto[] = []
 
         if (!data) {
             throw new NotFoundException('Service request not found');
         }
 
+        await data.reportPhoto.map((photo)=>{
+            if(photo.isPrev){
+                prevPhoto.push(photo)
+            }else{
+                afterPhoto.push(photo)
+            }
+        })
+
         return {
             data:{
-                serviceRequestId: data.id,
                 serviceRequestName: data.name,
+                taskDescription: data.problemDescription,
+                serviceRequestId: data.id,
                 tasks: data.tasks,
-                reqPhoto: data.reqPhoto,
-                afterPhoto: data.afterPhoto
+                prevPhoto,
+                afterPhoto,
+                time: data.preferredTime,
+                city: data.city
             },
             message: 'Task details fetched successfully',
             success: true

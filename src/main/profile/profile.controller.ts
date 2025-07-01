@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Post,
@@ -31,13 +32,13 @@ export class ProfileController {
   constructor(
     private readonly createService: CreateService,
     private readonly updateService: UpdateService
-  ) { }
+  ) {}
 
   @Post('create-client-profile')
   @Roles('CLIENT')
   @UseGuards(RolesGuard)
-  @ApiConsumes('multipart/form-data', 'application/json')
-  @UseInterceptors(FileInterceptor('profilePic', new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE)))
+  @ApiConsumes('multipart/form-data','application/json')
+  @UseInterceptors(FileInterceptor('profilePic', new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE) ))
   async createClientProfile(
     @Req() req: AuthenticatedRequest,
     @Body() rawData: CreateClientProfileDto,
@@ -56,8 +57,8 @@ export class ProfileController {
   @Post('create-worker-profile')
   @Roles("WORKER")
   @UseGuards(RolesGuard)
-  @ApiConsumes('multipart/form-data', 'application/json')
-  @UseInterceptors(FileInterceptor('profilePic', new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE)))
+  @ApiConsumes('multipart/form-data','application/json')
+  @UseInterceptors(FileInterceptor('profilePic', new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE) ))
   async createServiceWorkerProfile(
     @Req() req: AuthenticatedRequest,
     @Body() rawData: CreateWorkerProfileDto,
@@ -73,56 +74,48 @@ export class ProfileController {
     )
   }
 
-  @Put('update-client-profile')
+  @Put('update-client-profile/:id')
   @Roles('CLIENT')
   @UseGuards(RolesGuard)
-  @ApiBearerAuth()
-  @ApiConsumes('multipart/form-data', 'application/json')
-  @UseInterceptors(FileInterceptor('profilePic', new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE)))
+  @ApiConsumes('multipart/form-data','application/json')
+  @UseInterceptors(FileInterceptor('profilePic', new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE) ))
   async updateClientProfile(
     @Body() rawData: UpdateClientProfileDto,
     @Req() req: AuthenticatedRequest,
     @UploadedFile() profilePic?: Express.Multer.File,
   ) {
-    console.log('[Controller] req.user.sub (authenticated user ID):', req.user.sub);
-    console.log('[Controller] rawData received:', rawData);
-    if (profilePic) {
-      console.log('[Controller] profilePic received:', profilePic.originalname);
-    } else {
-      console.log('[Controller] No profilePic received');
+    if (!req.user.profileId) {
+      throw new BadRequestException('Profile not Created');
     }
-
     const data: UpdateClientProfileDto = {
       ...rawData,
       ...(profilePic && { profilePic }),
     };
-
-    const result = await this.updateService.updateClientProfile(
-      { id: req.user.sub },
+    return await this.updateService.updateClientProfile(
+      { id: req.user.profileId },
       data,
     );
-
-    console.log('[Controller] updateClientProfile result:', result);
-
-    return result;
   }
 
   @Put('update-worker-profile/:id')
   @Roles("WORKER")
   @UseGuards(RolesGuard)
-  @ApiConsumes('multipart/form-data', 'application/json')
-  @UseInterceptors(FileInterceptor('profilePic', new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE)))
+  @ApiConsumes('multipart/form-data','application/json')
+  @UseInterceptors(FileInterceptor('profilePic', new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE) ))
   async updateWorkerProfile(
     @Body() rawData: UpdateWorkerProfileDto,
     @Req() req: AuthenticatedRequest,
     @UploadedFile() profilePic?: Express.Multer.File,
   ) {
+    if (!req.user.profileId) {
+      throw new BadRequestException('Profile not Created');
+    }
     const data: UpdateWorkerProfileDto = {
       ...rawData,
       ...(profilePic && { profilePic }),
     };
     return await this.updateService.updateWorkerProfile(
-      { id: req.user.sub },
+      { id: req.user.profileId },
       data,
     );
   }

@@ -33,6 +33,19 @@ export class SubmitService {
           signature: { connect: { id: fileInstance.id } },
         }),
       },
+      include:{
+        tasks: {
+          select: {
+            name: true,
+          }
+        },
+        signature:{
+          select: {
+            url: true
+          }
+        },
+
+      }
     });
 
     return {
