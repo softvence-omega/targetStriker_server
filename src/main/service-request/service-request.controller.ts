@@ -43,9 +43,9 @@ export class ServiceRequestController {
     private readonly assignTaskService: AssignTaskService,
   ) {}
 
-  @ApiTags('Client')
+  @ApiTags('Client', 'Admin', 'Worker')
   @Post('create')
-  @Roles('CLIENT')
+  @Roles('CLIENT','ADMIN', 'WORKER')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileInterceptor(

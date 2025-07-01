@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Post,
@@ -83,12 +84,15 @@ export class ProfileController {
     @Req() req: AuthenticatedRequest,
     @UploadedFile() profilePic?: Express.Multer.File,
   ) {
+    if (!req.user.profileId) {
+      throw new BadRequestException('Profile not Created');
+    }
     const data: UpdateClientProfileDto = {
       ...rawData,
       ...(profilePic && { profilePic }),
     };
     return await this.updateService.updateClientProfile(
-      { id: req.user.sub },
+      { id: req.user.profileId },
       data,
     );
   }
@@ -103,12 +107,15 @@ export class ProfileController {
     @Req() req: AuthenticatedRequest,
     @UploadedFile() profilePic?: Express.Multer.File,
   ) {
+    if (!req.user.profileId) {
+      throw new BadRequestException('Profile not Created');
+    }
     const data: UpdateWorkerProfileDto = {
       ...rawData,
       ...(profilePic && { profilePic }),
     };
     return await this.updateService.updateWorkerProfile(
-      { id: req.user.sub },
+      { id: req.user.profileId },
       data,
     );
   }
