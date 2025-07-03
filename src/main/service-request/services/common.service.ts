@@ -19,6 +19,11 @@ export class CommonService {
           select: {
             name: true,
           }
+        },
+        reqPhoto:{
+          select: {
+            url: true,
+          },
         }
       }
     });

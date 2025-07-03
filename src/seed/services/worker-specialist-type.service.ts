@@ -8,21 +8,35 @@ export class WorkerSpecialistTypeService implements OnModuleInit {
 
   constructor(private readonly db: DbService) {}
 
+  private async sanitize() {
+    const tasks = await this.db.workerSpecialist.findMany()
+    await tasks.forEach(async (task) => {
+     if(task.name.includes("_") || task.name === task.name.toUpperCase()) {
+      await this.db.workerSpecialist.delete({
+        where: { id: task.id },
+      });
+     }
+    });
+    this.logger.log('Sanitization of TaskType names completed');
+  }
+
   private async seed() {
     const data: Prisma.WorkerSpecialistCreateManyInput[] = [
-      { name: 'SCHIMMEL_INSPECTIES_BEHANDELINGEN' },
-      { name: 'INSPECTIES_HUURWONINGEN_NAZORG' },
-      { name: 'VOCHTBEHEERSING' },
-      { name: 'STUCWERK' },
-      { name: 'SCHILDEREN_COATING' },
-      { name: 'NICOTINEVLEKKEN_VERWIJDERING' },
-      { name: 'REDDERSTEAM_NOODDIENST_24_7' },
+      { name: 'Schimmel Inspecties Behandelingen' },
+      { name: 'Inspecties Huurwoningen Nazorg' },
+      { name: 'Vochtbeheersing' },
+      { name: 'Stucwerk' },
+      { name: 'Schilderen Coating' },
+      { name: 'Nicotinevlekken Verwijdering' },
+      { name: 'Reddersteam Nooddienst 24 7' },
     ];
 
     await this.db.workerSpecialist.createMany({
       data,
       skipDuplicates: true,
     });
+
+    await this.sanitize();
 
     this.logger.log(`Seeded ${data.length} WorkerSpecialist records`);
   }

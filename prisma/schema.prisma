@@ -141,9 +141,10 @@ model ClientProfile {
 //=================== <**********> =======================
 
 model AdminProfile {
-  id     String  @id @default(uuid())
-  User   User?   @relation(fields: [userId], references: [id])
-  userId String? @unique
+  id         String         @id @default(uuid())
+  User       User?          @relation(fields: [userId], references: [id])
+  userId     String?        @unique
+  profilePic FileInstance?
 }
 
 //=================== <**********> =======================
@@ -180,6 +181,8 @@ model FileInstance {
   beforePhotoId      String?
   ReportPhoto        ReportPhoto?    @relation(fields: [reportPhotoId], references: [id])
   reportPhotoId      String?         @unique
+  AdminProfile       AdminProfile?   @relation(fields: [adminProfileId], references: [id])
+  adminProfileId     String? @unique
 }
 
 //=================== <**********> =======================
