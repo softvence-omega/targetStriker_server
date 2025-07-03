@@ -54,7 +54,7 @@ export class CommonService {
         email: email.email,
       },
       include: {
-        adminProfile: true,
+        adminProfile:true,
         clientProfile: {
           include:{
             profilePic:{

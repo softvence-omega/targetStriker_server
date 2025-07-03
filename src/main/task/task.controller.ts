@@ -34,7 +34,7 @@ export class TaskController {
 
   @ApiTags('Client')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles('CLIENT')
+  @Roles('CLIENT','WORKER')
   @Get('details')
   getTasks(@Query() id: IdDto) {
     return this.commonService.getTaskDetails(id);
@@ -64,6 +64,7 @@ export class TaskController {
     return this.submitService.submit(submitDto, id);
   }
 
+  @ApiTags('Worker')
   @UseGuards(AuthGuard('jwt'))
   @Post('taskPhoto-create/:id')
   @UseInterceptors(
@@ -86,6 +87,7 @@ export class TaskController {
     return this.taskPhotoService.create(id, taskPhotoDto);
   }
 
+  @ApiTags('Worker')
   @UseGuards(AuthGuard('jwt'))
   @Get('taskPhoto/:id')
   getTaskPhotos(@Param() id: IdDto, @Query() isPrev: BooleanDto) {
