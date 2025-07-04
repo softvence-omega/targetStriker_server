@@ -7,6 +7,7 @@ import { IdDto } from 'src/common/dto/id.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { GetAssignedServiceRequestDto } from '../dto/getAssignedServiceRequest.dto';
 import { MainService } from 'src/main/invoice/services/main.service';
+import { EventService } from 'src/main/notification/services/event.service';
 
 @Injectable()
 export class AssignTaskService {
@@ -39,6 +40,22 @@ export class AssignTaskService {
         status: 'ASSIGNED',
       },
     });
+
+    if (!data.workerProfileId) {
+      throw new BadRequestException('Worker profile ID is missing');
+    }
+
+    if (!data.clientProfileId) {
+      throw new BadRequestException('Client profile ID is missing');
+    }
+
+    await this.db.conversation.create({
+      data: {
+        memberOneId: data.clientProfileId,
+        memberTwoId: data.workerProfileId,
+      }
+    });
+
     return {
       data,
       message: 'Task assigned successfully',
