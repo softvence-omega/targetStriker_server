@@ -4,7 +4,9 @@ import { CreateDirectMessageDto } from '../dto/createMessage.dto';
 import { FileService } from 'src/utils/file/file.service';
 import { FileInstance } from 'generated/prisma';
 import { ApiResponse } from 'src/common/types/apiResponse';
-import { ChatGateway } from '../chat.gateway';
+import { ChatGateway } from '../ws/chat.gateway';
+import { ChatListService } from './chat-list.service';
+import { ChatListGateway } from '../ws/chat-list.gateway';
 
 @Injectable()
 export class CreateMessageService {
@@ -12,6 +14,7 @@ export class CreateMessageService {
     private readonly db: DbService,
     private readonly file: FileService,
     private readonly ChatGateway: ChatGateway,
+    private readonly chatListGateway: ChatListGateway,
   ) {}
 
   public async createMessage(
@@ -32,13 +35,66 @@ export class CreateMessageService {
         },
         ...(fileInstance && { file: { connect: { id: fileInstance.id } } }),
       },
+      include:{
+        file:{
+          select:{
+            url: true,
+            fileType: true,
+          }
+        },
+        Conversation:{
+          select:{
+            memberOne:{
+              select:{
+                id: true,
+              }
+            },
+            memberTwo:{
+              select:{
+                id: true,
+              }
+            }
+          }
+        }
+      }
     });
+
+    await this.db.conversation.update({
+          where: {
+            id: conversationId,
+          },
+          data: {
+            lasMessage: {
+              connect: {
+                id: message.id,
+              },
+            },
+          },
+          include:{
+            memberOne:{
+              select:{
+                id: true,
+              }
+            },
+            memberTwo:{
+              select:{
+                id: true,
+              }
+            }
+          }
+        });
+
 
     await this.ChatGateway.broadcastToConversation({
       conversationId,
       type: 'create',
       payload: message,
     });
+
+    if (message.Conversation) {
+     await this.chatListGateway.broadcastChatListUpdate(message.Conversation.memberOne.id);
+     await this.chatListGateway.broadcastChatListUpdate(message.Conversation.memberTwo.id);
+    }
 
     return {
       data: message,

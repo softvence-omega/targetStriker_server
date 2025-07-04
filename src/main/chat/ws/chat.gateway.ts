@@ -1,25 +1,43 @@
-import { forwardRef, Inject, Logger, UseFilters,  } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+  UseFilters,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import {
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
+  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-} from '@nestjs/websockets';import { IncomingMessage } from 'http';
+  WsException,
+} from '@nestjs/websockets';
+import { IncomingMessage } from 'http';
 import { WebSocketExceptionsFilter } from 'src/error/wsError.filter';
 import { Server, WebSocket } from 'ws';
+import { CommonService } from '../services/common.service';
+
+interface SubscriptionData {
+  conversationId: string;
+}
 
 @UseFilters(WebSocketExceptionsFilter)
 @WebSocketGateway({
-  path: '/chat',
+  path: '/ts/chat',
   cors: {
     origin: '*',
   },
 })
-export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
-
+@Injectable()
+export class ChatGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
@@ -28,42 +46,45 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   constructor(
     private readonly jwt: JwtService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly commonService: CommonService, // Assuming you have a CommonService for database operations
   ) {}
 
   afterInit(server: any) {
     this.logger.log('Chat gateway initialized');
   }
 
-  handleConnection(client: WebSocket, ...args: any[]): void{
-     const req = args[0] as IncomingMessage;
-        const authHeader = req.headers['authorization'];
-    
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-          this.logger.warn('Missing or invalid Authorization header');
-          client.close();
-          return;
-        }
-    
-        const token = authHeader.split(' ')[1];
-    
-        try {
-          const decoded = this.jwt.verify(token, {
-            secret: this.configService.getOrThrow('JWT_SECRET'),
-          });
-          (client as any).user = decoded;
-    
-          this.subscribeClient(decoded.profileId, client);
-    
-          this.logger.log(`Client connected: ${decoded.profileId || 'unknown user'}`);
-    
-          client.on('close', () => {
-            this.handleDisconnect(client);
-          });
-        } catch (err) {
-          this.logger.warn('JWT verification failed');
-          client.close();
-        }
+  handleConnection(client: WebSocket, ...args: any[]): void {
+    const req = args[0] as IncomingMessage;
+    const authHeader = req.headers['authorization'];
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      this.logger.warn('Missing or invalid Authorization header');
+      client.close();
+      return;
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    try {
+      const decoded = this.jwt.verify(token, {
+        secret: this.configService.getOrThrow('JWT_SECRET'),
+      });
+      (client as any).user = decoded;
+
+      this.subscribeClient(decoded.profileId, client);
+
+      this.logger.log(
+        `Client connected: ${decoded.profileId || 'unknown user'}`,
+      );
+
+      client.on('close', () => {
+        this.handleDisconnect(client);
+      });
+    } catch (err) {
+      this.logger.warn('JWT verification failed');
+      client.close();
+    }
   }
 
   handleDisconnect(client: WebSocket) {
@@ -77,7 +98,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     }
   }
 
-    private subscribeClient(clientId: string, client: WebSocket): void {
+  private subscribeClient(clientId: string, client: WebSocket): void {
     if (!this.clients.has(clientId)) {
       this.clients.set(clientId, new Set());
     }
@@ -97,6 +118,26 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         this.logger.debug(`Removed empty client set for ${clientId}`);
       }
     }
+  }
+
+  @SubscribeMessage('subscribe_to_conversation')
+  async handleSubscribe(
+    @ConnectedSocket() client: WebSocket,
+    @MessageBody() data: SubscriptionData,
+  ): Promise<void> {
+    const { conversationId } = data;
+    if (!conversationId) {
+      throw new WsException('Conversation ID is missing');
+    }
+    const isExist =
+      await this.commonService.findConversationById(conversationId);
+
+    if (!isExist) {
+      throw new WsException(`Conversation ${conversationId} does not exist`);
+    }
+
+    this.subscribeClient(conversationId, client);
+    client.send(JSON.stringify({ status: 'subscribed', conversationId }));
   }
 
   broadcastToConversation<T>({

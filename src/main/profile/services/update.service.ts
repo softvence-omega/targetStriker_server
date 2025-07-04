@@ -24,22 +24,19 @@ public async updateClientProfile(
 
   // Find by userId because userId is unique and links profile to user
   const existingProfile = await this.db.clientProfile.findUnique({
-    where: { userId: id },
+    where: { id },
     include: {
       profilePic: true,
       User: true,
     },
   });
 
-  console.log('[Service] existingProfile found:', existingProfile);
 
   if (!existingProfile) {
-    console.error(`[Service] Client profile for User ID ${id} not found`);
     throw new NotFoundException(`Client profile for User ID ${id} not found`);
   }
 
   if (!existingProfile.User) {
-    console.error(`[Service] User related to client profile ${id} not found`);
     throw new NotFoundException(`User with ID ${id} not found`);
   }
 
@@ -61,33 +58,27 @@ public async updateClientProfile(
 
     if (rawData.location !== undefined) {
       updateData.location = rawData.location;
-      console.log('[Service] Updating location:', rawData.location);
+      
     }
     if (rawData.userName !== undefined) {
       updateData.userName = rawData.userName;
-      console.log('[Service] Updating userName:', rawData.userName);
+      
     }
     if (fileInstance) {
       updateData.profilePic = {
         connect: { id: fileInstance.id },
       };
-      console.log('[Service] Linking new profilePic ID:', fileInstance.id);
+      
     }
 
-    console.log('[Service] Performing update with data:', updateData);
-
-    // IMPORTANT: Update by profile id, not userId
-    // Because profile id is the primary key for update operations
     const data = await this.db.clientProfile.update({
       where: { id: existingProfile.id }, // <-- Use profile's own id here!
       data: updateData,
       include: { profilePic: true },
     });
 
-    console.log('[Service] Update successful, updated data:', data);
 
     if (oldFileId && fileInstance) {
-      console.log('[Service] Removing old profilePic with ID:', oldFileId);
       await this.fileService.remove(oldFileId);
     }
 
@@ -100,8 +91,6 @@ public async updateClientProfile(
     };
     const token = await this.commonService.generateToken(tokenPayload);
 
-    console.log('[Service] Generated new token for user:', tokenPayload);
-
     return {
       success: true,
       message: 'Client profile updated successfully',
@@ -111,9 +100,7 @@ public async updateClientProfile(
       },
     };
   } catch (error) {
-    console.error('[Service] Error during update:', error);
     if (fileInstance) {
-      console.log('[Service] Cleaning up uploaded file due to error, file ID:', fileInstance.id);
       await this.fileService.remove(fileInstance.id);
     }
     throw new BadRequestException(`Failed to update client profile\n${error}`);
