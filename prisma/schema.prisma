@@ -34,6 +34,7 @@ model User {
   active                 Boolean        @default(false)
   fcm_token              Fcm_token?
   modifications          Notification[]
+  message                Message[]
   conversationsInitiated Conversation[] @relation("MemberOne")
   conversationsReceived  Conversation[] @relation("MemberTwo")
 }
@@ -141,9 +142,9 @@ model ClientProfile {
 //=================== <**********> =======================
 
 model AdminProfile {
-  id         String         @id @default(uuid())
-  User       User?          @relation(fields: [userId], references: [id])
-  userId     String?        @unique
+  id         String        @id @default(uuid())
+  User       User?         @relation(fields: [userId], references: [id])
+  userId     String?       @unique
   profilePic FileInstance?
 }
 
@@ -182,7 +183,7 @@ model FileInstance {
   ReportPhoto        ReportPhoto?    @relation(fields: [reportPhotoId], references: [id])
   reportPhotoId      String?         @unique
   AdminProfile       AdminProfile?   @relation(fields: [adminProfileId], references: [id])
-  adminProfileId     String? @unique
+  adminProfileId     String?         @unique
 }
 
 //=================== <**********> =======================
@@ -331,6 +332,8 @@ model Message {
   createdAt                 DateTime      @default(now())
   updatedAt                 DateTime      @updatedAt
   file                      FileInstance?
+  User                      User?         @relation(fields: [userId], references: [id])
+  userId                    String?
 }
 
 //=================== <**********> =======================

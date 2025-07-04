@@ -19,6 +19,7 @@ export class CreateMessageService {
 
   public async createMessage(
     data: CreateDirectMessageDto,
+    userId: string,
   ): Promise<ApiResponse<any>> {
     const { file, content, conversationId } = data;
 
@@ -34,6 +35,11 @@ export class CreateMessageService {
           },
         },
         ...(fileInstance && { file: { connect: { id: fileInstance.id } } }),
+        User:{
+          connect: {
+            id: userId,
+          },
+        }
       },
       include:{
         file:{

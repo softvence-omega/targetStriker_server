@@ -63,30 +63,108 @@ export class CommonService {
   public async getMessages({
     conversationId,
     cursor,
-    take
-  }:GetMessageDto):Promise<ApiResponse<any>> {
+    take,
+  }: GetMessageDto, userId: string): Promise<ApiResponse<any>> {
     console.log(take);
-    
+
     const data = await this.db.message.findMany({
       where: {
         conversationId,
       },
-     ...(cursor && { cursor: { id: cursor } }),
+      ...(cursor && { cursor: { id: cursor } }),
       skip: cursor ? 1 : 0,
       ...(take && { take: take }),
       orderBy: {
         createdAt: 'asc',
       },
+      include: {
+        file: {
+          select: {
+            url: true,
+            fileType: true,
+          },
+        },
+        User: {
+          select: {
+            id: true,
+            name: true,
+            UserType: true, // Added this - it was missing!
+            clientProfile: {
+              select: {
+                userName: true, // Added this
+                profilePic: {
+                  select: {
+                    url: true,
+                  },
+                },
+              },
+            },
+            workerProfile: {
+              select: {
+                userName: true, // Added this
+                profilePic: {
+                  select: {
+                    url: true,
+                  },
+                },
+              },
+            },
+            adminProfile: {
+              select: {
+                profilePic: {
+                  select: {
+                    url: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
     return {
-      data: data.reverse(),
+      data: data.reverse().map((message) => {
+        const profileInfo = this.getProfileInfo(message.User);
+        const {User:_, ...rest} = message
+        
+        return {
+          rest,
+          name: profileInfo.name,
+          senderProfilePic: profileInfo.profilePicUrl,
+          isSender: message.userId === userId
+        };
+      }),
       message: 'Messages fetched successfully',
       success: true,
     };
   }
 
-   public findConversationById(id: string) {
+  private getProfileInfo(user: any) {
+    if (!user) return { name: null, profilePicUrl: null };
+
+    let profileName = user.name;
+    let profilePicUrl = null;
+
+    switch (user.UserType) {
+      case 'WORKER':
+        profileName = user.workerProfile?.userName || user.name;
+        profilePicUrl = user.workerProfile?.profilePic?.url || null;
+        break;
+      case 'CLIENT':
+        profileName = user.clientProfile?.userName || user.name;
+        profilePicUrl = user.clientProfile?.profilePic?.url || null;
+        break;
+      case 'ADMIN':
+        profileName = user.name; // Admin doesn't have userName field
+        profilePicUrl = user.adminProfile?.profilePic?.url || null;
+        break;
+    }
+
+    return { name: profileName, profilePicUrl };
+  }
+
+  public findConversationById(id: string) {
     return this.db.conversation.findUnique({
       where: {
         id,

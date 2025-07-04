@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Query,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -19,6 +20,7 @@ import { FileType, MulterService } from 'src/utils/lib/multer.service';
 import { IdDto } from 'src/common/dto/id.dto';
 import { CommonService } from './services/common.service';
 import { GetMessageDto } from './dto/getMessage.sto';
+import { AuthenticatedRequest } from 'src/common/types/AuthenticatedRequest';
 
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
@@ -40,20 +42,22 @@ export class ChatController {
   createMessage(
     @Body() data: CreateDirectMessageDto,
     @UploadedFile() file: Express.Multer.File,
+    @Req() req: AuthenticatedRequest
   ) {
     return this.createMessageService.createMessage({
       content: data.content,
       conversationId: data.conversationId,
       file,
-    });
+    }, req.user.sub);
   }
 
   @Get('messages')
   getMessages(
     @Query() rawData: GetMessageDto,
+    @Req() req: AuthenticatedRequest
   ) {
     return this.commonService.getMessages(
-      rawData
+      rawData, req.user.sub
     );
   }
 }
