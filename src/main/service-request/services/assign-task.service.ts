@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { DbService } from 'src/utils/db/db.service';
 import { AssignTaskDto } from '../dto/assignTask.dto';
 import { CommonService } from './common.service';
@@ -11,6 +11,7 @@ import { EventService } from 'src/main/notification/services/event.service';
 
 @Injectable()
 export class AssignTaskService {
+  private readonly logger = new Logger(AssignTaskService.name);
   constructor(
     private readonly db: DbService,
     private readonly commonService: CommonService,
@@ -57,12 +58,13 @@ export class AssignTaskService {
     if (!data.WorkerProfile?.userId) {
       throw new BadRequestException('Worker profile ID is missing');
     }
-    
+
     if (!data.ClientProfile?.userId) {
       throw new BadRequestException('Client profile ID is missing');
     }
 
-    await this.db.conversation.create({
+    try {
+      await this.db.conversation.create({
       data: {
         memberOne: {
           connect: {
@@ -76,6 +78,9 @@ export class AssignTaskService {
         } ,
       }
     });
+    } catch (error) {
+      this.logger.error('Error creating conversation:', error);
+    }
 
     return {
       data,
