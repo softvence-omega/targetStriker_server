@@ -39,20 +39,41 @@ export class AssignTaskService {
         },
         status: 'ASSIGNED',
       },
+      include: {
+        WorkerProfile: {
+          select:{
+            userId  : true,
+          }
+        },
+        ClientProfile: {
+          select:{
+            userId: true,
+          }
+        },
+      },
     });
 
-    if (!data.workerProfileId) {
+    console.log(data);
+    if (!data.WorkerProfile?.userId) {
       throw new BadRequestException('Worker profile ID is missing');
     }
-
-    if (!data.clientProfileId) {
+    
+    if (!data.ClientProfile?.userId) {
       throw new BadRequestException('Client profile ID is missing');
     }
 
     await this.db.conversation.create({
       data: {
-        memberOneId: data.clientProfileId,
-        memberTwoId: data.workerProfileId,
+        memberOne: {
+          connect: {
+            id: data.ClientProfile?.userId,
+          },
+        },
+        memberTwo:{
+          connect: {
+            id: data.WorkerProfile?.userId,
+          },
+        } ,
       }
     });
 
