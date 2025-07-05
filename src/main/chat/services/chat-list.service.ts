@@ -5,7 +5,7 @@ import { DbService } from 'src/utils/db/db.service';
 export class ChatListService {
   constructor(private readonly db: DbService) {}
 
-  public async getChatsList(userId: string,) {
+  public async getChatsList(userId: string) {
     // Fetch Conversations where the user is a member
     const conversations = await this.db.conversation.findMany({
       where: {
@@ -28,6 +28,7 @@ export class ChatListService {
                 profilePic: {
                   select: {
                     path: true,
+                    url: true,
                   },
                 },
               },
@@ -37,6 +38,7 @@ export class ChatListService {
                 profilePic: {
                   select: {
                     path: true,
+                    url: true,
                   },
                 },
               },
@@ -46,6 +48,7 @@ export class ChatListService {
                 profilePic: {
                   select: {
                     path: true,
+                    url: true,
                   },
                 },
               },
@@ -61,6 +64,7 @@ export class ChatListService {
                 profilePic: {
                   select: {
                     path: true,
+                    url: true,
                   },
                 },
               },
@@ -70,6 +74,7 @@ export class ChatListService {
                 profilePic: {
                   select: {
                     path: true,
+                    url: true,
                   },
                 },
               },
@@ -79,6 +84,7 @@ export class ChatListService {
                 profilePic: {
                   select: {
                     path: true,
+                    url: true,
                   },
                 },
               },
@@ -88,37 +94,71 @@ export class ChatListService {
       },
     });
 
+    // Remove duplicates by using a Set to track unique conversation IDs
+    const uniqueConversations = new Map();
+    
+    conversations.forEach((conversation) => {
+      if (!uniqueConversations.has(conversation.id)) {
+        uniqueConversations.set(conversation.id, conversation);
+      }
+    });
+
     // Transform conversations to include chat metadata
-    let allChats = conversations.map((c) => ({
-      type: 'conversation' as const,
-      id: c.id,
-      lastMessageDate: c.lasMessage?.createdAt ?? new Date(0),
-      data: {
-        ...c,
-        // Add helper to get the other user's profile picture
-        otherUser: c.memberOneId === userId ? c.memberTwo : c.memberOne,
-        otherUserProfilePic: this.getProfilePicture(
-          c.memberOneId === userId ? c.memberTwo : c.memberOne
-        ),
-      },
-    }));
+    const allChats = Array.from(uniqueConversations.values()).map((c) => {
+      const { memberTwo, memberOne, ...rest } = c;
+      const otherUser = c.memberOneId === userId ? c.memberTwo : c.memberOne;
+      
+      return {
+        type: 'conversation' as const,
+        id: c.id,
+        lastMessageDate: c.lasMessage?.createdAt ?? new Date(0),
+        data: {
+          ...rest,
+          otherUser: {
+            id: otherUser.id,
+            name: otherUser.name,
+            profilePic: this.getProfilePicture(otherUser),
+          },
+          lastMessage: {
+            id: c.lasMessage?.id || null,
+            content: c.lasMessage?.content || 'No messages yet',
+            createdAt: c.lasMessage?.createdAt || null,
+          },
+        },
+      };
+    });
 
     // Sort by last message date (most recent first)
-    return allChats.sort((a, b) => b.lastMessageDate.getTime() - a.lastMessageDate.getTime());
-
+    return allChats.sort(
+      (a, b) => b.lastMessageDate.getTime() - a.lastMessageDate.getTime(),
+    );
   }
 
-  private getProfilePicture(user: any): string | null {
+  private getProfilePicture(user: any): { path: string | null; url: string | null } {
     // Check for profile picture in order of priority
-    if (user.workerProfile?.profilePic?.path) {
-      return user.workerProfile.profilePic.path;
+    if (user.workerProfile?.profilePic) {
+      return {
+        path: user.workerProfile.profilePic.path || null,
+        url: user.workerProfile.profilePic.url || null,
+      };
     }
-    if (user.clientProfile?.profilePic?.path) {
-      return user.clientProfile.profilePic.path;
+    if (user.clientProfile?.profilePic) {
+      return {
+        path: user.clientProfile.profilePic.path || null,
+        url: user.clientProfile.profilePic.url || null,
+      };
     }
-    if (user.adminProfile?.profilePic?.path) {
-      return user.adminProfile.profilePic.path;
+    if (user.adminProfile?.profilePic) {
+      return {
+        path: user.adminProfile.profilePic.path || null,
+        url: user.adminProfile.profilePic.url || null,
+      };
     }
-    return null;
+    
+    // Return default/placeholder image info instead of null
+    return {
+      path: '/default-avatar.png', // You can set a default avatar path
+      url: '/default-avatar.png',  // Or use a CDN URL for default avatar
+    };
   }
 }
