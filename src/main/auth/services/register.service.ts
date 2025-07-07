@@ -35,58 +35,18 @@ export class RegisterService {
     });
 
     let user: any;
-    let profileId: string | null = null;
 
-    // Create user with the appropriate profile based on UserType
-    if (rawData.UserType === 'CLIENT') {
-      const generatedUserName = `${rawData.email.split('@')[0]}-${Date.now()}`;
-
-      user = await this.db.user.create({
-        data: {
-          ...rawData,
-          clientProfile: {
-            create: {
-              location: '', // default empty location
-              userName: generatedUserName, // ensure uniqueness
-            },
-          },
-        },
-        include: { clientProfile: true },
-      });
-
-      profileId = user.clientProfile?.id ?? null;
-    } else if (rawData.UserType === 'WORKER') {
-      const generatedWorkerId = `W-${Date.now()}`; // make sure this is unique
-      const generatedUserName = `${rawData.email.split('@')[0]}-${Date.now()}`;
-
-      user = await this.db.user.create({
-        data: {
-          ...rawData,
-          workerProfile: {
-            create: {
-              userName: generatedUserName,
-              workerId: generatedWorkerId,
-              location: {}, // pass an empty object or a valid location structure
-            },
-          },
-        },
-        include: { workerProfile: true },
-      });
-
-      profileId = user.workerProfile?.id ?? null
-    }
-    else {
-      user = await this.db.user.create({
-        data: { ...rawData },
-      });
-    }
+    // Create user without any profile creation logic
+    user = await this.db.user.create({
+      data: { ...rawData },
+    });
 
     const token = await this.commonService.generateToken({
       email: user.email,
       id: user.id,
       roles: user.UserType,
       isVerified: user.isVerified,
-      profileId,
+      profileId: null,
     });
 
     return {
