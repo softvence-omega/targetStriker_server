@@ -18,6 +18,26 @@ export class AssignTaskService {
     private readonly mainService: MainService,
   ) {}
 
+  private async ensureConversation(userId1: string, userId2: string) {
+    const existingConversation = await this.db.conversation.findFirst({
+      where: {
+        OR: [
+          { memberOneId: userId1, memberTwoId: userId2 },
+          { memberOneId: userId2, memberTwoId: userId1 },
+        ],
+      },
+    });
+
+    if (!existingConversation) {
+      await this.db.conversation.create({
+        data: {
+          memberOne: { connect: { id: userId1 } },
+          memberTwo: { connect: { id: userId2 } },
+        },
+      });
+    }
+  }
+
   public async assignTask({
     taskId,
     workerId,
@@ -64,20 +84,103 @@ export class AssignTaskService {
     }
 
     try {
-      await this.db.conversation.create({
-      data: {
+      const existingConversation = await this.db.conversation.findFirst({
+        where: {
+          OR: [
+        {
+          memberOneId: data.ClientProfile?.userId,
+          memberTwoId: data.WorkerProfile?.userId,
+        },
+        {
+          memberOneId: data.WorkerProfile?.userId,
+          memberTwoId: data.ClientProfile?.userId,
+        },
+          ],
+        },
+      });
+
+      if (!existingConversation) {
+        await this.db.conversation.create({
+          data: {
         memberOne: {
           connect: {
             id: data.ClientProfile?.userId,
           },
         },
-        memberTwo:{
+        memberTwo: {
           connect: {
             id: data.WorkerProfile?.userId,
           },
-        } ,
+        },
+          },
+        });
       }
-    });
+
+      // Create conversation with admin
+      const admin = await this.db.user.findFirst({
+        where: { UserType: 'ADMIN' },
+        select: { id: true },
+      });
+
+      if (admin) {
+        // Client <-> Admin
+        const clientAdminConversation = await this.db.conversation.findFirst({
+          where: {
+        OR: [
+          {
+            memberOneId: data.ClientProfile?.userId,
+            memberTwoId: admin.id,
+          },
+          {
+            memberOneId: admin.id,
+            memberTwoId: data.ClientProfile?.userId,
+          },
+        ],
+          },
+        });
+
+        if (!clientAdminConversation) {
+          await this.db.conversation.create({
+        data: {
+          memberOne: {
+            connect: { id: data.ClientProfile?.userId },
+          },
+          memberTwo: {
+            connect: { id: admin.id },
+          },
+        },
+          });
+        }
+
+        // Worker <-> Admin
+        const workerAdminConversation = await this.db.conversation.findFirst({
+          where: {
+        OR: [
+          {
+            memberOneId: data.WorkerProfile?.userId,
+            memberTwoId: admin.id,
+          },
+          {
+            memberOneId: admin.id,
+            memberTwoId: data.WorkerProfile?.userId,
+          },
+        ],
+          },
+        });
+
+        if (!workerAdminConversation) {
+          await this.db.conversation.create({
+        data: {
+          memberOne: {
+            connect: { id: data.WorkerProfile?.userId },
+          },
+          memberTwo: {
+            connect: { id: admin.id },
+          },
+        },
+          });
+        }
+      }
     } catch (error) {
       this.logger.error('Error creating conversation:', error);
     }
