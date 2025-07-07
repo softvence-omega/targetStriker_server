@@ -157,8 +157,8 @@ export class ChatListService {
     
     // Return default/placeholder image info instead of null
     return {
-      path: '/default-avatar.png', // You can set a default avatar path
-      url: '/default-avatar.png',  // Or use a CDN URL for default avatar
+      path: null, // You can set a default avatar path
+      url: null,  // Or use a CDN URL for default avatar
     };
   }
 }

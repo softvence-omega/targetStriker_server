@@ -7,7 +7,7 @@ import { MainService as InvoiceMainService } from 'src/main/invoice/services/mai
 import { CommonService as InvoiceCommonService } from 'src/main/invoice/services/common.service';
 
 @Module({
-  providers: [CommonService, MainService, AssignTaskService, InvoiceMainService, InvoiceCommonService],
+  providers: [CommonService, MainService, AssignTaskService, InvoiceMainService, InvoiceCommonService,],
   controllers: [ServiceRequestController]
 })
 export class ServiceRequestModule {}

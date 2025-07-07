@@ -8,6 +8,7 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { GetAssignedServiceRequestDto } from '../dto/getAssignedServiceRequest.dto';
 import { MainService } from 'src/main/invoice/services/main.service';
 import { EventService } from 'src/main/notification/services/event.service';
+import { ChatListGateway } from 'src/main/chat/ws/chat-list.gateway';
 
 @Injectable()
 export class AssignTaskService {
@@ -16,6 +17,7 @@ export class AssignTaskService {
     private readonly db: DbService,
     private readonly commonService: CommonService,
     private readonly mainService: MainService,
+    private readonly chatListService: ChatListGateway,
   ) {}
 
   private async ensureConversation(userId1: string, userId2: string) {
@@ -181,6 +183,9 @@ export class AssignTaskService {
           });
         }
       }
+      await this.chatListService.broadcastChatListUpdate(data.ClientProfile?.userId);
+      await this.chatListService.broadcastChatListUpdate(data.WorkerProfile?.userId);
+      admin && await this.chatListService.broadcastChatListUpdate(admin.id);
     } catch (error) {
       this.logger.error('Error creating conversation:', error);
     }
