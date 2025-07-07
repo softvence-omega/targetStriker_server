@@ -105,7 +105,7 @@ export class ChatListService {
 
     // Transform conversations to include chat metadata
     const allChats = Array.from(uniqueConversations.values()).map((c) => {
-      const { memberTwo, memberOne, ...rest } = c;
+      const { memberTwo, memberOne, lasMessage, ...rest } = c;
       const otherUser = c.memberOneId === userId ? c.memberTwo : c.memberOne;
       
       return {
