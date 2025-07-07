@@ -65,7 +65,7 @@ export class AssignTaskService {
       include: {
         WorkerProfile: {
           select:{
-            userId  : true,
+            userId: true,
           }
         },
         ClientProfile: {
