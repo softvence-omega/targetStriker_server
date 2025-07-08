@@ -86,7 +86,7 @@ export class HomeDataService {
       },
       where: {
         status: RequestStatus.ASSIGNED,
-        workerProfileId: null,
+        workerProfileId: { not: null }, 
       },
       include: {
         TaskType: {
