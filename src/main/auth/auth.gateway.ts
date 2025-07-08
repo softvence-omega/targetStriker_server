@@ -87,6 +87,8 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       });
     } catch (error) {
+      console.log(error);
+      
       this.logger.warn('JWT verification failed');
       client.close();
     }
