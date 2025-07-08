@@ -34,74 +34,96 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {}
 
   async handleConnection(client: WebSocket, ...args: any[]) {
-    const req = args[0] as IncomingMessage;
-    const authHeader = req.headers['authorization'];
-    this.logger.log('=== CONNECTION DEBUG INFO ===');
-    this.logger.log('All headers:', JSON.stringify(req.headers, null, 2));
-    this.logger.log('URL:', req.url);
-    this.logger.log('Method:', req.method);
-
-    // Multiple ways to get FCM token
-    const fcmToken =
-      req.headers['fcm_token'] ||
-      req.headers['fcm-token'] ||
-      req.headers['FCM_TOKEN'] ||
-      req.headers['FCM-TOKEN'];
-    if (!fcmToken) {
-      this.logger.warn('Missing FCM token in request headers');
-      client.close();
-      return;
-    }
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      this.logger.warn('Missing or invalid Authorization header');
-      client.close();
-      return;
-    }
-
-    const token = authHeader.split(' ')[1];
-
-    try {
-      const decoded = this.jwtService.verify(token, {
-        secret: this.configService.getOrThrow('JWT_SECRET'),
-      });
-
-      const userId = decoded.sub;
-      const clientId = this.generateClientId();
-      (client as any).userId = userId;
-      (client as any).clientId = clientId;
-
-      // Use the dedicated cache service
-      await this.cacheService.storeClientUserMapping(clientId, userId);
-
-      await this.db.user.update({
-        where: { id: userId },
-        data: { active: true },
-      });
-
-      await this.saveFcmToken(userId, fcmToken as string);
-
-      await this.broadcastUserStatus(userId, true);
-
-      this.logger.log(`User ${userId} connected with client ${clientId}`);
-
-      client.on('message', (msg) => {
-        try {
-          const data = JSON.parse(msg.toString());
-          if (data.type === 'watch_user_status' && data.userId) {
-            this.handleWatchUserStatus(clientId, data.userId);
-          }
-        } catch (err) {
-          this.logger.warn('Invalid JSON received from client');
-        }
-      });
-    } catch (error) {
-      console.log(error);
-
-      this.logger.warn('JWT verification failed');
-      client.close();
-    }
+  const req = args[0] as IncomingMessage;
+  
+  const authHeader = req.headers['authorization'];
+  
+  // Multiple ways to get FCM token
+  const fcmToken = req.headers['fcm_token'] as string 
+  // Extract from URL query parameters (primary method for web clients)
+  const urlParams = new URLSearchParams(req.url?.split('?')[1] || '');
+  const fcmTokenFromUrl = urlParams.get('fcm_token');
+  
+  if (!fcmToken && !fcmTokenFromUrl) {
+    this.logger.warn('No FCM token provided in headers or URL');
+    client.send(JSON.stringify({
+      type: 'error',
+      message: 'No FCM token provided',
+    }));
+    return;
+    
   }
+
+  const finalFcmToken = fcmToken || fcmTokenFromUrl;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    this.logger.warn('Missing or invalid Authorization header');
+    client.close();
+    return;
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const decoded = this.jwtService.verify(token, {
+      secret: this.configService.getOrThrow('JWT_SECRET'),
+    });
+
+    const userId = decoded.sub;
+    const clientId = this.generateClientId();
+    (client as any).userId = userId;
+    (client as any).clientId = clientId;
+    (client as any).fcmTokenReceived = !!finalFcmToken;
+
+    // Use the dedicated cache service
+    await this.cacheService.storeClientUserMapping(clientId, userId);
+
+    await this.db.user.update({
+      where: { id: userId },
+      data: { active: true },
+    });
+
+    // Save FCM token if available from URL/headers
+    if (finalFcmToken) {
+      await this.saveFcmToken(userId, finalFcmToken);
+      this.logger.log(`FCM token saved for user ${userId} from ${fcmToken ? 'headers' : 'URL'}`);
+    } else {
+      this.logger.log(`User ${userId} connected without FCM token - expecting it via message`);
+    }
+
+    await this.broadcastUserStatus(userId, true);
+
+    this.logger.log(`User ${userId} connected with client ${clientId}`);
+
+    client.on('message', (msg) => {
+      try {
+        const data = JSON.parse(msg.toString());
+        
+        if (data.type === 'fcm_token' && data.token) {
+          this.handleFcmToken(userId, data.token);
+          (client as any).fcmTokenReceived = true;
+        } else if (data.type === 'watch_user_status' && data.userId) {
+          this.handleWatchUserStatus(clientId, data.userId);
+        }
+      } catch (err) {
+        this.logger.warn('Invalid JSON received from client');
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    this.logger.warn('JWT verification failed');
+    client.close();
+  }
+}
+
+private async handleFcmToken(userId: string, fcmToken: string) {
+  try {
+    await this.saveFcmToken(userId, fcmToken);
+    this.logger.log(`FCM token received and saved for user ${userId}`);
+  } catch (error) {
+    this.logger.error(`Failed to save FCM token for user ${userId}:`, error);
+  }
+}
 
   async handleDisconnect(client: WebSocket) {
     const userId = (client as any).userId;
