@@ -36,8 +36,17 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleConnection(client: WebSocket, ...args: any[]) {
     const req = args[0] as IncomingMessage;
     const authHeader = req.headers['authorization'];
-    const fcmToken = req.headers['fcm_token'];
+    this.logger.log('=== CONNECTION DEBUG INFO ===');
+    this.logger.log('All headers:', JSON.stringify(req.headers, null, 2));
+    this.logger.log('URL:', req.url);
+    this.logger.log('Method:', req.method);
 
+    // Multiple ways to get FCM token
+    const fcmToken =
+      req.headers['fcm_token'] ||
+      req.headers['fcm-token'] ||
+      req.headers['FCM_TOKEN'] ||
+      req.headers['FCM-TOKEN'];
     if (!fcmToken) {
       this.logger.warn('Missing FCM token in request headers');
       client.close();
@@ -88,7 +97,7 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
     } catch (error) {
       console.log(error);
-      
+
       this.logger.warn('JWT verification failed');
       client.close();
     }
