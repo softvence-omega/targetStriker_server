@@ -13,6 +13,7 @@ import { WorkerAssignedTaskDto } from './dto/workerAssignedTask.dto';
 import { ReportAnalysesService } from './services/report-analyses.service';
 import { FilterTaskDto } from './dto/filtertask.dto';
 import { TaskOverviewService } from './services/task-overview.service';
+import { CommonService } from './services/common.service';
 
 @ApiTags('Admin')
 @Controller('admin')
@@ -27,6 +28,7 @@ export class AdminController {
     private readonly workerDetailsService: WorkerDetailsService,
     private readonly reportAnalysesService: ReportAnalysesService,
     private readonly taskOverviewService: TaskOverviewService,
+    private readonly commonService: CommonService,
   ) {}
 
   @Get('home-data')
@@ -63,17 +65,6 @@ export class AdminController {
     return await this.workerDetailsService.getWorkerDetails(id);
   }
 
-  @Get('worker/assigned/task')
-  async getWorkerAssignedTask(@Query() data: WorkerAssignedTaskDto) {
-    // return await this.taskManagementService.getServiceRequestsWithStatusLabel(
-    //   {
-    //     skip: data.skip,
-    //     take: data.take,
-    //   },
-    //   { id: data.workerId },
-    // );
-  }
-
   @Get('report-analyses')
   async getReportAnalyses() {
     return await this.reportAnalysesService.getReport();
@@ -82,6 +73,11 @@ export class AdminController {
   @Get('task-overview')
   async getTaskOverview() {
     return await this.taskOverviewService.getTaskOverview();
+  }
+
+  @Get("all-tasks")
+  async getAllTasks() {
+    return await this.commonService.getAllWithCustomStatus();
   }
 
 }
