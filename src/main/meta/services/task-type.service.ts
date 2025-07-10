@@ -6,6 +6,10 @@ export class TaskTypeService {
     constructor(private readonly db: DbService) {}
 
     getTaskType() {
-        return this.db.taskType.findMany()
+        return this.db.taskType.findMany({
+            orderBy: {
+                name: 'asc',
+            },
+        })
     }
 }

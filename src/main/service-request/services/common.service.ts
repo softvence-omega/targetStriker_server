@@ -19,6 +19,11 @@ export class CommonService {
           select: {
             name: true,
           }
+        },
+        reqPhoto:{
+          select: {
+            url: true,
+          },
         }
       }
     });
@@ -96,6 +101,14 @@ export class CommonService {
           status: 'PENDING',
           clientProfileId: id,
         },
+        select:{
+          TaskType:{
+            select: {
+              id: true,
+              name: true,
+            }
+          }
+        },
         take: 3,
       });
       const confirmed = await tx.serviceRequest.findMany({
@@ -103,12 +116,28 @@ export class CommonService {
           status: 'CONFIRMED',
           clientProfileId: id,
         },
+        select:{
+          TaskType:{
+            select: {
+              id: true,
+              name: true,
+            }
+          }
+        },
         take: 3,
       });
       const completed = await tx.serviceRequest.findMany({
         where: {
           status: 'COMPLETED',
           clientProfileId: id,
+        },
+        select:{
+          TaskType:{
+            select: {
+              id: true,
+              name: true,
+            }
+          }
         },
         take: 3,
       });

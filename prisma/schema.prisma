@@ -34,6 +34,7 @@ model User {
   active                 Boolean        @default(false)
   fcm_token              Fcm_token?
   modifications          Notification[]
+  message                Message[]
   conversationsInitiated Conversation[] @relation("MemberOne")
   conversationsReceived  Conversation[] @relation("MemberTwo")
 }
@@ -54,7 +55,7 @@ enum UserType {
 
 model Fcm_token {
   id     String  @id @default(uuid())
-  token  String  @unique
+  token  String  
   User   User?   @relation(fields: [userId], references: [id])
   userId String? @unique
 }
@@ -83,6 +84,13 @@ model WorkerProfile {
   profilePic         FileInstance?
   WorkerSpecialist   WorkerSpecialist? @relation(fields: [workerSpecialistId], references: [id])
   workerSpecialistId String?
+  isActive           WorkerStatus           @default(ACTIVE)
+}
+
+
+enum WorkerStatus {
+  ACTIVE
+  INACTIVE
 }
 
 //=================== <**********> =======================
@@ -141,9 +149,10 @@ model ClientProfile {
 //=================== <**********> =======================
 
 model AdminProfile {
-  id     String  @id @default(uuid())
-  User   User?   @relation(fields: [userId], references: [id])
-  userId String? @unique
+  id         String        @id @default(uuid())
+  User       User?         @relation(fields: [userId], references: [id])
+  userId     String?       @unique
+  profilePic FileInstance?
 }
 
 //=================== <**********> =======================
@@ -180,6 +189,8 @@ model FileInstance {
   beforePhotoId      String?
   ReportPhoto        ReportPhoto?    @relation(fields: [reportPhotoId], references: [id])
   reportPhotoId      String?         @unique
+  AdminProfile       AdminProfile?   @relation(fields: [adminProfileId], references: [id])
+  adminProfileId     String?         @unique
 }
 
 //=================== <**********> =======================
@@ -251,6 +262,7 @@ enum RequestStatus {
   COMPLETED
   CANCELLED
   ASSIGNED
+  REJECT
 }
 
 // ##################### $ RequestStatus Type Enum End $ ##############
@@ -328,6 +340,8 @@ model Message {
   createdAt                 DateTime      @default(now())
   updatedAt                 DateTime      @updatedAt
   file                      FileInstance?
+  User                      User?         @relation(fields: [userId], references: [id])
+  userId                    String?
 }
 
 //=================== <**********> =======================

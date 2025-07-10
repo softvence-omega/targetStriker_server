@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { DbService } from 'src/utils/db/db.service';
 import { AssignTaskDto } from '../dto/assignTask.dto';
 import { CommonService } from './common.service';
@@ -7,14 +7,38 @@ import { IdDto } from 'src/common/dto/id.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { GetAssignedServiceRequestDto } from '../dto/getAssignedServiceRequest.dto';
 import { MainService } from 'src/main/invoice/services/main.service';
+import { EventService } from 'src/main/notification/services/event.service';
+import { ChatListGateway } from 'src/main/chat/ws/chat-list.gateway';
 
 @Injectable()
 export class AssignTaskService {
+  private readonly logger = new Logger(AssignTaskService.name);
   constructor(
     private readonly db: DbService,
     private readonly commonService: CommonService,
     private readonly mainService: MainService,
+    private readonly chatListService: ChatListGateway,
   ) {}
+
+  private async ensureConversation(userId1: string, userId2: string) {
+    const existingConversation = await this.db.conversation.findFirst({
+      where: {
+        OR: [
+          { memberOneId: userId1, memberTwoId: userId2 },
+          { memberOneId: userId2, memberTwoId: userId1 },
+        ],
+      },
+    });
+
+    if (!existingConversation) {
+      await this.db.conversation.create({
+        data: {
+          memberOne: { connect: { id: userId1 } },
+          memberTwo: { connect: { id: userId2 } },
+        },
+      });
+    }
+  }
 
   public async assignTask({
     taskId,
@@ -38,7 +62,134 @@ export class AssignTaskService {
         },
         status: 'ASSIGNED',
       },
+      include: {
+        WorkerProfile: {
+          select:{
+            userId: true,
+          }
+        },
+        ClientProfile: {
+          select:{
+            userId: true,
+          }
+        },
+      },
     });
+
+    console.log(data);
+    if (!data.WorkerProfile?.userId) {
+      throw new BadRequestException('Worker profile ID is missing');
+    }
+
+    if (!data.ClientProfile?.userId) {
+      throw new BadRequestException('Client profile ID is missing');
+    }
+
+    try {
+      const existingConversation = await this.db.conversation.findFirst({
+        where: {
+          OR: [
+        {
+          memberOneId: data.ClientProfile?.userId,
+          memberTwoId: data.WorkerProfile?.userId,
+        },
+        {
+          memberOneId: data.WorkerProfile?.userId,
+          memberTwoId: data.ClientProfile?.userId,
+        },
+          ],
+        },
+      });
+
+      if (!existingConversation) {
+        await this.db.conversation.create({
+          data: {
+        memberOne: {
+          connect: {
+            id: data.ClientProfile?.userId,
+          },
+        },
+        memberTwo: {
+          connect: {
+            id: data.WorkerProfile?.userId,
+          },
+        },
+          },
+        });
+      }
+
+      // Create conversation with admin
+      const admin = await this.db.user.findFirst({
+        where: { UserType: 'ADMIN' },
+        select: { id: true },
+      });
+
+      if (admin) {
+        // Client <-> Admin
+        const clientAdminConversation = await this.db.conversation.findFirst({
+          where: {
+        OR: [
+          {
+            memberOneId: data.ClientProfile?.userId,
+            memberTwoId: admin.id,
+          },
+          {
+            memberOneId: admin.id,
+            memberTwoId: data.ClientProfile?.userId,
+          },
+        ],
+          },
+        });
+
+        if (!clientAdminConversation) {
+          await this.db.conversation.create({
+        data: {
+          memberOne: {
+            connect: { id: data.ClientProfile?.userId },
+          },
+          memberTwo: {
+            connect: { id: admin.id },
+          },
+        },
+          });
+        }
+
+        // Worker <-> Admin
+        const workerAdminConversation = await this.db.conversation.findFirst({
+          where: {
+        OR: [
+          {
+            memberOneId: data.WorkerProfile?.userId,
+            memberTwoId: admin.id,
+          },
+          {
+            memberOneId: admin.id,
+            memberTwoId: data.WorkerProfile?.userId,
+          },
+        ],
+          },
+        });
+
+        if (!workerAdminConversation) {
+          await this.db.conversation.create({
+        data: {
+          memberOne: {
+            connect: { id: data.WorkerProfile?.userId },
+          },
+          memberTwo: {
+            connect: { id: admin.id },
+          },
+        },
+          });
+        }
+      }
+      await this.chatListService.broadcastChatListUpdate(data.ClientProfile?.userId);
+      await this.chatListService.broadcastChatListUpdate(data.WorkerProfile?.userId);
+      admin && await this.chatListService.broadcastChatListUpdate(admin.id);
+    } catch (error) {
+      this.logger.error('Error creating conversation:', error);
+    }
+
     return {
       data,
       message: 'Task assigned successfully',
