@@ -14,11 +14,11 @@ export class TaskRejectService {
     const task = await this.dbService.serviceRequest.findUnique({
       where: { id: taskId },
     });
-    if (task?.status !== 'PENDING') {
-      throw new Error('Task can only be rejected if it is in PENDING status');
-    }
     if (!task) {
       throw new Error('Task not found');
+    }
+    if (task?.status !== 'PENDING') {
+      throw new Error('Task can only be rejected if it is in PENDING status');
     }
 
     const result = await this.dbService.serviceRequest.update({
