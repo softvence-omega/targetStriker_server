@@ -1,20 +1,19 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/decorator/roles.decorator';
 import { HomeDataService } from './services/home-data.service';
 import { TaskManagementService } from './services/task-management.service';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { EmployeeService } from './services/employee.service';
 import { FilterWorkerDto } from './dto/filterWroker.dto';
 import { WorkerDetailsService } from './services/worker-details.service';
 import { IdDto } from 'src/common/dto/id.dto';
-import { WorkerAssignedTaskDto } from './dto/workerAssignedTask.dto';
 import { ReportAnalysesService } from './services/report-analyses.service';
 import { FilterTaskDto } from './dto/filtertask.dto';
 import { TaskOverviewService } from './services/task-overview.service';
 import { CommonService } from './services/common.service';
 import { EmployeeManagementService } from './services/employee-management.service';
+import { TaskRejectService } from './services/task-reject.service';
 
 @ApiTags('Admin')
 @Controller('admin')
@@ -31,6 +30,7 @@ export class AdminController {
     private readonly taskOverviewService: TaskOverviewService,
     private readonly commonService: CommonService,
     private readonly employeeManagementService: EmployeeManagementService,
+    private readonly taskRejectService: TaskRejectService, // Assuming TaskRejectService is imported correctly
   ) {}
 
   @Get('home-data')
@@ -43,16 +43,16 @@ export class AdminController {
     @Query() PaginationDto: FilterTaskDto,
   ) {
     return await this.taskManagementService.getServiceRequestsWithStatusLabel(
-    {
-      skip: PaginationDto.skip,
-      take: PaginationDto.take
-    },
-    {
-      location: PaginationDto.location,
-      taskTypeId: PaginationDto.taskTypeId,
-      status: PaginationDto.status,
-      search: PaginationDto.search
-    }
+      {
+        skip: PaginationDto.skip,
+        take: PaginationDto.take,
+      },
+      {
+        location: PaginationDto.location,
+        taskTypeId: PaginationDto.taskTypeId,
+        status: PaginationDto.status,
+        search: PaginationDto.search,
+      },
     );
   }
 
@@ -81,9 +81,13 @@ export class AdminController {
     return await this.taskOverviewService.getTaskOverview();
   }
 
-  @Get("all-tasks")
+  @Get('all-tasks')
   async getAllTasks() {
     return await this.commonService.getAllWithCustomStatus();
   }
 
+  @Patch('reject-task')
+  async rejectTask(@Query() id: IdDto) {
+    return await this.taskRejectService.rejectTask(id.id);
+  }
 }
