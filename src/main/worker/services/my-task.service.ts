@@ -15,21 +15,9 @@ export class MyTaskService {
   ) {
     const where: Prisma.ServiceRequestWhereInput = {};
 
-    if (id) {
-      const worker = await this.dbService.workerProfile.findUnique({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        where: { userId: id },
-        select: { id: true },
-      });
-
-      if (worker) {
-        where.workerProfileId = worker.id;
-      } else {
-        return [];
-      }
-    }
-
     const orConditions: Prisma.ServiceRequestWhereInput[] = [];
+
+    where.workerProfileId = id;
 
     if (location) {
       orConditions.push({
@@ -86,10 +74,13 @@ export class MyTaskService {
       ) {
         statusLabel = 'ASSIGNED';
       }
-
       return {
-        ...task,
-        statusLabel,
+        data: {
+          ...task,
+          statusLabel,
+        },
+        message: 'Service requests fetched successfully',
+        success: true,
       };
     });
   }

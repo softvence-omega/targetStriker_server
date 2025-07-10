@@ -48,7 +48,7 @@ export class WorkerController {
         status: PaginationDto.status,
         search: PaginationDto.search,
       },
-      req?.user?.id,
+      req?.user?.profileId,
     );
   }
 }
