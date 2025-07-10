@@ -37,7 +37,7 @@ export class WorkerController {
     @Query() PaginationDto: FilterTaskDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.getMyTasksService.getMyTask(
+    const result = await this.getMyTasksService.getMyTask(
       {
         skip: PaginationDto.skip,
         take: PaginationDto.take,
@@ -50,5 +50,10 @@ export class WorkerController {
       },
       req?.user?.profileId,
     );
+    return {
+      data: result,
+      message: 'Service requests fetched successfully',
+      success: true,
+    };
   }
 }

@@ -75,12 +75,8 @@ export class MyTaskService {
         statusLabel = 'ASSIGNED';
       }
       return {
-        data: {
-          ...task,
-          statusLabel,
-        },
-        message: 'Service requests fetched successfully',
-        success: true,
+        ...task,
+        statusLabel,
       };
     });
   }
