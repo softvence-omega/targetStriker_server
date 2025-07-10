@@ -7,16 +7,20 @@ import { EmployeeService } from './services/employee.service';
 import { WorkerDetailsService } from './services/worker-details.service';
 import { ReportAnalysesService } from './services/report-analyses.service';
 import { TaskOverviewService } from './services/task-overview.service';
+import { EmployeeManagementService } from './services/employee-management.service';
 
 @Module({
   controllers: [AdminController],
   providers: [
-    CommonService, 
-    HomeDataService, 
-    TaskManagementService, 
-    EmployeeService, 
-    WorkerDetailsService, 
-    ReportAnalysesService, TaskOverviewService,
+    CommonService,
+    HomeDataService,
+    TaskManagementService,
+    EmployeeService,
+    WorkerDetailsService,
+    ReportAnalysesService,
+    TaskOverviewService,
+    EmployeeManagementService,
+    
   ],
 })
 export class AdminModule {}

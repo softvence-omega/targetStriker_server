@@ -14,6 +14,7 @@ import { ReportAnalysesService } from './services/report-analyses.service';
 import { FilterTaskDto } from './dto/filtertask.dto';
 import { TaskOverviewService } from './services/task-overview.service';
 import { CommonService } from './services/common.service';
+import { EmployeeManagementService } from './services/employee-management.service';
 
 @ApiTags('Admin')
 @Controller('admin')
@@ -29,6 +30,7 @@ export class AdminController {
     private readonly reportAnalysesService: ReportAnalysesService,
     private readonly taskOverviewService: TaskOverviewService,
     private readonly commonService: CommonService,
+    private readonly employeeManagementService: EmployeeManagementService,
   ) {}
 
   @Get('home-data')
@@ -59,6 +61,10 @@ export class AdminController {
     return await this.employeeService.getAllWorkerProfiles(PaginationDto);
   }
 
+  @Get('employee-overview')
+  async getEmployeeManagement() {
+    return await this.employeeManagementService.getEmployeeOverview();
+  }
 
   @Get('worker-details')
   async getWorkerDetails(@Query() id: IdDto) {

@@ -84,6 +84,13 @@ model WorkerProfile {
   profilePic         FileInstance?
   WorkerSpecialist   WorkerSpecialist? @relation(fields: [workerSpecialistId], references: [id])
   workerSpecialistId String?
+  isActive           WorkerStatus           @default(ACTIVE)
+}
+
+
+enum WorkerStatus {
+  ACTIVE
+  INACTIVE
 }
 
 //=================== <**********> =======================
