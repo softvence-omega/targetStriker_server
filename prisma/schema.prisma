@@ -292,7 +292,7 @@ model Task {
   id String @id @default(uuid())
   name String
   price Int
-  serviceRequestId String
+  serviceRequestId String?
   clientId String?
   client ClientProfile? @relation(fields: [clientId], references: [id])
   workerId String?
