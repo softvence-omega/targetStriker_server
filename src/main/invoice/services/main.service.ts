@@ -47,6 +47,9 @@ export class MainService {
     // Create invoice
     const invoice = await this.db.invoice.create({
       data: {
+        invoiceNumber: this.commonService.generateId({
+          strategy: IdStrategy.TIMESTAMP,
+        }),
         serviceRequest: {
           connect: {
             id: serviceRequestId,
@@ -67,9 +70,6 @@ export class MainService {
             id: bankInfo.id,
           },
         },
-        invoiceNumber: this.commonService.generateId({
-          strategy: IdStrategy.TIMESTAMP,
-        }),
         duaDate: dueDate,
         totalAmount,
       },
@@ -121,6 +121,7 @@ export class MainService {
           IBAN: invoice?.BankInfo?.IBAN,
           BIC_or_SWIFT: invoice?.BankInfo?.BIC_or_SWIFT,
         },
+        invoiceNumber: invoice.invoiceNumber,
       },
       message: 'Invoice created successfully',
       success: true,
@@ -130,6 +131,7 @@ export class MainService {
   public async getInvoiceById(id: IdDto): Promise<ApiResponse<any>> {
     const invoice = await this.db.invoice.findUnique({
       where: id,
+
       include: {
         BankInfo: true,
         ClientProfile: {
@@ -182,6 +184,7 @@ export class MainService {
           IBAN: invoice?.BankInfo?.IBAN,
           BIC_or_SWIFT: invoice?.BankInfo?.BIC_or_SWIFT,
         },
+        invoiceNumber: invoice.invoiceNumber,
       },
       message: 'Invoice fetched successfully',
       success: true,

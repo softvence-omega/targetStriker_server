@@ -55,26 +55,26 @@ export class GetInvoiceOverviewService {
       orderBy: {
         duaDate: 'asc',
       },
-      include:{
+      include: {
         ClientProfile: {
-            select:{
-                User:{
-                    select: {
-                        name: true,
-                    },
-                }
-            }
+          select: {
+            User: {
+              select: {
+                name: true,
+              },
+            },
+          },
         },
-        serviceRequest:{
-            select:{
-                TaskType: {
-                    select: {
-                        name: true,
-                    }
-                }
-            }
-        }
-      }
+        serviceRequest: {
+          select: {
+            TaskType: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
     });
   }
 
@@ -93,5 +93,4 @@ export class GetInvoiceOverviewService {
       success: true,
     };
   }
-
 }

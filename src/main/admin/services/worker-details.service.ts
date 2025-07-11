@@ -8,6 +8,7 @@ export class WorkerDetailsService {
   constructor(private readonly db: DbService) {}
 
   public async getWorkerDetails(id: IdDto): Promise<ApiResponse<any>> {
+    console.log(id);
     const getWorkerDetails = await this.db.workerProfile.findUnique({
       where: {
         id: id.id,
@@ -33,6 +34,14 @@ export class WorkerDetailsService {
         assignedService: true,
       },
     });
+
+    if (getWorkerDetails === null) {
+      return {
+        success: false,
+        message: 'Worker not found',
+        data: null,
+      };
+    }
 
     const totalAssigned: number = getWorkerDetails?.assignedService.length ?? 0;
     const totalCompleted: number =

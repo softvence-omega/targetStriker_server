@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CommonService {
-    private counters = new Map<string, number>();
+  private counters = new Map<string, number>();
 
   /**
    * Generate invoice ID
@@ -15,13 +15,13 @@ export class CommonService {
     switch (strategy) {
       case IdStrategy.SEQUENTIAL:
         return this.generateSequential(prefix, startCounter);
-      
+
       case IdStrategy.UUID:
         return this.generateUuid(prefix);
-      
+
       case IdStrategy.TIMESTAMP:
         return this.generateTimestamp(prefix);
-      
+
       default:
         throw new Error('Invalid strategy');
     }
