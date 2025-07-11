@@ -103,7 +103,6 @@ export class CreateService {
           User: {
             connect: {
               id,
-              active: true, // Ensure the user is active
             },
           },
           workerId: rawData.workerId,
