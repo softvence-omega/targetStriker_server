@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Patch,
   Post,
   Query,
   Req,
@@ -16,6 +17,10 @@ import { Roles } from 'src/decorator/roles.decorator';
 import { AuthenticatedRequest } from 'src/common/types/AuthenticatedRequest';
 import { MyTaskService } from './services/my-task.service';
 import { FilterTaskDto } from '../admin/dto/filtertask.dto';
+import { AddTaskDto } from './dto/addTask.dto';
+import { AddTaskService } from './services/add-task.service';
+import { UpdateTaskService } from './services/update-task.service';
+import { UpdateTaskDto } from './dto/updateTask.dto';
 
 @Controller('worker')
 @ApiBearerAuth()
@@ -25,6 +30,8 @@ export class WorkerController {
   constructor(
     private readonly mainService: MainService,
     private readonly getMyTasksService: MyTaskService, // Assuming MyTaskService is imported correctly
+    private readonly addTaskService: AddTaskService, // Assuming AddTaskService is imported correctly
+    private readonly updateTaskService: UpdateTaskService, // Assuming UpdateTaskService is imported correctly
   ) {}
 
   @Post('set-price')
@@ -53,6 +60,33 @@ export class WorkerController {
     return {
       data: result,
       message: 'Service requests fetched successfully',
+      success: true,
+    };
+  }
+  @Post('add-task')
+  async addTask(@Body() dto: AddTaskDto, @Req() req: AuthenticatedRequest) {
+    const workerProfileId = req.user.profileId;
+    const result = await this.addTaskService.addTask(dto, workerProfileId);
+    return {
+      data: result,
+      message: 'Task Added successfully',
+      success: true,
+    };
+  }
+
+  @Patch('update-task')
+  async updateTask(
+    @Body() updateTaskDto: UpdateTaskDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const workerProfileId = req.user.profileId;
+    const result = await this.updateTaskService.updateTask(
+      updateTaskDto,
+      workerProfileId,
+    );
+    return {
+      data: result,
+      message: 'Task updated successfully',
       success: true,
     };
   }
