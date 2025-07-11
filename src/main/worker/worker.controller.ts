@@ -16,6 +16,8 @@ import { Roles } from 'src/decorator/roles.decorator';
 import { AuthenticatedRequest } from 'src/common/types/AuthenticatedRequest';
 import { MyTaskService } from './services/my-task.service';
 import { FilterTaskDto } from '../admin/dto/filtertask.dto';
+import { AddTaskDto } from './dto/addTask.dto';
+import { AddTaskService } from './services/add-task.service';
 
 @Controller('worker')
 @ApiBearerAuth()
@@ -25,6 +27,7 @@ export class WorkerController {
   constructor(
     private readonly mainService: MainService,
     private readonly getMyTasksService: MyTaskService, // Assuming MyTaskService is imported correctly
+    private readonly addTaskService: AddTaskService, // Assuming AddTaskService is imported correctly
   ) {}
 
   @Post('set-price')
@@ -55,5 +58,10 @@ export class WorkerController {
       message: 'Service requests fetched successfully',
       success: true,
     };
+  }
+  @Post('add-task')
+  async addTask(@Body() dto: AddTaskDto, @Req() req: AuthenticatedRequest) {
+    const workerProfileId = req.user.profileId;
+    return await this.addTaskService.addTask(dto, workerProfileId);
   }
 }

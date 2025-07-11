@@ -53,6 +53,7 @@ export class MyTaskService {
       include: {
         ClientProfile: true,
         WorkerProfile: true,
+        tasks: true,
       },
       take,
       skip,

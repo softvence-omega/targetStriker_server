@@ -85,6 +85,8 @@ model WorkerProfile {
   WorkerSpecialist   WorkerSpecialist? @relation(fields: [workerSpecialistId], references: [id])
   workerSpecialistId String?
   isActive           WorkerStatus           @default(ACTIVE)
+
+  Task Task[]
 }
 
 
@@ -138,6 +140,8 @@ model ClientProfile {
   profilePic     FileInstance?
   invoice        Invoice[]
   serviceRequest ServiceRequest[]
+
+  Task Task[]
 }
 
 //=================== <**********> =======================
@@ -275,15 +279,37 @@ enum RequestStatus {
 // Task Start
 //=================== <**********> =======================m
 
+// model Task {
+//   id               String          @id @default(uuid())
+//   price            Int
+//   name             String
+//   ServiceRequest   ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
+//   serviceRequestId String?
+//   done             Boolean         @default(false)
+// }
+
 model Task {
-  id               String          @id @default(uuid())
-  price            Int
-  name             String
-  ServiceRequest   ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
-  serviceRequestId String?
-  done             Boolean         @default(false)
+  id String @id @default(uuid())
+  name String
+  price Int
+  serviceRequestId String
+  clientId String?
+  client ClientProfile? @relation(fields: [clientId], references: [id])
+  workerId String?
+  worker WorkerProfile? @relation(fields: [workerId], references: [id])
+  ServiceRequest ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
+  done Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
 //=================== <**********> =======================
 // Task End
 //=================== <**********> =======================
