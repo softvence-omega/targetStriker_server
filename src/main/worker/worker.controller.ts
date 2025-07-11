@@ -55,7 +55,7 @@ export class WorkerController {
         status: PaginationDto.status,
         search: PaginationDto.search,
       },
-      req?.user?.profileId,
+      req?.user?.sub,
     );
     return {
       data: result,
@@ -65,7 +65,7 @@ export class WorkerController {
   }
   @Post('add-task')
   async addTask(@Body() dto: AddTaskDto, @Req() req: AuthenticatedRequest) {
-    const workerProfileId = req.user.profileId;
+    const workerProfileId = req.user.sub;
     const result = await this.addTaskService.addTask(dto, workerProfileId);
     return {
       data: result,
@@ -79,7 +79,7 @@ export class WorkerController {
     @Body() updateTaskDto: UpdateTaskDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    const workerProfileId = req.user.profileId;
+    const workerProfileId = req.user.sub;
     const result = await this.updateTaskService.updateTask(
       updateTaskDto,
       workerProfileId,
