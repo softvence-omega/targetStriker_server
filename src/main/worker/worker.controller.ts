@@ -79,7 +79,7 @@ export class WorkerController {
     @Body() updateTaskDto: UpdateTaskDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    const workerProfileId = req.user.profileId;
+    const workerProfileId = req.user.sub;
     const result = await this.updateTaskService.updateTask(
       updateTaskDto,
       workerProfileId,

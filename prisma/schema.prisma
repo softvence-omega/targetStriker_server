@@ -292,7 +292,7 @@ model Task {
   id String @id @default(uuid())
   name String
   price Int
-  serviceRequestId String
+  serviceRequestId String?
   clientId String?
   client ClientProfile? @relation(fields: [clientId], references: [id])
   workerId String?
@@ -300,7 +300,7 @@ model Task {
   ServiceRequest ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
   done Boolean @default(false)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt()
 }
 
 

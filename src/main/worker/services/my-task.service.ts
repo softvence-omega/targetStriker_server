@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, RequestStatus } from 'generated/prisma';
+import { Prisma } from 'generated/prisma';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { FilterTaskDto } from 'src/main/admin/dto/filtertask.dto';
 import { DbService } from 'src/utils/db/db.service';
@@ -49,36 +49,40 @@ export class MyTaskService {
       where.status = status;
     }
 
-    const taskRequests = await this.dbService.serviceRequest.findMany({
+    const taskRequests = await this.dbService.task.findMany({
       include: {
-        ClientProfile: true,
-        WorkerProfile: true,
-        tasks: true,
+        ServiceRequest: {
+          include: {
+            ClientProfile: true,
+            WorkerProfile: true,
+          },
+        },
       },
       take,
       skip,
-      where: Object.keys(where).length ? where : undefined,
+      // where: Object.keys(where).length ? where : undefined,
     });
 
-    const now = new Date();
+    // const now = new Date();
 
-    return taskRequests.map((task) => {
-      let statusLabel = 'REQUESTED';
+    // return taskRequests.map((task) => {
+    //   let statusLabel = 'REQUESTED';
 
-      if (task.status === RequestStatus.COMPLETED) {
-        statusLabel = 'COMPLETED';
-      } else if (task.status === RequestStatus.CONFIRMED) {
-        statusLabel = task.preferredDate < now ? 'LATE' : 'CONFIRMED';
-      } else if (
-        task.workerProfileId &&
-        task.status === RequestStatus.ASSIGNED
-      ) {
-        statusLabel = 'ASSIGNED';
-      }
-      return {
-        ...task,
-        statusLabel,
-      };
-    });
+    //   if (task.done === RequestStatus.COMPLETED) {
+    //     statusLabel = 'COMPLETED';
+    //   } else if (task.status === RequestStatus.CONFIRMED) {
+    //     statusLabel = task.preferredDate < now ? 'LATE' : 'CONFIRMED';
+    //   } else if (
+    //     task.workerProfileId &&
+    //     task.status === RequestStatus.ASSIGNED
+    //   ) {
+    //     statusLabel = 'ASSIGNED';
+    //   }
+    //   return {
+    //     ...task,
+    //     statusLabel,
+    //   };
+    // });
+    return taskRequests;
   }
 }
