@@ -21,6 +21,7 @@ import { IdDto } from 'src/common/dto/id.dto';
 import { CommonService } from './services/common.service';
 import { GetMessageDto } from './dto/getMessage.sto';
 import { AuthenticatedRequest } from 'src/common/types/AuthenticatedRequest';
+import { ChatListService } from './services/chat-list.service';
 
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
@@ -29,6 +30,7 @@ export class ChatController {
   constructor(
     private readonly createMessageService: CreateMessageService,
     private readonly commonService: CommonService,
+    private readonly chatListService: ChatListService,
   ) {}
 
   @Post('create-message')
@@ -60,4 +62,20 @@ export class ChatController {
       rawData, req.user.sub
     );
   }
+
+  @Get('chat-list')
+  async getChatsList(
+    @Req() req: AuthenticatedRequest,
+    // @Query() rawData: IdDto,
+  ) {
+    const result = await this.chatListService.getChatsList(req.user.sub);
+    console.log(result)
+    return {
+      success: true,
+      message: 'Chats list fetched successfully',
+      data: result,
+    }
+    console.log(req.user.profileId, 'profileId');
+    console.log(req.user.sub, 'userId');
+  } 
 }
