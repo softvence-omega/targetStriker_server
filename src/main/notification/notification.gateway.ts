@@ -48,7 +48,6 @@ export class NotificationGateway
     }
 
     const token = authHeader.split(' ')[1];
-    console.log(token, 'token in notification gateway');
     try {
       const decoded = this.jwt.verify(token, {
         secret: this.configService.getOrThrow('JWT_SECRET'),
@@ -56,7 +55,6 @@ export class NotificationGateway
       (client as any).user = decoded;
 
       this.subscribeClient(decoded.sub, client);
-      console.log(decoded, 'decoded in notification gateway');
 
       this.logger.log(`Client connected: ${decoded.sub || 'unknown user'}`);
 
@@ -107,11 +105,7 @@ export class NotificationGateway
     userId: string,
     message: Record<string, any>,
   ): Promise<void> {
-    console.log(userId
-, 'userId in notifyUser 110'
-    )
     const clients = await this.clients.get(String(userId));
-    console.log(clients, 'clients in notifyUser 113');
     if (clients) {
       for (const client of clients) {
         if (client.readyState === WebSocket.OPEN) {

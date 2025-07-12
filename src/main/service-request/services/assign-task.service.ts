@@ -215,6 +215,34 @@ export class AssignTaskService {
             message: 'You have been assigned a new service request.',
           },
         });
+
+        // Persist notification for client
+        await this.saveNotification({
+          userId: data.ClientProfile.userId,
+          title: 'Worker Assigned',
+          body: 'A worker has been assigned to your service request.',
+          data: {
+            taskId: data.id,
+            taskName: data.name,
+            workerId: data.WorkerProfile.userId,
+            workerName: data.WorkerProfile.userName,
+            workerProfile: data.WorkerProfile.profilePic,
+          },
+        });
+
+        // Persist notification for worker
+        await this.saveNotification({
+          userId: data.WorkerProfile.userId,
+          title: 'New Task Assigned',
+          body: 'You have been assigned a new service request.',
+          data: {
+            taskId: data.id,
+            taskName: data.name,
+            clientId: data.ClientProfile.userId,
+            clientName: data.ClientProfile.userName,
+            clientProfile: data.ClientProfile.profilePic,
+          },
+        });
       } catch (error) {
         this.logger.error('Error sending notifications to client/worker:', error);
       }
@@ -266,10 +294,9 @@ export class AssignTaskService {
   }
 
   public async confirmServiceRequest(
-    { id: clientProfileId }: IdDto,
-    id: string,
-  ): Promise<ApiResponse<any>> {
-      // ✅ Get full service request including WorkerProfile and userId
+  { id: clientProfileId }: IdDto,
+  id: string,
+): Promise<ApiResponse<any>> {
   const serviceRequest = await this.db.serviceRequest.update({
     where: {
       id,
@@ -297,32 +324,82 @@ export class AssignTaskService {
       },
     },
   });
-    const invoice = await this.mainService.createInvoice({
-      serviceRequestId: id,
-      clientId: clientProfileId,
-      workerId: serviceRequest.workerProfileId || '',
-    });
 
-    const workerUserId = serviceRequest.WorkerProfile?.userId;
+  const invoice = await this.mainService.createInvoice({
+    serviceRequestId: id,
+    clientId: clientProfileId,
+    workerId: serviceRequest.workerProfileId || '',
+  });
 
-  if (workerUserId) {
-    await this.notificationGateway.notifyUser(workerUserId, {
-      type: 'SERVICE_CONFIRMED',
-      serviceRequestName: serviceRequest.name,
-      clientProfile: serviceRequest.ClientProfile?.profilePic,
-      clientName: serviceRequest.ClientProfile?.userName,
-      message: 'Your service request has been confirmed by the client.',
-      serviceRequestId: id,
-    });
+  const workerUserId = serviceRequest.WorkerProfile?.userId;
+  const clientUserId = serviceRequest.ClientProfile?.userId;
+
+  if (!workerUserId) {
+    throw new BadRequestException('Worker user ID is missing');
   }
 
-    return {
+  if (!clientUserId) {
+    throw new BadRequestException('Client user ID is missing');
+  }
+
+  const notificationPayload = {
+    type: 'SERVICE_CONFIRMED',
+    serviceRequestId: id,
+    serviceRequestName: serviceRequest.name,
+    clientProfile: serviceRequest.ClientProfile?.profilePic,
+    clientName: serviceRequest.ClientProfile?.userName,
+    message: 'Your service request has been confirmed by the client.',
+  };
+
+  try {
+    // ✅ Send WebSocket notification
+    await this.notificationGateway.notifyUser(workerUserId, notificationPayload);
+
+    // ✅ Save persistent notification
+    await this.saveNotification({
+      userId: workerUserId,
+      title: 'Service Confirmed',
+      body: 'Your service request has been confirmed by the client.',
+      data: notificationPayload,
+    });
+  } catch (error) {
+    this.logger.error('Failed to notify worker about confirmation', error);
+  }
+
+  return {
+    data: {
+      serviceRequest,
+      invoice,
+    },
+    message: 'Service request confirmed successfully',
+    success: true,
+  };
+}
+
+  private async saveNotification({
+  userId,
+  title,
+  body,
+  data,
+}: {
+  userId: string;
+  title: string;
+  body: string;
+  data?: Record<string, any>;
+}) {
+  try {
+    await this.db.notification.create({
       data: {
-        serviceRequest,
-        invoice,  
+        userId,
+        title,
+        body,
+        data,
       },
-      message: 'Service request confirmed successfully',
-      success: true,
-    };
+    });
+  } catch (error) {
+    this.logger.error(`Failed to save notification for user ${userId}`, error);
   }
+}
+
+  
 }

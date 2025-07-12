@@ -14,7 +14,7 @@ export class MainService {
   ) {}
 
   public async setPrice({ id, price }: SetPriceDto): Promise<ApiResponse<any>> {
-    const isExist = await this.commonService.findServiceRequest({ id });
+  const isExist = await this.commonService.findServiceRequest({ id });
   if (!isExist) {
     throw new BadRequestException('Service request not found');
   }
@@ -30,34 +30,50 @@ export class MainService {
           userId: true,
         },
       },
-      WorkerProfile:{
+      WorkerProfile: {
         select: {
           profilePic: true,
           userName: true,
         },
-      }
+      },
     },
   });
 
-  // ✅ Send notification to client
   const clientUserId = serviceRequest.ClientProfile?.userId;
 
+  const notificationPayload = {
+    type: 'PRICE_SET',
+    serviceRequestId: id,
+    serviceRequestName: serviceRequest.name,
+    price,
+    workerProfile: serviceRequest.WorkerProfile?.profilePic,
+    workerName: serviceRequest.WorkerProfile?.userName,
+    message: `The worker has set a price for your service request.`,
+  };
+
   if (clientUserId) {
-    await this.notificationGateway.notifyUser(clientUserId, {
-      type: 'PRICE_SET',
-      serviceRequestName: serviceRequest.name,
-      message: `The worker has set a price for your service request.`,
-      serviceRequestId: id,
-      workerProfile: serviceRequest.WorkerProfile?.profilePic,
-      workerName: serviceRequest.WorkerProfile?.userName,
-      price,
-    });
+    try {
+      // ✅ Send real-time notification
+      await this.notificationGateway.notifyUser(clientUserId, notificationPayload);
+
+      // ✅ Persist notification in DB
+      await this.db.notification.create({
+        data: {
+          userId: clientUserId,
+          title: 'Price Set for Service Request',
+          body: `The worker has set a price of ₹${price} for your request.`,
+          data: notificationPayload,
+        },
+      });
+    } catch (error) {
+      console.error('Failed to notify client about price set:', error);
+    }
   }
 
   return {
     data: serviceRequest,
     message: 'Price set successfully',
     success: true,
-  }
+  };
 }
 }
