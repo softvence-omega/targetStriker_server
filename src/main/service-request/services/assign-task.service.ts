@@ -9,6 +9,7 @@ import { GetAssignedServiceRequestDto } from '../dto/getAssignedServiceRequest.d
 import { MainService } from 'src/main/invoice/services/main.service';
 import { EventService } from 'src/main/notification/services/event.service';
 import { ChatListGateway } from 'src/main/chat/ws/chat-list.gateway';
+import { NotificationGateway } from 'src/main/notification/notification.gateway';
 
 @Injectable()
 export class AssignTaskService {
@@ -18,6 +19,7 @@ export class AssignTaskService {
     private readonly commonService: CommonService,
     private readonly mainService: MainService,
     private readonly chatListService: ChatListGateway,
+    private readonly notificationGateway: NotificationGateway,
   ) {}
 
   private async ensureConversation(userId1: string, userId2: string) {
@@ -66,17 +68,19 @@ export class AssignTaskService {
         WorkerProfile: {
           select:{
             userId: true,
+            profilePic:true,
+            userName: true,
           }
         },
         ClientProfile: {
           select:{
             userId: true,
+            profilePic:true,
+            userName: true,
           }
         },
       },
     });
-
-    console.log(data);
     if (!data.WorkerProfile?.userId) {
       throw new BadRequestException('Worker profile ID is missing');
     }
@@ -84,7 +88,6 @@ export class AssignTaskService {
     if (!data.ClientProfile?.userId) {
       throw new BadRequestException('Client profile ID is missing');
     }
-
     try {
       const existingConversation = await this.db.conversation.findFirst({
         where: {
@@ -186,6 +189,37 @@ export class AssignTaskService {
       await this.chatListService.broadcastChatListUpdate(data.ClientProfile?.userId);
       await this.chatListService.broadcastChatListUpdate(data.WorkerProfile?.userId);
       admin && await this.chatListService.broadcastChatListUpdate(admin.id);
+
+      // ✅ Send WebSocket notifications
+      try {
+        await this.notificationGateway.notifyUser(data.ClientProfile.userId, {
+          type: 'TASK_ASSIGNED',
+          payload: {
+            taskId: data.id,
+            tastName: data.name,
+            workerProfile: data.WorkerProfile.profilePic,
+            workerName: data.WorkerProfile.userName,
+            role: 'CLIENT',
+            message: 'A worker has been assigned to your request.',
+          },
+        });
+
+        await this.notificationGateway.notifyUser(data.WorkerProfile.userId, {
+          type: 'TASK_ASSIGNED',
+          payload: {
+            taskId: data.id,
+            tastName: data.name,
+            role: 'WORKER',
+            clientName: data.ClientProfile.userName,
+            clientProfile: data.ClientProfile.profilePic,
+            message: 'You have been assigned a new service request.',
+          },
+        });
+      } catch (error) {
+        this.logger.error('Error sending notifications to client/worker:', error);
+      }
+
+
     } catch (error) {
       this.logger.error('Error creating conversation:', error);
     }

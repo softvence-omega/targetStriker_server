@@ -41,7 +41,6 @@ export class NotificationGateway
   handleConnection(client: WebSocket, ...args: any[]): void {
     const req = args[0] as IncomingMessage;
     const authHeader = req.headers['authorization'];
-
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       this.logger.warn('Missing or invalid Authorization header');
       client.close();
@@ -49,16 +48,17 @@ export class NotificationGateway
     }
 
     const token = authHeader.split(' ')[1];
-
+    console.log(token, 'token in notification gateway');
     try {
       const decoded = this.jwt.verify(token, {
         secret: this.configService.getOrThrow('JWT_SECRET'),
       });
       (client as any).user = decoded;
 
-      this.subscribeClient(decoded.profileId, client);
+      this.subscribeClient(decoded.sub, client);
+      console.log(decoded, 'decoded in notification gateway');
 
-      this.logger.log(`Client connected: ${decoded.profileId || 'unknown user'}`);
+      this.logger.log(`Client connected: ${decoded.sub || 'unknown user'}`);
 
       client.on('close', () => {
         this.handleDisconnect(client);
@@ -74,8 +74,8 @@ export class NotificationGateway
     const user = (client as any).user;
 
     if (user && user.sub) {
-      this.unsubscribeClient(user.profileId, client);
-      this.logger.debug(`Client disconnected: ${user.profileId}`);
+      this.unsubscribeClient(user.sub, client);
+      this.logger.debug(`Client disconnected: ${user.sub}`);
     } else {
       this.logger.debug('Client disconnected: unknown user');
     }
@@ -107,7 +107,11 @@ export class NotificationGateway
     userId: string,
     message: Record<string, any>,
   ): Promise<void> {
-    const clients = this.clients.get(userId);
+    console.log(userId
+, 'userId in notifyUser 110'
+    )
+    const clients = await this.clients.get(String(userId));
+    console.log(clients, 'clients in notifyUser 113');
     if (clients) {
       for (const client of clients) {
         if (client.readyState === WebSocket.OPEN) {
