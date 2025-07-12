@@ -269,22 +269,52 @@ export class AssignTaskService {
     { id: clientProfileId }: IdDto,
     id: string,
   ): Promise<ApiResponse<any>> {
-    const serviceRequest = await this.db.serviceRequest.update({
-      where: {
-        id,
-        workerProfileId: {
-          not: null,
+      // ✅ Get full service request including WorkerProfile and userId
+  const serviceRequest = await this.db.serviceRequest.update({
+    where: {
+      id,
+      workerProfileId: {
+        not: null,
+      },
+    },
+    data: {
+      status: 'CONFIRMED',
+    },
+    include: {
+      WorkerProfile: {
+        select: {
+          userId: true,
+          profilePic: true,
+          userName: true,
         },
       },
-      data: {
-        status: 'CONFIRMED',
+      ClientProfile: {
+        select: {
+          userId: true,
+          profilePic: true,
+          userName: true,
+        },
       },
-    });
+    },
+  });
     const invoice = await this.mainService.createInvoice({
       serviceRequestId: id,
       clientId: clientProfileId,
       workerId: serviceRequest.workerProfileId || '',
     });
+
+    const workerUserId = serviceRequest.WorkerProfile?.userId;
+
+  if (workerUserId) {
+    await this.notificationGateway.notifyUser(workerUserId, {
+      type: 'SERVICE_CONFIRMED',
+      serviceRequestName: serviceRequest.name,
+      clientProfile: serviceRequest.ClientProfile?.profilePic,
+      clientName: serviceRequest.ClientProfile?.userName,
+      message: 'Your service request has been confirmed by the client.',
+      serviceRequestId: id,
+    });
+  }
 
     return {
       data: {
