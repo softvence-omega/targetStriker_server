@@ -34,11 +34,11 @@ export class NotificationController {
     @Req() req: AuthenticatedRequest,
     @Query() rawDate: CursorDto,
   ) {
-    if (!req.user.profileId) {
+    if (!req.user.sub) {
       throw new BadRequestException('Profile not Created');
     }
     return this.notificationService.getNotification(
-      { id: req.user.profileId },
+      { id: req.user.sub },
       rawDate,
     );
   }

@@ -60,109 +60,101 @@ export class CommonService {
     return await this.createConversation(memberOneId, memberTwoId);
   }
 
-  public async getMessages({
-    conversationId,
-    cursor,
-    take,
-  }: GetMessageDto, userId: string): Promise<ApiResponse<any>> {
-    console.log(take);
+  public async getMessages(
+  { conversationId, cursor, take }: GetMessageDto,
+  userId: string
+): Promise<ApiResponse<any>> {
+  const messages = await this.db.message.findMany({
+    where: { conversationId },
+    ...(cursor && { cursor: { id: cursor } }),
+    skip: cursor ? 1 : 0,
+    ...(take && { take }),
+    orderBy: { createdAt: 'asc' },
+    include: {
+      file: {
+        select: {
+          url: true,
+          fileType: true,
+        },
+      },
+      User: {
+        select: {
+          id: true,
+          name: true,
+          UserType: true,
+          clientProfile: {
+            select: {
+              userName: true,
+              profilePic: { select: { url: true } },
+            },
+          },
+          workerProfile: {
+            select: {
+              userName: true,
+              profilePic: { select: { url: true } },
+            },
+          },
+          adminProfile: {
+            select: {
+              profilePic: { select: { url: true } },
+            },
+          },
+        },
+      },
+    },
+  });
 
-    const data = await this.db.message.findMany({
-      where: {
-        conversationId,
-      },
-      ...(cursor && { cursor: { id: cursor } }),
-      skip: cursor ? 1 : 0,
-      ...(take && { take: take }),
-      orderBy: {
-        createdAt: 'asc',
-      },
-      include: {
-        file: {
-          select: {
-            url: true,
-            fileType: true,
-          },
-        },
-        User: {
-          select: {
-            id: true,
-            name: true,
-            UserType: true, // Added this - it was missing!
-            clientProfile: {
-              select: {
-                userName: true, // Added this
-                profilePic: {
-                  select: {
-                    url: true,
-                  },
-                },
-              },
-            },
-            workerProfile: {
-              select: {
-                userName: true, // Added this
-                profilePic: {
-                  select: {
-                    url: true,
-                  },
-                },
-              },
-            },
-            adminProfile: {
-              select: {
-                profilePic: {
-                  select: {
-                    url: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
+  const transformedMessages = messages.map((message) => {
+    const profileInfo = this.getProfileInfo(message.User);
+    const { User, ...rest } = message;
 
     return {
-      data: data.reverse().map((message) => {
-        const profileInfo = this.getProfileInfo(message.User);
-        const {User:_, ...rest} = message
-        
-        return {
-          rest,
-          name: profileInfo.name,
-          senderProfilePic: profileInfo.profilePicUrl,
-          isSender: message.userId === userId
-        };
-      }),
-      message: 'Messages fetched successfully',
-      success: true,
+      ...rest,
+      name: profileInfo.name,
+      senderProfilePic: profileInfo.profilePicUrl,
+      isSender: message.userId === userId,
+    };
+  });
+
+  return {
+    data: transformedMessages.reverse(), // recent message last
+    message: 'Messages fetched successfully',
+    success: true,
+  };
+}
+
+
+  private getProfileInfo(user: any) {
+  if (!user) return { name: null, profilePicUrl: null };
+
+  const { UserType, clientProfile, workerProfile, adminProfile, name } = user;
+
+  if (UserType === 'CLIENT' && clientProfile) {
+    return {
+      name: clientProfile.userName || name,
+      profilePicUrl: clientProfile.profilePic?.url || null,
     };
   }
 
-  private getProfileInfo(user: any) {
-    if (!user) return { name: null, profilePicUrl: null };
-
-    let profileName = user.name;
-    let profilePicUrl = null;
-
-    switch (user.UserType) {
-      case 'WORKER':
-        profileName = user.workerProfile?.userName || user.name;
-        profilePicUrl = user.workerProfile?.profilePic?.url || null;
-        break;
-      case 'CLIENT':
-        profileName = user.clientProfile?.userName || user.name;
-        profilePicUrl = user.clientProfile?.profilePic?.url || null;
-        break;
-      case 'ADMIN':
-        profileName = user.name; // Admin doesn't have userName field
-        profilePicUrl = user.adminProfile?.profilePic?.url || null;
-        break;
-    }
-
-    return { name: profileName, profilePicUrl };
+  if (UserType === 'WORKER' && workerProfile) {
+    return {
+      name: workerProfile.userName || name,
+      profilePicUrl: workerProfile.profilePic?.url || null,
+    };
   }
+
+  if (UserType === 'ADMIN' && adminProfile) {
+    return {
+      name: name,
+      profilePicUrl: adminProfile.profilePic?.url || null,
+    };
+  }
+
+  return {
+    name: name,
+    profilePicUrl: null,
+  };
+}
 
   public findConversationById(id: string) {
     return this.db.conversation.findUnique({

@@ -9,6 +9,7 @@ import { GetAssignedServiceRequestDto } from '../dto/getAssignedServiceRequest.d
 import { MainService } from 'src/main/invoice/services/main.service';
 import { EventService } from 'src/main/notification/services/event.service';
 import { ChatListGateway } from 'src/main/chat/ws/chat-list.gateway';
+import { NotificationGateway } from 'src/main/notification/notification.gateway';
 
 @Injectable()
 export class AssignTaskService {
@@ -18,6 +19,7 @@ export class AssignTaskService {
     private readonly commonService: CommonService,
     private readonly mainService: MainService,
     private readonly chatListService: ChatListGateway,
+    private readonly notificationGateway: NotificationGateway,
   ) {}
 
   private async ensureConversation(userId1: string, userId2: string) {
@@ -66,17 +68,19 @@ export class AssignTaskService {
         WorkerProfile: {
           select:{
             userId: true,
+            profilePic:true,
+            userName: true,
           }
         },
         ClientProfile: {
           select:{
             userId: true,
+            profilePic:true,
+            userName: true,
           }
         },
       },
     });
-
-    console.log(data);
     if (!data.WorkerProfile?.userId) {
       throw new BadRequestException('Worker profile ID is missing');
     }
@@ -84,7 +88,6 @@ export class AssignTaskService {
     if (!data.ClientProfile?.userId) {
       throw new BadRequestException('Client profile ID is missing');
     }
-
     try {
       const existingConversation = await this.db.conversation.findFirst({
         where: {
@@ -186,6 +189,65 @@ export class AssignTaskService {
       await this.chatListService.broadcastChatListUpdate(data.ClientProfile?.userId);
       await this.chatListService.broadcastChatListUpdate(data.WorkerProfile?.userId);
       admin && await this.chatListService.broadcastChatListUpdate(admin.id);
+
+      // ✅ Send WebSocket notifications
+      try {
+        await this.notificationGateway.notifyUser(data.ClientProfile.userId, {
+          type: 'TASK_ASSIGNED',
+          payload: {
+            taskId: data.id,
+            tastName: data.name,
+            workerProfile: data.WorkerProfile.profilePic,
+            workerName: data.WorkerProfile.userName,
+            role: 'CLIENT',
+            message: 'A worker has been assigned to your request.',
+          },
+        });
+
+        await this.notificationGateway.notifyUser(data.WorkerProfile.userId, {
+          type: 'TASK_ASSIGNED',
+          payload: {
+            taskId: data.id,
+            tastName: data.name,
+            role: 'WORKER',
+            clientName: data.ClientProfile.userName,
+            clientProfile: data.ClientProfile.profilePic,
+            message: 'You have been assigned a new service request.',
+          },
+        });
+
+        // Persist notification for client
+        await this.saveNotification({
+          userId: data.ClientProfile.userId,
+          title: 'Worker Assigned',
+          body: 'A worker has been assigned to your service request.',
+          data: {
+            taskId: data.id,
+            taskName: data.name,
+            workerId: data.WorkerProfile.userId,
+            workerName: data.WorkerProfile.userName,
+            workerProfile: data.WorkerProfile.profilePic,
+          },
+        });
+
+        // Persist notification for worker
+        await this.saveNotification({
+          userId: data.WorkerProfile.userId,
+          title: 'New Task Assigned',
+          body: 'You have been assigned a new service request.',
+          data: {
+            taskId: data.id,
+            taskName: data.name,
+            clientId: data.ClientProfile.userId,
+            clientName: data.ClientProfile.userName,
+            clientProfile: data.ClientProfile.profilePic,
+          },
+        });
+      } catch (error) {
+        this.logger.error('Error sending notifications to client/worker:', error);
+      }
+
+
     } catch (error) {
       this.logger.error('Error creating conversation:', error);
     }
@@ -232,33 +294,112 @@ export class AssignTaskService {
   }
 
   public async confirmServiceRequest(
-    { id: clientProfileId }: IdDto,
-    id: string,
-  ): Promise<ApiResponse<any>> {
-    const serviceRequest = await this.db.serviceRequest.update({
-      where: {
-        id,
-        workerProfileId: {
-          not: null,
+  { id: clientProfileId }: IdDto,
+  id: string,
+): Promise<ApiResponse<any>> {
+  const serviceRequest = await this.db.serviceRequest.update({
+    where: {
+      id,
+      workerProfileId: {
+        not: null,
+      },
+    },
+    data: {
+      status: 'CONFIRMED',
+    },
+    include: {
+      WorkerProfile: {
+        select: {
+          userId: true,
+          profilePic: true,
+          userName: true,
         },
       },
-      data: {
-        status: 'CONFIRMED',
+      ClientProfile: {
+        select: {
+          userId: true,
+          profilePic: true,
+          userName: true,
+        },
       },
-    });
-    const invoice = await this.mainService.createInvoice({
-      serviceRequestId: id,
-      clientId: clientProfileId,
-      workerId: serviceRequest.workerProfileId || '',
-    });
+    },
+  });
 
-    return {
-      data: {
-        serviceRequest,
-        invoice,  
-      },
-      message: 'Service request confirmed successfully',
-      success: true,
-    };
+  const invoice = await this.mainService.createInvoice({
+    serviceRequestId: id,
+    clientId: clientProfileId,
+    workerId: serviceRequest.workerProfileId || '',
+  });
+
+  const workerUserId = serviceRequest.WorkerProfile?.userId;
+  const clientUserId = serviceRequest.ClientProfile?.userId;
+
+  if (!workerUserId) {
+    throw new BadRequestException('Worker user ID is missing');
   }
+
+  if (!clientUserId) {
+    throw new BadRequestException('Client user ID is missing');
+  }
+
+  const notificationPayload = {
+    type: 'SERVICE_CONFIRMED',
+    serviceRequestId: id,
+    serviceRequestName: serviceRequest.name,
+    clientProfile: serviceRequest.ClientProfile?.profilePic,
+    clientName: serviceRequest.ClientProfile?.userName,
+    message: 'Your service request has been confirmed by the client.',
+  };
+
+  try {
+    // ✅ Send WebSocket notification
+    await this.notificationGateway.notifyUser(workerUserId, notificationPayload);
+
+    // ✅ Save persistent notification
+    await this.saveNotification({
+      userId: workerUserId,
+      title: 'Service Confirmed',
+      body: 'Your service request has been confirmed by the client.',
+      data: notificationPayload,
+    });
+  } catch (error) {
+    this.logger.error('Failed to notify worker about confirmation', error);
+  }
+
+  return {
+    data: {
+      serviceRequest,
+      invoice,
+    },
+    message: 'Service request confirmed successfully',
+    success: true,
+  };
+}
+
+  private async saveNotification({
+  userId,
+  title,
+  body,
+  data,
+}: {
+  userId: string;
+  title: string;
+  body: string;
+  data?: Record<string, any>;
+}) {
+  try {
+    await this.db.notification.create({
+      data: {
+        userId,
+        title,
+        body,
+        data,
+      },
+    });
+  } catch (error) {
+    this.logger.error(`Failed to save notification for user ${userId}`, error);
+  }
+}
+
+  
 }
