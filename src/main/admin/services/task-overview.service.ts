@@ -26,9 +26,12 @@ export class TaskOverviewService {
   }
 
   private async getTaskCounts() {
-    const [assigned, inProgress, completed, late, inTotal] = await Promise.all([
+    const [assigned,unAssigned, inProgress, completed, late, inTotal] = await Promise.all([
       this.db.serviceRequest.count({
         where: { status: RequestStatus.ASSIGNED },
+      }),
+      this.db.serviceRequest.count({
+        where:{ status: RequestStatus.PENDING}
       }),
       this.db.serviceRequest.count({
         where: { status: RequestStatus.CONFIRMED },
@@ -47,6 +50,7 @@ export class TaskOverviewService {
 
     return {
       totalAssigned: assigned,
+      totalUnAssigned:unAssigned,
       totalInProgress: inProgress,
       totalCompleted: completed,
       totalLate: late,
