@@ -21,6 +21,7 @@ import { AddTaskDto } from './dto/addTask.dto';
 import { AddTaskService } from './services/add-task.service';
 import { UpdateTaskService } from './services/update-task.service';
 import { UpdateTaskDto } from './dto/updateTask.dto';
+import { PaymentPendingService } from './services/payment-pending.service';
 
 @Controller('worker')
 @ApiBearerAuth()
@@ -32,6 +33,7 @@ export class WorkerController {
     private readonly getMyTasksService: MyTaskService, // Assuming MyTaskService is imported correctly
     private readonly addTaskService: AddTaskService, // Assuming AddTaskService is imported correctly
     private readonly updateTaskService: UpdateTaskService, // Assuming UpdateTaskService is imported correctly
+    private readonly paymentPendingTask: PaymentPendingService
   ) {}
 
   @Post('set-price')
@@ -63,6 +65,33 @@ export class WorkerController {
       success: true,
     };
   }
+
+
+  @Get('my-payment-pending')
+  async getMyPaymentPendingTask(
+    @Query() PaginationDto: FilterTaskDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const result = await this.paymentPendingTask.getPaymentPendingTask(
+      {
+        skip: PaginationDto.skip,
+        take: PaginationDto.take,
+      },
+      {
+        location: PaginationDto.location,
+        taskTypeId: PaginationDto.taskTypeId,
+        status: PaginationDto.status,
+        search: PaginationDto.search,
+      },
+      req?.user?.profileId,
+    );
+    return {
+      data: result,
+      message: 'Payment Pending Task successfully',
+      success: true,
+    };
+  }
+
   @Post('add-task')
   async addTask(@Body() dto: AddTaskDto, @Req() req: AuthenticatedRequest) {
     const workerProfileId = req.user.profileId;
