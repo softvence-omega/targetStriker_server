@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { NotificationService } from './services/notification.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
@@ -28,7 +28,7 @@ export class NotificationController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Post('get')
+  @Get('get')
   @ApiBearerAuth()
   async getNotification(
     @Req() req: AuthenticatedRequest,
