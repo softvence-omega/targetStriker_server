@@ -9,13 +9,21 @@ export class HomeDataService {
 
   private async getTaskStatistics() {
     const [
+      totalTask,
       totalTaskRequests,
+      totalUnAssignedTask,
       totalAssignedTasks,
       totalConfirmedTasks,
       totalCompletedTasks,
       totalLateWork,
     ] = await Promise.all([
       this.db.serviceRequest.count(),
+      this.db.serviceRequest.count({where:{
+        status: RequestStatus.PENDING
+      }}),
+      this.db.serviceRequest.count({
+        where: {status:RequestStatus.PENDING}
+      }),
       this.db.serviceRequest.count({
         where: {
           workerProfileId: { not: null },
@@ -55,7 +63,9 @@ export class HomeDataService {
     ]);
 
     return {
+      totalTask,
       totalTaskRequests,
+      totalUnAssignedTask,
       totalAssignedTasks,
       totalConfirmedTasks,
       totalCompletedTasks,
