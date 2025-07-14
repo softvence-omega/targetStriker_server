@@ -92,6 +92,29 @@ export class WorkerController {
     };
   }
 
+  @Get('non-price-task')
+  async getNonPriceTask(@Query() PaginationDto: FilterTaskDto,
+    @Req() req: AuthenticatedRequest,){
+      const result = await this.paymentPendingTask.getPaymentPendingTask(
+      {
+        skip: PaginationDto.skip,
+        take: PaginationDto.take,
+      },
+      {
+        location: PaginationDto.location,
+        taskTypeId: PaginationDto.taskTypeId,
+        status: PaginationDto.status,
+        search: PaginationDto.search,
+      },
+      req?.user?.profileId,
+    );
+    return {
+      data: result,
+      message: 'Non Price Task successfully',
+      success: true,
+    };
+    }
+
   @Post('add-task')
   async addTask(@Body() dto: AddTaskDto, @Req() req: AuthenticatedRequest) {
     const workerProfileId = req.user.profileId;

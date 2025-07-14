@@ -6,9 +6,10 @@ import { MyTaskService } from './services/my-task.service';
 import { AddTaskService } from './services/add-task.service';
 import { UpdateTaskService } from './services/update-task.service';
 import { PaymentPendingService } from './services/payment-pending.service';
+import { NonpriceSetTaskListService } from './services/nonprice-set-task-list.service';
 
 @Module({
   controllers: [WorkerController],
-  providers: [MainService, CommonService, MyTaskService, AddTaskService, UpdateTaskService, PaymentPendingService],
+  providers: [MainService, CommonService, MyTaskService, AddTaskService, UpdateTaskService, PaymentPendingService, NonpriceSetTaskListService],
 })
 export class WorkerModule {}
