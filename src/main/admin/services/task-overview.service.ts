@@ -45,7 +45,7 @@ export class TaskOverviewService {
           preferredTime: { lt: new Date() },
         },
       }),
-      this.db.serviceRequest.count({}), // total tasks
+      this.db.serviceRequest.count(), // total tasks
     ]);
 
     return {
@@ -66,8 +66,14 @@ export class TaskOverviewService {
       select: {
         name: true,
         preferredTime: true,
+        locationDescription:true,
+        city:true,
         createdAt: true,
         ClientProfile: {
+          include:{
+            User:true,
+            profilePic:true,
+          },
           select: {
             userName: true,
           },
@@ -78,8 +84,11 @@ export class TaskOverviewService {
     return tasks.map((task) => ({
       name: task.name,
       time: task.preferredTime,
+      location:task.locationDescription,
+      city:task.city,
       clientUserName: task.ClientProfile?.userName || '',
       createdTime: this.lib.formatRelativeDate(new Date(task.createdAt)),
+      clientProfile: task.ClientProfile?.profilePic
     }));
   }
 }
