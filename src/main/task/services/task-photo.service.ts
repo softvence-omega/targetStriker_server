@@ -46,15 +46,17 @@ export class TaskPhotoService {
     }
   }
 
-  get(id: IdDto, isPrev: BooleanDto) {
-    
-    const data = this.db.reportPhoto.findMany({
+  async get(id: IdDto, isPrev: BooleanDto) {
+    const data = await this.db.reportPhoto.findMany({
       where: {
         ServiceRequest: {
           id: id.id,
         },
         isPrev: isPrev.value || false ,
       },
+      include:{
+        pic:true
+      }
     })
 
     return data
