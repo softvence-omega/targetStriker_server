@@ -34,7 +34,7 @@ export class TaskController {
 
   @ApiTags('Client')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles('CLIENT','WORKER')
+  @Roles('CLIENT','WORKER',"ADMIN")
   @Get('details')
   getTasks(@Query() id: IdDto) {
     return this.commonService.getTaskDetails(id);

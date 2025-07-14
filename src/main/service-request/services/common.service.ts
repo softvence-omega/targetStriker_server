@@ -40,17 +40,12 @@ export class CommonService {
         id: true,
         name: true,
         createdAt: true,
-        ClientProfile: {
-          select: {
-            id: true,
-            User: {
-              select: {
-                name: true,
-              },
-            },
-            userName: true,
-          },
-        },
+        locationDescription: true,
+        city: true,
+        status: true,
+        TaskType:true,
+        reqPhoto: true,
+        ClientProfile: true,
       },
       where: {
         status: 'PENDING',

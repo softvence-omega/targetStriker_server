@@ -134,21 +134,31 @@ export class MainService {
 
       include: {
         BankInfo: true,
-        ClientProfile: {
-          include: {
-            User: true,
+        ClientProfile:{
+          include:{
+            User:true
           },
         },
-        WorkerProfile: {
-          include: {
-            User: true,
-          },
+        WorkerProfile:{
+          include:{
+            User:true
+          }
         },
-        serviceRequest: {
-          include: {
-            tasks: true,
+        serviceRequest:{
+          include:{
+            tasks:true
           },
-        },
+          // select:{
+          //   locationDescription:true,
+          //   //  Invoice:true,
+          //    paymentType:true,
+          //    postalCode:true,
+          //    preferredDate:true,
+          //    preferredTime:true,
+          //    problemDescription:true,
+          //    phoneNumber:true,
+          // }
+        }
       },
     });
 
@@ -159,10 +169,11 @@ export class MainService {
     return {
       data: {
         clientInfo: {
-          name: invoice?.ClientProfile?.User?.name,
-          email: invoice?.ClientProfile?.User?.email,
+          name: invoice?.ClientProfile?.userName,
+          email: invoice?.ClientProfile?.userName,
           phone: invoice?.ClientProfile?.User?.phone,
           location: invoice?.ClientProfile?.location,
+          postalCode:invoice?.serviceRequest?.postalCode,
         },
         workerInfo: {
           name: invoice?.WorkerProfile?.User?.name,
@@ -183,6 +194,15 @@ export class MainService {
           bankName: invoice?.BankInfo?.bankName,
           IBAN: invoice?.BankInfo?.IBAN,
           BIC_or_SWIFT: invoice?.BankInfo?.BIC_or_SWIFT,
+        },
+        serviceRequstDetails:{
+            locationDescription:invoice?.serviceRequest?.locationDescription,
+             paymentType:invoice?.serviceRequest?.paymentType,
+             postalCode:invoice?.serviceRequest?.postalCode,
+             preferredDate:invoice?.serviceRequest?.preferredDate,
+             preferredTime:invoice?.serviceRequest?.preferredTime,
+             problemDescription:invoice?.serviceRequest?.problemDescription,
+             phoneNumber:invoice?.serviceRequest?.phoneNumber
         },
         invoiceNumber: invoice.invoiceNumber,
       },

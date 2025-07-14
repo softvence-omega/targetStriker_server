@@ -17,13 +17,32 @@ export class CommonService {
               id: serviceRequestId,
             },
             include: {
-             tasks:{
-                select:{
-                    name: true,
-                }
+            
+             tasks:true,
+             ClientProfile:true,
+             WorkerProfile:true,
+             reportPhoto:true,
+             afterPhoto:true,
+             beforePhoto:true,
+             Invoice:true,
+             TaskType:true,
+             signature:true,
+             reqPhoto:true,
+             Reviews:true,
              },
-             reportPhoto:true
-            },
+                // ClientProfile: {
+                //     select: {
+                //     userId: true,
+                //     },
+                // },
+                // WorkerProfile: {
+                //     select: {
+                //     profilePic: true,
+                //     userName: true,
+                //     },
+                // },
+            //  reportPhoto:true
+            // },
         }) 
 
         let prevPhoto:ReportPhoto[] = []
