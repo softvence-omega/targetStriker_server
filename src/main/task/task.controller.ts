@@ -90,7 +90,8 @@ export class TaskController {
   @ApiTags('Worker')
   @UseGuards(AuthGuard('jwt'))
   @Get('taskPhoto/:id')
-  getTaskPhotos(@Param() id: IdDto, @Query() isPrev: BooleanDto) {
-    return this.taskPhotoService.get(id, isPrev);
+  async getTaskPhotos(@Param() id: IdDto, @Query() isPrev: BooleanDto) {
+    console.log(isPrev,id,'adfshasdfas')
+    return await this.taskPhotoService.get(id, isPrev);
   }
 }
