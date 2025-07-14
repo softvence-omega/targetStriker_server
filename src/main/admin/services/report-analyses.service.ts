@@ -194,10 +194,20 @@ export class ReportAnalysesService {
       createdAt: 'desc',
     },
     select: {
+
       review: true,
       rating: true,
       createdAt: true,
-      ClientProfile:true,
+      ClientProfile:{
+        include:{
+          profilePic:true,
+          User:{
+            select:{
+              name:true,
+            }
+          }
+        }
+      },
     },
     take: 3,
   });
