@@ -172,34 +172,65 @@ export class ReportAnalysesService {
     return statusCounts;
   }
 
-  private async averageRating() {
-    const averageRating = await this.db.serviceRequest.aggregate({
-      _avg: {
-        rating: true,
+ private async averageRating() {
+  // Get the average rating
+  const averageRatingResult = await this.db.serviceRequest.aggregate({
+    _avg: {
+      rating: true,
+    },
+  });
+
+  // Get the first 3 latest reviews
+  const firstThreeReviews = await this.db.serviceRequest.findMany({
+    where: {
+      review: {
+        not: null,
       },
-    });
-    const firstThreeReviews = await this.db.serviceRequest.findMany({
+      rating: {
+        not: 0,
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    select: {
+      review: true,
+      rating: true,
+      createdAt: true,
+      ClientProfile:true,
+    },
+    take: 3,
+  });
+
+  // Count total reviews and how many are positive (rating >= 4)
+  const [totalCount, positiveCount] = await Promise.all([
+    this.db.serviceRequest.count({
       where: {
-        review: {
-          not: null, // or not: '' if you're storing empty strings
+        rating: {
+          not: 0,
         },
       },
-      orderBy: {
-        createdAt: 'asc',
+    }),
+    this.db.serviceRequest.count({
+      where: {
+        rating: {
+          gte: 4,
+        },
       },
-      select: {
-        review: true,
-        rating: true,
-        createdAt: true,
-      },
-      take: 3,
-    });
+    }),
+  ]);
 
-    return {
-      averageRating: averageRating._avg.rating,
-      firstThreeReviews,
-    };
-  }
+  const positivePercentage =
+    totalCount > 0 ? Number(((positiveCount / totalCount) * 100).toFixed(2)) : 0;
+
+  return {
+    averageRating: averageRatingResult._avg.rating,
+    firstThreeReviews,
+    totalCount,
+    positiveCount,
+    positivePercentage, // e.g., 66.67
+  };
+}
 
   async getLast5WeeksRevenue(includeStatuses?: InvoiceStatus[]): Promise<RevenueResponse> {
     const fiveWeeksAgo = new Date();

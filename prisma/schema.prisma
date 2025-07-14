@@ -87,6 +87,8 @@ model WorkerProfile {
   isActive           WorkerStatus           @default(ACTIVE)
 
   Task Task[]
+
+  Reviews Reviews[]
 }
 
 
@@ -142,6 +144,8 @@ model ClientProfile {
   serviceRequest ServiceRequest[]
 
   Task Task[]
+
+  Reviews Reviews[]
 }
 
 //=================== <**********> =======================
@@ -238,6 +242,7 @@ model ServiceRequest {
   review              String?
   accept              Boolean        @default(false)
   reportPhoto         ReportPhoto[]
+  Reviews Reviews?
 }
 
 model ReportPhoto {
@@ -274,6 +279,26 @@ enum RequestStatus {
 //=================== <**********> =======================
 // ServiceRequest Instance end
 //=================== <**********> =======================
+
+
+
+//=================== <**********> =======================
+// Review Start
+//=================== <**********> =======================m
+model Reviews {
+  id               String          @id @default(uuid())
+  rating           Int
+  review           String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  ServiceRequest   ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
+  serviceRequestId String?   @unique
+  ClientProfile    ClientProfile?  @relation(fields: [clientProfileId], references: [id])
+  clientProfileId  String?
+  WorkerProfile    WorkerProfile?  @relation(fields: [workerProfileId], references: [id])
+  workerProfileId  String?
+}
+
 
 //=================== <**********> =======================
 // Task Start
