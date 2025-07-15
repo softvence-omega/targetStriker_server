@@ -15,6 +15,8 @@ export class CommonService {
         id: id,
       },
       include:{
+        ClientProfile:true,
+        WorkerProfile:true,
         TaskType:{
           select: {
             name: true,
