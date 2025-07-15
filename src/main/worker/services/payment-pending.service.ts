@@ -46,23 +46,17 @@ export class PaymentPendingService {
       where.status = status;
     }
 
-    const taskRequests = await this.dbService.task.findMany({
+    const taskRequests = await this.dbService.serviceRequest.findMany({
         where:{
-            ServiceRequest:{
                 Invoice:{
                     invoiceStatus:'IN_PROGRESS'
                 }
-            }
         },
       include: {
-        ServiceRequest: {
-          include: {
             ClientProfile: true,
             WorkerProfile: true,
             Invoice:true,
             tasks:true
-          },
-        },
       },
       take,
       skip,
