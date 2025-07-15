@@ -47,19 +47,13 @@ export class NonpriceSetTaskListService {
                where.status = status;
              }
          
-             const taskRequests = await this.dbService.task.findMany({
+             const taskRequests = await this.dbService.serviceRequest.findMany({
                 where:{
-                    ServiceRequest:{
-                        basePrice:0
-                    }
+                basePrice:0
                 },
                include: {
-                 ServiceRequest: {
-                   include: {
-                     ClientProfile: true,
-                     WorkerProfile: true,
-                   },
-                 },
+                 WorkerProfile:true,
+                 ClientProfile:true,
                },
                take,
                skip,
