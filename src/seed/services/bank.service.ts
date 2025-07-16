@@ -30,6 +30,5 @@ export class BankInfoSeedService implements OnModuleInit {
       data: bankSeedData,
     });
 
-    this.logger.log('✅ Bank info seeded successfully.');
-  }
+    this.logger.log('✅ Bank info seeded successfully.');  }
 }

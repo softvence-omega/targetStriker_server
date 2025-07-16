@@ -15,6 +15,8 @@ import { CommonService } from './services/common.service';
 import { EmployeeManagementService } from './services/employee-management.service';
 import { TaskRejectService } from './services/task-reject.service';
 import { GetReportAnalysesDto } from './dto/getReportQuery.dto';
+import { UserManagementService } from './services/user-management.service';
+import { UserSearchQueryDto } from './dto/userSearch.dto';
 
 @ApiTags('Admin')
 @Controller('admin')
@@ -32,6 +34,7 @@ export class AdminController {
     private readonly commonService: CommonService,
     private readonly employeeManagementService: EmployeeManagementService,
     private readonly taskRejectService: TaskRejectService, // Assuming TaskRejectService is imported correctly
+    private readonly userManagemetService: UserManagementService
   ) {}
 
   @Get('home-data')
@@ -91,4 +94,9 @@ export class AdminController {
   async rejectTask(@Query() id: IdDto) {
     return await this.taskRejectService.rejectTask(id.id);
   }
+
+  @Get('all-user')
+async getAllUser(@Query() query: UserSearchQueryDto) {
+  return await this.userManagemetService.getAllUser(query);
+}
 }
