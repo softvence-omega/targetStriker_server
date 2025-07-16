@@ -9,6 +9,7 @@ import { ReportAnalysesService } from './services/report-analyses.service';
 import { TaskOverviewService } from './services/task-overview.service';
 import { EmployeeManagementService } from './services/employee-management.service';
 import { TaskRejectService } from './services/task-reject.service';
+import { UserManagementService } from './services/user-management.service';
 
 @Module({
   controllers: [AdminController],
@@ -22,6 +23,7 @@ import { TaskRejectService } from './services/task-reject.service';
     TaskOverviewService,
     EmployeeManagementService,
     TaskRejectService,
+    UserManagementService,
   ],
 })
 export class AdminModule {}
