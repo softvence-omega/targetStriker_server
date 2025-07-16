@@ -14,6 +14,7 @@ import { TaskOverviewService } from './services/task-overview.service';
 import { CommonService } from './services/common.service';
 import { EmployeeManagementService } from './services/employee-management.service';
 import { TaskRejectService } from './services/task-reject.service';
+import { GetReportAnalysesDto } from './dto/getReportQuery.dto';
 
 @ApiTags('Admin')
 @Controller('admin')
@@ -72,8 +73,8 @@ export class AdminController {
   }
 
   @Get('report-analyses')
-  async getReportAnalyses() {
-    return await this.reportAnalysesService.getReport();
+  async getReportAnalyses(@Query() query: GetReportAnalysesDto) {
+    return this.reportAnalysesService.getReport(query.query);
   }
 
   @Get('task-overview')

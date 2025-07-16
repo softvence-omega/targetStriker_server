@@ -17,6 +17,12 @@ export class CommonService {
       include:{
         ClientProfile:true,
         WorkerProfile:true,
+        tasks:true,
+        afterPhoto:true,
+        beforePhoto:true,
+        Invoice:true,
+        Reviews:true,
+        signature:true,
         TaskType:{
           select: {
             name: true,
@@ -76,12 +82,12 @@ export class CommonService {
           id: profileId,
         },
       },
-      select: {
-        id: true,
-        locationDescription: true,
-        city: true,
-        name: true,
-      },
+      // select: {
+      //   id: true,
+      //   locationDescription: true,
+      //   city: true,
+      //   name: true,
+      // },
     });
 
     return {
