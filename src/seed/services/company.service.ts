@@ -5,8 +5,8 @@ import { DbService } from 'src/utils/db/db.service';
 import { LibService } from 'src/utils/lib/lib.service';
 
 @Injectable()
-export class AdminService implements OnModuleInit {
-  private readonly logger = new Logger(AdminService.name);
+export class CompanyService implements OnModuleInit {
+  private readonly logger = new Logger(CompanyService.name);
 
   constructor(
     private readonly dbService: DbService,
