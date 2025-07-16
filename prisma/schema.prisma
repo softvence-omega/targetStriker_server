@@ -272,6 +272,7 @@ enum RequestStatus {
   CANCELLED
   ASSIGNED
   REJECT
+  PAUSE
 }
 
 // ##################### $ RequestStatus Type Enum End $ ##############
@@ -417,6 +418,8 @@ model Invoice {
   duaDate         DateTime?
   invoiceStatus   InvoiceStatus   @default(IN_PROGRESS)
   totalAmount     Int             @default(0)
+  companyId       String?
+  CompanyInfo     CompanyDetails? @relation(fields: [companyId], references: [id])
 }
 
 enum InvoiceStatus {
@@ -441,3 +444,20 @@ model PaymentTerm {
 //=================== <**********> =======================
 // Invoice End
 //=================== <**********> =======================
+
+
+//=================== <**********> =======================
+// Company Information
+//=================== <**********> =======================
+
+model CompanyDetails {
+  id    String @id @default(ulid())
+  // logo  String
+  // logoId  FileInstance @relation(fields: [logo], references: [id])
+  city  String
+  state String
+  phone String @unique
+  email String @unique
+  name  String
+  invoice Invoice[]
+}

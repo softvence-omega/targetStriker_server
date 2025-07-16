@@ -69,7 +69,7 @@ export class CommonService {
     ...(cursor && { cursor: { id: cursor } }),
     skip: cursor ? 1 : 0,
     ...(take && { take }),
-    orderBy: { createdAt: 'asc' },
+    orderBy: { createdAt: 'desc' },
     include: {
       file: {
         select: {
