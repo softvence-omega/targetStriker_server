@@ -13,7 +13,7 @@ export class WorkerTaskPuseService {
           id: id.id,
         },
       data: {
-        status: RequestStatus.PUSE, 
+        status: RequestStatus.PAUSE, 
       },
     });
   }
