@@ -199,6 +199,8 @@ model FileInstance {
   reportPhotoId      String?         @unique
   AdminProfile       AdminProfile?   @relation(fields: [adminProfileId], references: [id])
   adminProfileId     String?         @unique
+
+  CompanyDetails CompanyDetails[]
 }
 
 //=================== <**********> =======================
@@ -442,3 +444,19 @@ model PaymentTerm {
 //=================== <**********> =======================
 // Invoice End
 //=================== <**********> =======================
+
+
+//=================== <**********> =======================
+// Company Information
+//=================== <**********> =======================
+
+model CompanyDetails {
+  id    String @id @default(ulid())
+  logo  String
+  logoId  FileInstance @relation(fields: [logo], references: [id])
+  city  String
+  state String
+  phone String @unique
+  email String @unique
+
+}
