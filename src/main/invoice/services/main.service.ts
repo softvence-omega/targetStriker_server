@@ -24,6 +24,11 @@ export class MainService {
       include: { tasks: true },
     });
 
+    const companyinfo = await this.db.companyDetails.findFirst();
+    if(!companyinfo){
+      throw new NotFoundException('Company info not found')
+    }
+
     const bankInfo = await this.db.bankInfo.findFirst();
     if (!bankInfo) {
       throw new NotFoundException('Bank info not found');

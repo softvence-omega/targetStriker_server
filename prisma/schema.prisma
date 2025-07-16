@@ -199,8 +199,6 @@ model FileInstance {
   reportPhotoId      String?         @unique
   AdminProfile       AdminProfile?   @relation(fields: [adminProfileId], references: [id])
   adminProfileId     String?         @unique
-
-  CompanyDetails CompanyDetails[]
 }
 
 //=================== <**********> =======================
@@ -420,6 +418,8 @@ model Invoice {
   duaDate         DateTime?
   invoiceStatus   InvoiceStatus   @default(IN_PROGRESS)
   totalAmount     Int             @default(0)
+  companyId       String?
+  CompanyInfo     CompanyDetails? @relation(fields: [companyId], references: [id])
 }
 
 enum InvoiceStatus {
@@ -452,11 +452,12 @@ model PaymentTerm {
 
 model CompanyDetails {
   id    String @id @default(ulid())
-  logo  String
-  logoId  FileInstance @relation(fields: [logo], references: [id])
+  // logo  String
+  // logoId  FileInstance @relation(fields: [logo], references: [id])
   city  String
   state String
   phone String @unique
   email String @unique
-
+  name  String
+  invoice Invoice[]
 }
