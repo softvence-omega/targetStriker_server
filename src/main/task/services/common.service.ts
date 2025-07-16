@@ -17,7 +17,6 @@ export class CommonService {
               id: serviceRequestId,
             },
             include: {
-            
              tasks:true,
              ClientProfile:true,
              WorkerProfile:true,
@@ -30,47 +29,25 @@ export class CommonService {
              reqPhoto:true,
              Reviews:true,
              },
-                // ClientProfile: {
-                //     select: {
-                //     userId: true,
-                //     },
-                // },
-                // WorkerProfile: {
-                //     select: {
-                //     profilePic: true,
-                //     userName: true,
-                //     },
-                // },
-            //  reportPhoto:true
-            // },
         }) 
 
-        let prevPhoto:ReportPhoto[] = []
-        let afterPhoto:ReportPhoto[] = []
+        // let prevPhoto:ReportPhoto[] = []
+        // let afterPhoto:ReportPhoto[] = []
 
-        if (!data) {
-            throw new NotFoundException('Service request not found');
-        }
+        // if (!data) {
+        //     throw new NotFoundException('Service request not found');
+        // }
 
-        await data.reportPhoto.map((photo)=>{
-            if(photo.isPrev){
-                prevPhoto.push(photo)
-            }else{
-                afterPhoto.push(photo)
-            }
-        })
+        // await data.reportPhoto.map((photo)=>{
+        //     if(photo.isPrev){
+        //         prevPhoto.push(photo)
+        //     }else{
+        //         afterPhoto.push(photo)
+        //     }
+        // })
 
         return {
-            data:{
-                serviceRequestName: data.name,
-                taskDescription: data.problemDescription,
-                serviceRequestId: data.id,
-                tasks: data.tasks,
-                prevPhoto,
-                afterPhoto,
-                time: data.preferredTime,
-                city: data.city
-            },
+            data,
             message: 'Task details fetched successfully',
             success: true
         }

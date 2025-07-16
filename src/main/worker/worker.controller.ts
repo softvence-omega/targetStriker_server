@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Patch,
   Post,
   Query,
@@ -23,6 +24,9 @@ import { UpdateTaskService } from './services/update-task.service';
 import { UpdateTaskDto } from './dto/updateTask.dto';
 import { PaymentPendingService } from './services/payment-pending.service';
 import { NonpriceSetTaskListService } from './services/nonprice-set-task-list.service';
+import { CompletedTaskDto } from './dto/taskStatus.dto';
+import { WorkerTaskCompletedService } from './services/worker-task-completed.service';
+import { WorkerTaskPuseService } from './services/worker-task-puse.service';
 
 @Controller('worker')
 @ApiBearerAuth()
@@ -35,7 +39,9 @@ export class WorkerController {
     private readonly addTaskService: AddTaskService, // Assuming AddTaskService is imported correctly
     private readonly updateTaskService: UpdateTaskService, // Assuming UpdateTaskService is imported correctly
     private readonly paymentPendingTask: PaymentPendingService,
-    private readonly nonPriceTask: NonpriceSetTaskListService
+    private readonly nonPriceTask: NonpriceSetTaskListService,
+    private readonly completedTask:WorkerTaskCompletedService,
+    private readonly puseTask: WorkerTaskPuseService
   ) {}
 
   @Post('set-price')
@@ -126,6 +132,26 @@ export class WorkerController {
       message: 'Task Added successfully',
       success: true,
     };
+  }
+
+  @Patch('completed-task/:id')
+  async workerTaskCompleted (@Param() id: CompletedTaskDto){
+    const result = await this.completedTask.taskCompleted(id)
+    return {
+       data: result,
+      message: 'Task Completed successfully',
+      success: true,
+    }
+  }
+
+  @Patch('puse-task/:id')
+  async taskPuse (@Param() id: CompletedTaskDto){
+    const result = await this.puseTask.taskPuse(id)
+    return {
+       data: result,
+      message: 'Task Puse successfully',
+      success: true,
+    }
   }
 
   @Patch('update-task')

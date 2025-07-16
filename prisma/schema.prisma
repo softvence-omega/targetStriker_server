@@ -272,6 +272,7 @@ enum RequestStatus {
   CANCELLED
   ASSIGNED
   REJECT
+  PAUSE
 }
 
 // ##################### $ RequestStatus Type Enum End $ ##############

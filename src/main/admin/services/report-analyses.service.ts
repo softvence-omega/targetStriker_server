@@ -23,19 +23,28 @@ export interface RevenueResponse {
 export class ReportAnalysesService {
   constructor(private readonly db: DbService) {}
 
-  public async getReport() {
-    return {
-      monthlyTurnoverReport: await this.getMonthlyTurnoverReport(),
-      monthlyCompletionRate: await this.getMonthlyCompletionRate(),
-      pendingServiceRequestsCount: await this.getPendingServiceRequestsCount(),
-      totalWorkerCount: await this.getTotalWorkerCount(),
-      confirmedInvoicesLineChartData:
-        await this.getLast5WeeksRevenue(),
-      taskTypeStatistics: await this.getTaskTypeStatistics(),
-      taskStatus: await this.statusCount(),
-      averageRatingAndReviews: await this.averageRating(),
-    };
+  public async getReport(query?: 'lastMonth' | 'thisMonth') {
+  const zone = 'Europe/Copenhagen';
+  const now = DateTime.now().setZone(zone).startOf('month');
+  let month: string | undefined;
+
+  if (query === 'lastMonth') {
+    month = now.minus({ months: 1 }).toFormat('yyyy-MM');
+  } else if (query === 'thisMonth') {
+    month = now.toFormat('yyyy-MM');
   }
+
+  return {
+    monthlyTurnoverReport: await this.getMonthlyTurnoverReport(month),
+    monthlyCompletionRate: await this.getMonthlyCompletionRate(month),
+    pendingServiceRequestsCount: await this.getPendingServiceRequestsCount(),
+    totalWorkerCount: await this.getTotalWorkerCount(),
+    confirmedInvoicesLineChartData: await this.getLast5WeeksRevenue(),
+    taskTypeStatistics: await this.getTaskTypeStatistics(),
+    taskStatus: await this.statusCount(),
+    averageRatingAndReviews: await this.averageRating(),
+  };
+}
 
   private async getMonthlyCompletionRate(month?: string) {
     const zone = 'Europe/Copenhagen';

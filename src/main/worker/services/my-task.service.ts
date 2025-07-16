@@ -13,11 +13,14 @@ export class MyTaskService {
     { location, taskTypeId, status, search }: FilterTaskDto,
     id: string,
   ) {
+    // console.log(status)
     const where: Prisma.ServiceRequestWhereInput = {};
 
     const orConditions: Prisma.ServiceRequestWhereInput[] = [];
 
-    where.workerProfileId = id;
+    // where.workerProfileId = id
+    // console.log(id)
+    // where.workerProfileId = id;
 
     if (location) {
       orConditions.push({
@@ -49,14 +52,16 @@ export class MyTaskService {
       where.status = status;
     }
 
-    const taskRequests = await this.dbService.task.findMany({
+    const taskRequests = await this.dbService.serviceRequest.findMany({
+      where:{
+        workerProfileId:id,
+        status:status
+      },
       include: {
-        ServiceRequest: {
-          include: {
-            ClientProfile: true,
-            WorkerProfile: true,
-          },
-        },
+        tasks:true,
+        ClientProfile:true,
+        WorkerProfile:true,
+        TaskType:true,        
       },
       take,
       skip,
