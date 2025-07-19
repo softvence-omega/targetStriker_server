@@ -42,222 +42,183 @@ export class AssignTaskService {
     }
   }
 
-  public async assignTask({
-    taskId,
-    workerId,
-  }: AssignTaskDto): Promise<ApiResponse<any>> {
-    const isExist = await this.commonService.findServiceRequest({ id: taskId });
+  public async assignTask({ taskId, workerId }: AssignTaskDto): Promise<ApiResponse<any>> {
+  const isExist = await this.commonService.findServiceRequest({ id: taskId });
 
-    if (!isExist) {
-      throw new BadRequestException('Service request not found');
-    }
+  if (!isExist) {
+    throw new BadRequestException('Service request not found');
+  }
 
-    const data = await this.db.serviceRequest.update({
+  const data = await this.db.serviceRequest.update({
+    where: { id: taskId },
+    data: {
+      WorkerProfile: { connect: { id: workerId } },
+      status: 'ASSIGNED',
+    },
+    include: {
+      WorkerProfile: {
+        select: {
+          userId: true,
+          profilePic: true,
+          userName: true,
+        },
+      },
+      ClientProfile: {
+        select: {
+          userId: true,
+          profilePic: true,
+          userName: true,
+        },
+      },
+      AdminProfile: {
+        select: {
+          userId: true,
+          profilePic: true,
+          User:true,
+        },
+      },
+    },
+  });
+
+  if (!data.WorkerProfile?.userId) {
+    throw new BadRequestException('Worker profile ID is missing');
+  }
+
+  const creatorProfile = data.ClientProfile ?? data.AdminProfile;
+  const creatorRole = data.ClientProfile ? 'CLIENT' : 'ADMIN';
+
+  if (!creatorProfile?.userId) {
+    throw new BadRequestException('Creator profile user ID is missing');
+  }
+
+  try {
+    // Create conversation between client/admin and worker
+    const existingConversation = await this.db.conversation.findFirst({
       where: {
-        id: taskId,
-      },
-      data: {
-        WorkerProfile: {
-          connect: {
-            id: workerId,
+        OR: [
+          {
+            memberOneId: creatorProfile.userId,
+            memberTwoId: data.WorkerProfile.userId,
           },
-        },
-        status: 'ASSIGNED',
-      },
-      include: {
-        WorkerProfile: {
-          select:{
-            userId: true,
-            profilePic:true,
-            userName: true,
-          }
-        },
-        ClientProfile: {
-          select:{
-            userId: true,
-            profilePic:true,
-            userName: true,
-          }
-        },
+          {
+            memberOneId: data.WorkerProfile.userId,
+            memberTwoId: creatorProfile.userId,
+          },
+        ],
       },
     });
-    if (!data.WorkerProfile?.userId) {
-      throw new BadRequestException('Worker profile ID is missing');
+
+    if (!existingConversation) {
+      await this.db.conversation.create({
+        data: {
+          memberOne: { connect: { id: creatorProfile.userId } },
+          memberTwo: { connect: { id: data.WorkerProfile.userId } },
+        },
+      });
     }
 
-    if (!data.ClientProfile?.userId) {
-      throw new BadRequestException('Client profile ID is missing');
+    // Create conversations with admin
+    const admin = await this.db.user.findFirst({
+      where: { UserType: 'ADMIN' },
+      select: { id: true },
+    });
+
+    if (admin) {
+      const participants = [creatorProfile.userId, data.WorkerProfile.userId];
+
+      for (const participantId of participants) {
+        const adminConversation = await this.db.conversation.findFirst({
+          where: {
+            OR: [
+              { memberOneId: participantId, memberTwoId: admin.id },
+              { memberOneId: admin.id, memberTwoId: participantId },
+            ],
+          },
+        });
+
+        if (!adminConversation) {
+          await this.db.conversation.create({
+            data: {
+              memberOne: { connect: { id: participantId } },
+              memberTwo: { connect: { id: admin.id } },
+            },
+          });
+        }
+      }
+
+      // Broadcast chat updates
+      await this.chatListService.broadcastChatListUpdate(creatorProfile.userId);
+      await this.chatListService.broadcastChatListUpdate(data.WorkerProfile.userId);
+      await this.chatListService.broadcastChatListUpdate(admin.id);
     }
+
+    // ✅ Send WebSocket notifications
     try {
-      const existingConversation = await this.db.conversation.findFirst({
-        where: {
-          OR: [
-        {
-          memberOneId: data.ClientProfile?.userId,
-          memberTwoId: data.WorkerProfile?.userId,
-        },
-        {
-          memberOneId: data.WorkerProfile?.userId,
-          memberTwoId: data.ClientProfile?.userId,
-        },
-          ],
+      await this.notificationGateway.notifyUser(creatorProfile.userId, {
+        type: 'TASK_ASSIGNED',
+        payload: {
+          taskId: data.id,
+          tastName: data.name,
+          workerProfile: data.WorkerProfile.profilePic,
+          workerName: data.WorkerProfile.userName,
+          role: creatorRole,
+          message: 'A worker has been assigned to your request.',
         },
       });
 
-      if (!existingConversation) {
-        await this.db.conversation.create({
-          data: {
-        memberOne: {
-          connect: {
-            id: data.ClientProfile?.userId,
-          },
+      await this.notificationGateway.notifyUser(data.WorkerProfile.userId, {
+        type: 'TASK_ASSIGNED',
+        payload: {
+          taskId: data.id,
+          tastName: data.name,
+          role: 'WORKER',
+          clientName:  creatorRole === 'CLIENT' ? data.ClientProfile?.userName : data?.AdminProfile?.User?.name,
+          clientProfile: creatorProfile.profilePic,
+          message: 'You have been assigned a new service request.',
         },
-        memberTwo: {
-          connect: {
-            id: data.WorkerProfile?.userId,
-          },
-        },
-          },
-        });
-      }
-
-      // Create conversation with admin
-      const admin = await this.db.user.findFirst({
-        where: { UserType: 'ADMIN' },
-        select: { id: true },
       });
 
-      if (admin) {
-        // Client <-> Admin
-        const clientAdminConversation = await this.db.conversation.findFirst({
-          where: {
-        OR: [
-          {
-            memberOneId: data.ClientProfile?.userId,
-            memberTwoId: admin.id,
-          },
-          {
-            memberOneId: admin.id,
-            memberTwoId: data.ClientProfile?.userId,
-          },
-        ],
-          },
-        });
-
-        if (!clientAdminConversation) {
-          await this.db.conversation.create({
+      // Persist notification for creator
+      await this.saveNotification({
+        userId: creatorProfile.userId,
+        title: 'Worker Assigned',
+        body: 'A worker has been assigned to your service request.',
         data: {
-          memberOne: {
-            connect: { id: data.ClientProfile?.userId },
-          },
-          memberTwo: {
-            connect: { id: admin.id },
-          },
+          taskId: data.id,
+          taskName: data.name,
+          workerId: data.WorkerProfile.userId,
+          workerName: data.WorkerProfile.userName,
+          workerProfile: data.WorkerProfile.profilePic,
         },
-          });
-        }
+      });
 
-        // Worker <-> Admin
-        const workerAdminConversation = await this.db.conversation.findFirst({
-          where: {
-        OR: [
-          {
-            memberOneId: data.WorkerProfile?.userId,
-            memberTwoId: admin.id,
-          },
-          {
-            memberOneId: admin.id,
-            memberTwoId: data.WorkerProfile?.userId,
-          },
-        ],
-          },
-        });
-
-        if (!workerAdminConversation) {
-          await this.db.conversation.create({
+      // Persist notification for worker
+      await this.saveNotification({
+        userId: data.WorkerProfile.userId,
+        title: 'New Task Assigned',
+        body: 'You have been assigned a new service request.',
         data: {
-          memberOne: {
-            connect: { id: data.WorkerProfile?.userId },
-          },
-          memberTwo: {
-            connect: { id: admin.id },
-          },
+          taskId: data.id,
+          taskName: data.name,
+          clientId: creatorProfile.userId,
+          clientName: creatorRole === 'CLIENT' ? data.ClientProfile?.userName : data?.AdminProfile?.User?.name,
+          clientProfile: creatorProfile.profilePic,
         },
-          });
-        }
-      }
-      await this.chatListService.broadcastChatListUpdate(data.ClientProfile?.userId);
-      await this.chatListService.broadcastChatListUpdate(data.WorkerProfile?.userId);
-      admin && await this.chatListService.broadcastChatListUpdate(admin.id);
-
-      // ✅ Send WebSocket notifications
-      try {
-        await this.notificationGateway.notifyUser(data.ClientProfile.userId, {
-          type: 'TASK_ASSIGNED',
-          payload: {
-            taskId: data.id,
-            tastName: data.name,
-            workerProfile: data.WorkerProfile.profilePic,
-            workerName: data.WorkerProfile.userName,
-            role: 'CLIENT',
-            message: 'A worker has been assigned to your request.',
-          },
-        });
-
-        await this.notificationGateway.notifyUser(data.WorkerProfile.userId, {
-          type: 'TASK_ASSIGNED',
-          payload: {
-            taskId: data.id,
-            tastName: data.name,
-            role: 'WORKER',
-            clientName: data.ClientProfile.userName,
-            clientProfile: data.ClientProfile.profilePic,
-            message: 'You have been assigned a new service request.',
-          },
-        });
-
-        // Persist notification for client
-        await this.saveNotification({
-          userId: data.ClientProfile.userId,
-          title: 'Worker Assigned',
-          body: 'A worker has been assigned to your service request.',
-          data: {
-            taskId: data.id,
-            taskName: data.name,
-            workerId: data.WorkerProfile.userId,
-            workerName: data.WorkerProfile.userName,
-            workerProfile: data.WorkerProfile.profilePic,
-          },
-        });
-
-        // Persist notification for worker
-        await this.saveNotification({
-          userId: data.WorkerProfile.userId,
-          title: 'New Task Assigned',
-          body: 'You have been assigned a new service request.',
-          data: {
-            taskId: data.id,
-            taskName: data.name,
-            clientId: data.ClientProfile.userId,
-            clientName: data.ClientProfile.userName,
-            clientProfile: data.ClientProfile.profilePic,
-          },
-        });
-      } catch (error) {
-        this.logger.error('Error sending notifications to client/worker:', error);
-      }
-
-
+      });
     } catch (error) {
-      this.logger.error('Error creating conversation:', error);
+      this.logger.error('Error sending notifications to client/admin/worker:', error);
     }
 
-    return {
-      data,
-      message: 'Task assigned successfully',
-      success: true,
-    };
+  } catch (error) {
+    this.logger.error('Error creating conversation or sending notifications:', error);
   }
+
+  return {
+    data,
+    message: 'Task assigned successfully',
+    success: true,
+  };
+}
 
   public async getAssignedServiceRequest(
     { id }: IdDto,
@@ -320,6 +281,17 @@ export class AssignTaskService {
           userId: true,
           profilePic: true,
           userName: true,
+        },
+      },
+      AdminProfile: {
+        select: {
+          userId: true,
+          profilePic: true,
+          User: {
+            select: {
+              name: true,
+            },
+          },
         },
       },
     },
