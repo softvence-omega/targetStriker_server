@@ -17,6 +17,11 @@ export class CommonService {
       include:{
         ClientProfile:true,
         WorkerProfile:true,
+        AdminProfile:{
+          include:{
+            User:true
+          }
+        },
         tasks:true,
         afterPhoto:true,
         beforePhoto:true,
@@ -54,6 +59,7 @@ export class CommonService {
         TaskType:true,
         reqPhoto: true,
         ClientProfile: true,
+        
       },
       where: {
         status: 'PENDING',
