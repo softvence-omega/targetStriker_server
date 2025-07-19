@@ -20,6 +20,11 @@ export class CommonService {
              tasks:true,
              ClientProfile:true,
              WorkerProfile:true,
+             AdminProfile:{
+                include:{
+                    User:true
+                }
+             },
              reportPhoto:true,
              afterPhoto:true,
              beforePhoto:true,
