@@ -5,7 +5,6 @@ import { FileService } from 'src/utils/file/file.service';
 import { FileInstance } from 'generated/prisma';
 import { ApiResponse } from 'src/common/types/apiResponse';
 import { ChatGateway } from '../ws/chat.gateway';
-import { ChatListService } from './chat-list.service';
 import { ChatListGateway } from '../ws/chat-list.gateway';
 
 @Injectable()
