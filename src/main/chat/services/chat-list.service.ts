@@ -17,6 +17,7 @@ export class ChatListService {
             content: true,
             id: true,
             createdAt: true,
+            userId: true,
           },
         },
         memberOne: {
@@ -123,6 +124,7 @@ export class ChatListService {
             id: c.lasMessage?.id || null,
             content: c.lasMessage?.content || 'No messages yet',
             createdAt: c.lasMessage?.createdAt || null,
+            isSender: c.lasMessage?.userId === userId,
           },
         },
       };

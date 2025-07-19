@@ -69,13 +69,10 @@ export class ChatController {
     // @Query() rawData: IdDto,
   ) {
     const result = await this.chatListService.getChatsList(req.user.sub);
-    console.log(result)
     return {
       success: true,
       message: 'Chats list fetched successfully',
       data: result,
     }
-    console.log(req.user.profileId, 'profileId');
-    console.log(req.user.sub, 'userId');
   } 
 }

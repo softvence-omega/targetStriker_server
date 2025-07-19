@@ -21,19 +21,25 @@ export class CompanyService implements OnModuleInit {
     await this.seedCompanyDetails();
   }
 
-  private async seedCompanyDetails() {
-    const companyExists = await this.dbService.companyDetails.findFirst({
-      where: { email: companySeedData.email },
+ private async seedCompanyDetails() {
+  const companyExists = await this.dbService.companyDetails.findFirst({
+    where: {
+      OR: [
+        { email: companySeedData.email },
+        { phone: companySeedData.phone },
+      ],
+    },
+  });
+
+  if (!companyExists) {
+    await this.dbService.companyDetails.create({
+      data: companySeedData,
     });
 
-    if (!companyExists) {
-      await this.dbService.companyDetails.create({
-        data: companySeedData,
-      });
-
-      this.logger.log('✅ Company details seeded successfully.');
-    } else {
-      this.logger.log('ℹ️ Company details already exist.');
-    }
+    this.logger.log('✅ Company details seeded successfully.');
+  } else {
+    this.logger.log('ℹ️ Company details already exist.');
   }
+}
+
 }
