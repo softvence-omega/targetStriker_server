@@ -7,11 +7,13 @@ import {
   Post,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { MainService } from './services/main.service';
 import { SetPriceDto } from './dto/setPrice.dto';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/guard/role.guard';
 import { Roles } from 'src/decorator/roles.decorator';
@@ -29,6 +31,11 @@ import { WorkerTaskCompletedService } from './services/worker-task-completed.ser
 import { WorkerTaskPuseService } from './services/worker-task-puse.service';
 import { AddServicePriceBreakDownService } from './services/add-service-price-break-down.service';
 import { AddServicePriceBreakDownServiceDto } from './dto/addServiceBreakDown.dto';
+import { AddServiceAfterBeforeService } from './services/add-service-after-before.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FileType, MulterService } from 'src/utils/lib/multer.service';
+import { ServiceBeforAfterDto } from './dto/serviceBeforAfter.dto';
+import { IdDto } from 'src/common/dto/id.dto';
 
 @Controller('worker')
 @ApiBearerAuth()
@@ -45,6 +52,7 @@ export class WorkerController {
     private readonly completedTask:WorkerTaskCompletedService,
     private readonly puseTask: WorkerTaskPuseService,
     private readonly addServicePriceBreakDownService: AddServicePriceBreakDownService,
+    private readonly addServiceAfterBeforeService: AddServiceAfterBeforeService, // Assuming AddServiceAfterBeforeService is imported correctly
   ) {}
 
   @Post('set-price')
@@ -186,4 +194,31 @@ export class WorkerController {
       success: true,
     };
   }
+
+  //add service after before
+  @Post('add-service-after-before/:id')
+  @UseInterceptors(
+      FileInterceptor(
+        'pic',
+        new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE),
+      ),
+    )
+    @ApiConsumes('multipart/form-data', 'application/json')
+  async addServiceAfterBefore(
+      @UploadedFile() pic: Express.Multer.File,
+      @Body() body: ServiceBeforAfterDto,
+      @Param() id: IdDto,) {
+        const serviceBeforAfterPhonto :ServiceBeforAfterDto =  {
+          pic,
+          isPrev: body.isPrev,
+          caption: body.caption,
+        }
+    const result = await this.addServiceAfterBeforeService.addServiceAfterBefore(id,serviceBeforAfterPhonto);
+    return {
+      data: result,
+      message: 'Service after before added successfully',
+      success: true,
+    };
+  }
+
 }

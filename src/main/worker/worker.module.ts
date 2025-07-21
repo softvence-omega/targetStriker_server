@@ -10,9 +10,10 @@ import { NonpriceSetTaskListService } from './services/nonprice-set-task-list.se
 import { WorkerTaskCompletedService } from './services/worker-task-completed.service';
 import { WorkerTaskPuseService } from './services/worker-task-puse.service';
 import { AddServicePriceBreakDownService } from './services/add-service-price-break-down.service';
+import { AddServiceAfterBeforeService } from './services/add-service-after-before.service';
 
 @Module({
   controllers: [WorkerController],
-  providers: [MainService, CommonService, MyTaskService, AddTaskService, UpdateTaskService, PaymentPendingService, NonpriceSetTaskListService, WorkerTaskCompletedService, WorkerTaskPuseService, AddServicePriceBreakDownService],
+  providers: [MainService, CommonService, MyTaskService, AddTaskService, UpdateTaskService, PaymentPendingService, NonpriceSetTaskListService, WorkerTaskCompletedService, WorkerTaskPuseService, AddServicePriceBreakDownService, AddServiceAfterBeforeService],
 })
 export class WorkerModule {}
