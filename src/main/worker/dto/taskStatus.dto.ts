@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 
   export class CompletedTaskDto {
     @ApiProperty({
@@ -8,4 +8,14 @@ import { IsString } from "class-validator";
   })
   @IsString()
   id: string;
+  }
+
+  export class CompletedTaskNoteDto {
+    @ApiProperty({
+      description: 'Optional note for the completed task',
+      example: 'Task completed successfully',
+    })
+    @IsOptional()
+    @IsString()
+    note?: string;
   }
