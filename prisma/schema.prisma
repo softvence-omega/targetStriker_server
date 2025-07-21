@@ -255,7 +255,7 @@ model ServiceRequest {
 
 model serviceDetails {
   id                  String         @id @default(uuid())
-  serviceRequestId    String?        @unique
+  serviceRequestId    String?       
   ServiceRequest      ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
   serviceName         String?        @db.Text
   servicePrice        Int            @default(0)
