@@ -186,5 +186,4 @@ export class WorkerController {
       success: true,
     };
   }
-
 }
