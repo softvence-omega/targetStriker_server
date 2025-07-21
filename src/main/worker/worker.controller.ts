@@ -27,6 +27,8 @@ import { NonpriceSetTaskListService } from './services/nonprice-set-task-list.se
 import { CompletedTaskDto } from './dto/taskStatus.dto';
 import { WorkerTaskCompletedService } from './services/worker-task-completed.service';
 import { WorkerTaskPuseService } from './services/worker-task-puse.service';
+import { AddServicePriceBreakDownService } from './services/add-service-price-break-down.service';
+import { AddServicePriceBreakDownServiceDto } from './dto/addServiceBreakDown.dto';
 
 @Controller('worker')
 @ApiBearerAuth()
@@ -41,7 +43,8 @@ export class WorkerController {
     private readonly paymentPendingTask: PaymentPendingService,
     private readonly nonPriceTask: NonpriceSetTaskListService,
     private readonly completedTask:WorkerTaskCompletedService,
-    private readonly puseTask: WorkerTaskPuseService
+    private readonly puseTask: WorkerTaskPuseService,
+    private readonly addServicePriceBreakDownService: AddServicePriceBreakDownService,
   ) {}
 
   @Post('set-price')
@@ -170,4 +173,18 @@ export class WorkerController {
       success: true,
     };
   }
+
+  // add service price breakdown
+  @Post('add-service-price-breakdown')
+  async addServicePriceBreakDown(
+    @Body() dto: AddServicePriceBreakDownServiceDto,
+  ) { 
+    const result = await this.addServicePriceBreakDownService.addServicePriceBreakDown(dto);
+    return {
+      data: result,
+      message: 'Service price breakdown added successfully',
+      success: true,
+    };
+  }
+
 }

@@ -220,6 +220,9 @@ model ServiceRequest {
   email               String
   city                String
   postalCode          String
+  note                String?        @db.Text
+  serviceDetailsId    String?        @unique
+  serviceDetails      serviceDetails []
   locationDescription String         @db.Text
   problemDescription  String         @db.Text
   reqPhoto            FileInstance?  @relation("ReqPhoto")
@@ -247,6 +250,15 @@ model ServiceRequest {
   accept              Boolean        @default(false)
   reportPhoto         ReportPhoto[]
   Reviews Reviews?
+}
+
+
+model serviceDetails {
+  id                  String         @id @default(uuid())
+  serviceRequestId    String?        @unique
+  ServiceRequest      ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
+  serviceName         String?        @db.Text
+  servicePrice        Int            @default(0)
 }
 
 model ReportPhoto {
