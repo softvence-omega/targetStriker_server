@@ -10,7 +10,8 @@ export class ServiceBeforAfterDto {
   })
   @IsBoolean()
   @Type(() => Boolean)
-  isPrev: boolean;
+  @IsOptional()
+  isPrev?: boolean;
 
   @ApiProperty({
     description: 'Avatar image for the event preference',

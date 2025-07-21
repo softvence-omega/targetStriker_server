@@ -26,7 +26,7 @@ import { UpdateTaskService } from './services/update-task.service';
 import { UpdateTaskDto } from './dto/updateTask.dto';
 import { PaymentPendingService } from './services/payment-pending.service';
 import { NonpriceSetTaskListService } from './services/nonprice-set-task-list.service';
-import { CompletedTaskDto } from './dto/taskStatus.dto';
+import { CompletedTaskDto, CompletedTaskNoteDto } from './dto/taskStatus.dto';
 import { WorkerTaskCompletedService } from './services/worker-task-completed.service';
 import { WorkerTaskPuseService } from './services/worker-task-puse.service';
 import { AddServicePriceBreakDownService } from './services/add-service-price-break-down.service';
@@ -146,8 +146,8 @@ export class WorkerController {
   }
 
   @Patch('completed-task/:id')
-  async workerTaskCompleted (@Param() id: CompletedTaskDto){
-    const result = await this.completedTask.taskCompleted(id)
+  async workerTaskCompleted (@Param() id: CompletedTaskDto,@Body() body: CompletedTaskNoteDto) {
+    const result = await this.completedTask.taskCompleted(id, body);
     return {
        data: result,
       message: 'Task Completed successfully',
@@ -170,7 +170,7 @@ export class WorkerController {
     @Body() updateTaskDto: UpdateTaskDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    const workerProfileId = req.user.sub;
+    const workerProfileId = req.user.profileId;
     const result = await this.updateTaskService.updateTask(
       updateTaskDto,
       workerProfileId,
