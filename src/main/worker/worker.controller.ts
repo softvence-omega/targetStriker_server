@@ -7,11 +7,13 @@ import {
   Post,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { MainService } from './services/main.service';
 import { SetPriceDto } from './dto/setPrice.dto';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/guard/role.guard';
 import { Roles } from 'src/decorator/roles.decorator';
@@ -24,9 +26,16 @@ import { UpdateTaskService } from './services/update-task.service';
 import { UpdateTaskDto } from './dto/updateTask.dto';
 import { PaymentPendingService } from './services/payment-pending.service';
 import { NonpriceSetTaskListService } from './services/nonprice-set-task-list.service';
-import { CompletedTaskDto } from './dto/taskStatus.dto';
+import { CompletedTaskDto, CompletedTaskNoteDto } from './dto/taskStatus.dto';
 import { WorkerTaskCompletedService } from './services/worker-task-completed.service';
 import { WorkerTaskPuseService } from './services/worker-task-puse.service';
+import { AddServicePriceBreakDownService } from './services/add-service-price-break-down.service';
+import { AddServicePriceBreakDownServiceDto } from './dto/addServiceBreakDown.dto';
+import { AddServiceAfterBeforeService } from './services/add-service-after-before.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FileType, MulterService } from 'src/utils/lib/multer.service';
+import { ServiceBeforAfterDto } from './dto/serviceBeforAfter.dto';
+import { IdDto } from 'src/common/dto/id.dto';
 
 @Controller('worker')
 @ApiBearerAuth()
@@ -41,7 +50,9 @@ export class WorkerController {
     private readonly paymentPendingTask: PaymentPendingService,
     private readonly nonPriceTask: NonpriceSetTaskListService,
     private readonly completedTask:WorkerTaskCompletedService,
-    private readonly puseTask: WorkerTaskPuseService
+    private readonly puseTask: WorkerTaskPuseService,
+    private readonly addServicePriceBreakDownService: AddServicePriceBreakDownService,
+    private readonly addServiceAfterBeforeService: AddServiceAfterBeforeService, // Assuming AddServiceAfterBeforeService is imported correctly
   ) {}
 
   @Post('set-price')
@@ -135,8 +146,8 @@ export class WorkerController {
   }
 
   @Patch('completed-task/:id')
-  async workerTaskCompleted (@Param() id: CompletedTaskDto){
-    const result = await this.completedTask.taskCompleted(id)
+  async workerTaskCompleted (@Param() id: CompletedTaskDto,@Body() body: CompletedTaskNoteDto) {
+    const result = await this.completedTask.taskCompleted(id, body);
     return {
        data: result,
       message: 'Task Completed successfully',
@@ -159,7 +170,7 @@ export class WorkerController {
     @Body() updateTaskDto: UpdateTaskDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    const workerProfileId = req.user.sub;
+    const workerProfileId = req.user.profileId;
     const result = await this.updateTaskService.updateTask(
       updateTaskDto,
       workerProfileId,
@@ -170,4 +181,44 @@ export class WorkerController {
       success: true,
     };
   }
+
+  // add service price breakdown
+  @Post('add-service-price-breakdown')
+  async addServicePriceBreakDown(
+    @Body() dto: AddServicePriceBreakDownServiceDto,
+  ) { 
+    const result = await this.addServicePriceBreakDownService.addServicePriceBreakDown(dto);
+    return {
+      data: result,
+      message: 'Service price breakdown added successfully',
+      success: true,
+    };
+  }
+
+  //add service after before
+  @Post('add-service-after-before/:id')
+  @UseInterceptors(
+      FileInterceptor(
+        'pic',
+        new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE),
+      ),
+    )
+    @ApiConsumes('multipart/form-data', 'application/json')
+  async addServiceAfterBefore(
+      @UploadedFile() pic: Express.Multer.File,
+      @Body() body: ServiceBeforAfterDto,
+      @Param() id: IdDto,) {
+        const serviceBeforAfterPhonto :ServiceBeforAfterDto =  {
+          pic,
+          isPrev: body.isPrev,
+          caption: body.caption,
+        }
+    const result = await this.addServiceAfterBeforeService.addServiceAfterBefore(id,serviceBeforAfterPhonto);
+    return {
+      data: result,
+      message: 'Service after before added successfully',
+      success: true,
+    };
+  }
+
 }

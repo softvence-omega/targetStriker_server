@@ -47,12 +47,6 @@ export class ServiceRequestController {
   @Post('create')
   @Roles('CLIENT','ADMIN', 'WORKER')
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(
-    FileInterceptor(
-      'reqPhoto',
-      new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE),
-    ),
-  )
   create(
     @UploadedFile() reqPhoto: Express.Multer.File,
     @Body() body: CreateServiceRequestDTO,
