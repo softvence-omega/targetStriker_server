@@ -16,7 +16,7 @@ import { TaskType } from 'generated/prisma';
 import { Transform } from 'class-transformer';
 import { BadRequestException } from '@nestjs/common';
 
-export class CreateServiceRequestDTO {
+export class CreateServiceRequestWithAssignDTO {
 
 
   @ApiProperty({
@@ -116,6 +116,15 @@ export class CreateServiceRequestDTO {
   @IsNotEmpty()
   @MaxLength(255, { message: 'Task name must not exceed 255 characters' })
   name: string;
+
+  @ApiProperty({
+        description: 'The ID of the worker to assign the service request to',
+        example: '123e4567-e89b-12d3-a456-426614174000',
+        type: String,
+    })
+    @IsUUID('4', { message: 'Worker ID must be a valid UUID (version 4).' })
+    @IsNotEmpty({ message: 'Worker ID is required' })
+    workerId: string;
 
 
   // @ApiProperty({

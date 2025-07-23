@@ -10,6 +10,7 @@ import { TaskOverviewService } from './services/task-overview.service';
 import { EmployeeManagementService } from './services/employee-management.service';
 import { TaskRejectService } from './services/task-reject.service';
 import { UserManagementService } from './services/user-management.service';
+import { ServiceRequestWithAssignService } from './services/service-request-with-assign.service';
 
 @Module({
   controllers: [AdminController],
@@ -24,6 +25,7 @@ import { UserManagementService } from './services/user-management.service';
     EmployeeManagementService,
     TaskRejectService,
     UserManagementService,
+    ServiceRequestWithAssignService
   ],
 })
 export class AdminModule {}

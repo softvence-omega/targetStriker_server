@@ -1,6 +1,6 @@
-import { Controller, Get, Patch, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Patch, Post, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/decorator/roles.decorator';
 import { HomeDataService } from './services/home-data.service';
 import { TaskManagementService } from './services/task-management.service';
@@ -17,6 +17,11 @@ import { TaskRejectService } from './services/task-reject.service';
 import { GetReportAnalysesDto } from './dto/getReportQuery.dto';
 import { UserManagementService } from './services/user-management.service';
 import { UserSearchQueryDto } from './dto/userSearch.dto';
+import { CreateServiceRequestWithAssignDTO } from './dto/createServiceWithAssign.dto';
+import { AuthenticatedRequest } from 'src/common/types/AuthenticatedRequest';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FileType, MulterService } from 'src/utils/lib/multer.service';
+import { ServiceRequestWithAssignService } from './services/service-request-with-assign.service';
 
 @ApiTags('Admin')
 @Controller('admin')
@@ -34,7 +39,8 @@ export class AdminController {
     private readonly commonService: CommonService,
     private readonly employeeManagementService: EmployeeManagementService,
     private readonly taskRejectService: TaskRejectService, // Assuming TaskRejectService is imported correctly
-    private readonly userManagemetService: UserManagementService
+    private readonly userManagemetService: UserManagementService,
+    private readonly serviceRequestWithAssignService: ServiceRequestWithAssignService,
   ) {}
 
   @Get('home-data')
@@ -99,4 +105,30 @@ export class AdminController {
 async getAllUser(@Query() query: UserSearchQueryDto) {
   return await this.userManagemetService.getAllUser(query);
 }
+
+  @Post('service-request/assign-task')
+  @Roles('ADMIN')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+      FileInterceptor(
+        'reqPhoto',
+        new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE),
+      ),
+    )
+  async createServiceWithAssign(
+      @UploadedFile() reqPhoto: Express.Multer.File,
+      @Body() body: CreateServiceRequestWithAssignDTO,
+      @Req() req: AuthenticatedRequest) { 
+        if (!req.user.profileId) {
+              throw new BadRequestException('Profile not Created');
+            }
+        
+            // Validate file upload
+            if (!reqPhoto) {
+              throw new BadRequestException('reqPhoto is required');
+            }
+        
+            body.reqPhoto = reqPhoto;
+            return this.serviceRequestWithAssignService.createServiceWithAssign(body,{id:req.user.profileId});
+  }
 }
