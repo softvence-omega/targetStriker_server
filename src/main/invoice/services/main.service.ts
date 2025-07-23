@@ -148,6 +148,7 @@ export class MainService {
   const invoice = await this.db.invoice.findUnique({
     where: id,
     include: {
+      CompanyInfo:true,
       BankInfo: true,
       ClientProfile: {
         include: {
@@ -157,6 +158,7 @@ export class MainService {
       WorkerProfile: {
         include: {
           User: true,
+          WorkerSpecialist:true
         },
       },
       serviceRequest: {
@@ -186,16 +188,19 @@ export class MainService {
         name: invoice?.WorkerProfile?.User?.name,
         email: invoice?.WorkerProfile?.User?.email,
         phone: invoice?.WorkerProfile?.User?.phone,
+        specialist: invoice?.WorkerProfile?.WorkerSpecialist?.id
       },
       companyInfo: companyDetails,
       serviceDetail: [
         {
           taskName: invoice?.serviceRequest?.name,
           taskPrice: invoice?.serviceRequest?.basePrice,
+          
         },
         ...(invoice?.serviceRequest?.tasks || []).map((task) => ({
           taskName: task.name,
           taskPrice: task.price,
+          status: invoice?.serviceRequest?.status,
         })),
       ],
       serviceRequestDetails: {

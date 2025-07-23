@@ -74,9 +74,10 @@ export class TaskOverviewService {
             User:true,
             profilePic:true,
           },
-          select: {
-            userName: true,
-          },
+          // select: {
+          //   userName: true,
+
+          // },
         },
       },
     });

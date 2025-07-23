@@ -65,6 +65,7 @@ export class GetInvoiceOverviewService {
             },
           },
         },
+        WorkerProfile: true,
         serviceRequest: {
           select: {
             TaskType: {
@@ -72,6 +73,7 @@ export class GetInvoiceOverviewService {
                 name: true,
               },
             },
+            status:true,
           },
         },
       },
