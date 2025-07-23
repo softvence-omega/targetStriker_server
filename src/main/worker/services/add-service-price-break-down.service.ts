@@ -19,6 +19,18 @@ export class AddServicePriceBreakDownService {
             data: dto,
         });
 
+        await this.dbService.serviceRequest.update({
+            where: { id: dto.serviceRequestId },
+            data: {
+                serviceDetails: {
+                    connect: { id: serviceDetails.id },
+                },
+                basePrice: {
+                    increment: dto.servicePrice
+                }
+            },
+        });
+
         return serviceDetails;
     }
 }
