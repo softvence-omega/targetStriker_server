@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -42,6 +43,13 @@ export class ServiceRequestController {
     private readonly commonService: CommonService,
     private readonly assignTaskService: AssignTaskService,
   ) {}
+
+  @ApiTags('Client')
+  @Patch('cancel/:id')
+  @Roles("CLIENT")
+  async cancleServiceRequest (@Param() id:IdDto,@Req() req:AuthenticatedRequest){
+    return await this.mainService.cancelServiceRequest(id,req.user.profileId)
+  }
 
   @ApiTags('Client', 'Admin', 'Worker')
   @Post('create')

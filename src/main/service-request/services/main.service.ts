@@ -38,6 +38,7 @@ export class MainService {
       connect: { id: file.id },
     },
     name,
+    status:"PENDING",
     ...rest,
     TaskType: {
       connect: { id: taskTypeId },
@@ -84,5 +85,19 @@ export class MainService {
     throw new BadRequestException(`Failed to create service request\n ${error}`);
   }
 }
+
+    async cancelServiceRequest (id:IdDto,userId){
+      const result = await this.db.serviceRequest.update({
+        where:{id:id.id,clientProfileId:userId},
+        data:{
+          status:"CANCELLED"
+        }
+      })
+      return {
+         data: result,
+         success:true,
+         message: "Service Request Cancle"
+      }
+    }
 
 }
