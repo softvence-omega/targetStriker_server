@@ -85,4 +85,18 @@ export class MainService {
   }
 }
 
+    async cancelServiceRequest (id:IdDto,userId){
+      const result = await this.db.serviceRequest.update({
+        where:{id:id.id,clientProfileId:userId},
+        data:{
+          status:"CANCELLED"
+        }
+      })
+      return {
+         data: result,
+         success:true,
+         message: "Service Request Cancle"
+      }
+    }
+
 }
