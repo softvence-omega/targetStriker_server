@@ -38,6 +38,7 @@ export class MainService {
       connect: { id: file.id },
     },
     name,
+    status:"PENDING",
     ...rest,
     TaskType: {
       connect: { id: taskTypeId },
