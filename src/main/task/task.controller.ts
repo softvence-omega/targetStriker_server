@@ -91,7 +91,6 @@ export class TaskController {
   @UseGuards(AuthGuard('jwt'))
   @Get('taskPhoto/:id')
   async getTaskPhotos(@Param() id: IdDto, @Query() isPrev: BooleanDto) {
-    console.log(isPrev,id,'adfshasdfas')
     return await this.taskPhotoService.get(id, isPrev);
   }
 }
