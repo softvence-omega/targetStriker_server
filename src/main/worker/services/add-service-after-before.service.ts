@@ -13,6 +13,10 @@ export class AddServiceAfterBeforeService {
     dto: ServiceBeforAfterDto,
   ) {
 
+    // console.log(dto.isPrev)
+   
+    // return
+    // return
     const fileInstance = await this.file.processUploadedFile(dto.pic);
     // 1. Find the ServiceRequest
     const serviceRequest = await this.dbService.serviceRequest.findUnique({
@@ -27,7 +31,7 @@ export class AddServiceAfterBeforeService {
     // });
 
     // 3. Link the file as beforePhoto or afterPhoto
-    if (dto.isPrev === true) {
+    if (dto.isPrev == true) {
       await this.dbService.serviceRequest.update({
         where: { id: id.id },
         data: {
@@ -36,7 +40,7 @@ export class AddServiceAfterBeforeService {
           },
         },
       });
-    } else if (dto.isPrev=== false) {
+    } else if (dto.isPrev == false) {
       await this.dbService.serviceRequest.update({
         where: { id: id.id },
         data: {
@@ -52,7 +56,10 @@ export class AddServiceAfterBeforeService {
     return {
       success: true,
       message: 'Service after before added successfully',
-      data: fileInstance
+      data: {
+        caption: dto.caption,
+        ...fileInstance
+      }
     };
   }
 }
