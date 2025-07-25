@@ -57,7 +57,6 @@ export class AddServiceAfterBeforeService {
       success: true,
       message: 'Service after before added successfully',
       data: {
-        caption: dto.caption,
         ...fileInstance
       }
     };
