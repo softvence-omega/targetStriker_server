@@ -178,7 +178,7 @@ model FileInstance {
   createdAt          DateTime        @default(now())
   filename           String
   originalFilename   String
-  caption            String
+  caption            String?
   path               String
   url                String
   fileType           String
