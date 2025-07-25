@@ -1,16 +1,15 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsNotEmpty,  IsOptional,  IsString } from "class-validator";
 
 export class ServiceBeforAfterDto {
   @ApiPropertyOptional({
     description: 'Whether this is a preview photo',
-    default: false,
-    example: false,
+    example: true,
   })
   @IsBoolean()
-  @Type(() => Boolean)
   @IsOptional()
+  @Type(() => Boolean)
   isPrev?: boolean;
 
   @ApiProperty({
