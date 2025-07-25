@@ -154,21 +154,32 @@ export class ReportAnalysesService {
   }
 
   private async getTaskTypeStatistics() {
-    // Fetch all available task types
-    const taskTypes = await this.db.taskType.findMany();
+  // Fetch all available task types
+  const taskTypes = await this.db.taskType.findMany();
 
-    // For each task type, count the number of service requests
-    const data = await Promise.all(
-      taskTypes.map(async (type) => {
-        const count = await this.db.serviceRequest.count({
+  // For each task type, count and sum basePrice from service requests
+  const data = await Promise.all(
+    taskTypes.map(async (type) => {
+      const [count, amountResult] = await Promise.all([
+        this.db.serviceRequest.count({
           where: { taskTypeId: type.id },
-        });
-        return { label: type.name, count };
-      }),
-    );
+        }),
+        this.db.serviceRequest.aggregate({
+          where: { taskTypeId: type.id },
+          _sum: { basePrice: true },
+        }),
+      ]);
 
-    return data;
-  }
+      return {
+        label: type.name,
+        count,
+        amount: amountResult._sum.basePrice ?? 0,
+      };
+    }),
+  );
+
+  return data;
+}
 
   private async statusCount() {
     const statusCounts = await this.db.serviceRequest.groupBy({

@@ -75,7 +75,7 @@ export class FileService {
     });
   }
 
-  async processUploadedFile(file: Express.Multer.File) {
+  async processUploadedFile(file: Express.Multer.File,caption?:string) {
     try {
       const fileId = uuidv4();
       const fileExt = path.extname(file.originalname);
@@ -108,6 +108,7 @@ export class FileService {
         fileType,
         mimeType,
         size: file.size,
+        caption
       };
 
       return this.create(createFileDto);

@@ -17,7 +17,7 @@ export class AddServiceAfterBeforeService {
    
     // return
     // return
-    const fileInstance = await this.file.processUploadedFile(dto.pic);
+    const fileInstance = await this.file.processUploadedFile(dto.pic,dto?.caption);
     // 1. Find the ServiceRequest
     const serviceRequest = await this.dbService.serviceRequest.findUnique({
       where: { id: id.id },
@@ -57,7 +57,6 @@ export class AddServiceAfterBeforeService {
       success: true,
       message: 'Service after before added successfully',
       data: {
-        caption: dto.caption,
         ...fileInstance
       }
     };

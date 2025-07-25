@@ -1,4 +1,4 @@
-import { IsString, IsNumber } from 'class-validator';
+import { IsString, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateFileDto {
   @IsString()
@@ -21,4 +21,8 @@ export class CreateFileDto {
 
   @IsNumber()
   size: number;
+
+  @IsString()
+  @IsOptional()
+  caption?:string
 }
