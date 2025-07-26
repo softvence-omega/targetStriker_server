@@ -258,7 +258,7 @@ export class ReportAnalysesService {
     firstThreeReviews,
     totalCount,
     positiveCount,
-    positivePercentage, // e.g., 66.67
+    positivePercentage, 
   };
 }
 
